@@ -1,12 +1,22 @@
 :root {
   color-scheme: light;
+  font-size: 14px;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --color-primary: #c4320a; /* The peruanistas red color */
+  --font-color: #000000;
 }
 
 *, *::before, *::after {
   box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  color: var(--font-color);
 }
