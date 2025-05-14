@@ -2,7 +2,7 @@
 
 Web project for Peruanistas, the citizen participation platform.
 
-![The Peruanistas feed: "El damero"](./static/design.png)
+![The Peruanistas feed: "El damero"](./docs/design.png)
 
 ## Technologies
 
