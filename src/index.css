@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+/* See tailwind variables here https://tailwindcss.com/docs/theme */
+@theme {
+  /* The peruanistas red color */
+  --color-primary: #c4320a;
+  --color-primary-border: #A31818;
+
+  --spacing-page: clamp(16px, 7vw, 360px);
+}
+
 :root {
   color-scheme: light;
   font-size: 14px;
@@ -8,9 +17,6 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  --color-primary: #c4320a; /* The peruanistas red color */
-  --font-color: #000000;
 }
 
 *, *::before, *::after {
