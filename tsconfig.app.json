@@ -28,6 +28,7 @@
       "@utils/*": ["./src/features/common/utils/*"],
       "@common/*": ["./src/features/common/*"],
       "@home/*": ["./src/features/home/*"],
+      "@events/*": ["./src/features/events/*"],
       "@news/*": ["./src/features/news/*"],
       "@projects/*": ["./src/features/projects/*"],
     }

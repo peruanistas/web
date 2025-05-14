@@ -13,6 +13,7 @@ export default defineConfig({
       '@utils': fileURLToPath(new URL('./src/features/common/utils', import.meta.url)),
       '@common': fileURLToPath(new URL('./src/features/common', import.meta.url)),
       '@home': fileURLToPath(new URL('./src/features/home', import.meta.url)),
+      '@events': fileURLToPath(new URL('./src/features/events', import.meta.url)),
       '@news': fileURLToPath(new URL('./src/features/news', import.meta.url)),
       '@projects': fileURLToPath(new URL('./src/features/projects', import.meta.url)),
     },

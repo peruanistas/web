@@ -27,7 +27,7 @@ src/features/[name]/
 ├── styles:     Reusable css/scss style sheets
 ├── hooks:      Reusable custom hooks
 ├── utils:      Reusable utility functions
-├── store:      Zustand stores
+├── store:      Stores, states, providers
 └── types:      Type definitions
 ```
 
@@ -36,10 +36,11 @@ And more folders can be added as needed.
 Currently we maintain the following features (with more to be added):
 
 ```txt
-src/features/common: Code shared by multiple features
-src/features/events: Citizen events
-src/features/home: The peruanistas main page (damero)
-src/features/news: Citizen and external news
+src/features/common:   Code shared by multiple features
+src/features/events:   Citizen events
+src/features/home:     The peruanistas main page (damero)
+src/features/news:     Citizen and external news
+src/features/projects: Citizen projects
 ```
 
 ## Getting Started
