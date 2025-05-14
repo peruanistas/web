@@ -1,11 +1,12 @@
 import { defineConfig } from 'vite';
 import { fileURLToPath, URL } from 'node:url';
 import react from '@vitejs/plugin-react-swc';
+import tailwindcss from '@tailwindcss/vite';
 
 // https://vite.dev/config/
 export default defineConfig({
   base: './',
-  plugins: [react()],
+  plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
       '@assets': fileURLToPath(new URL('./src/assets', import.meta.url)),
