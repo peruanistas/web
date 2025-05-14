@@ -1,8 +1,8 @@
 import { Redirect, Route, Switch } from 'wouter';
 import { createRoot } from 'react-dom/client';
-import { HomePage } from '@pages/home';
 import { StrictMode } from 'react';
-import '@styles/index.css';
+import { HomePage } from '@home/pages/home';
+import './index.css';
 
 export function PeruanistasRoot() {
   return (

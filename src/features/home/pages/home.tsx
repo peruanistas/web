@@ -1,8 +1,8 @@
-import { HomeFeed } from '@/components/feed';
-import { Footer } from '@/components/footer';
-import { Header } from '@/components/header';
-import { HomeBanner } from '@/components/home_banner';
-import '@styles/home.scss';
+import { Footer } from '@common/components/footer';
+import { Header } from '@common/components/header';
+import { HomeFeed } from '@home/components/feed';
+import { HomeBanner } from '@home/components/home_banner';
+import '@home/styles/home.scss';
 
 export function HomePage() {
   return (

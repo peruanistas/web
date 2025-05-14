@@ -24,13 +24,12 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
     "paths": {
-      "@/*": ["./src/*"],
       "@assets/*": ["./src/assets/*"],
-      "@pages/*": ["./src/pages/*"],
-      "@components/*": ["./src/components/*"],
-      "@utils/*": ["./src/utils/*"],
-      "@hooks/*": ["./src/hooks/*"],
-      "@styles/*": ["./src/styles/*"],
+      "@utils/*": ["./src/features/common/utils/*"],
+      "@common/*": ["./src/features/common/*"],
+      "@home/*": ["./src/features/home/*"],
+      "@news/*": ["./src/features/news/*"],
+      "@projects/*": ["./src/features/projects/*"],
     }
   },
   "include": ["src"]
