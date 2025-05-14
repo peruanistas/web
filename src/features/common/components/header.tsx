@@ -15,10 +15,10 @@ export function Header() {
         <div>
           Quiénes somos
         </div>
-        <Button variant='white'>
+        <Button variant='white' className='font-semibold'>
           Crea un proyecto
         </Button>
-        <Button variant='red'>
+        <Button variant='red' className='font-semibold'>
           Sé peruanista
         </Button>
       </div>

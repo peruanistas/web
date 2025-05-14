@@ -2,10 +2,12 @@ type ButtonVariant = 'white' | 'red';
 
 type ButtonProps = {
   children: React.ReactNode;
+  style?: React.CSSProperties;
+  className?: string;
   variant?: ButtonVariant;
 };
 
-export function Button({ children, variant }: ButtonProps) {
+export function Button({ children, style, className, variant }: ButtonProps) {
   let color;
   let backgroundColor;
   let borderColor;
@@ -28,7 +30,8 @@ export function Button({ children, variant }: ButtonProps) {
 
   return (
     <button
-      className={`px-5 rounded-lg h-10 border ${color} ${backgroundColor} ${borderColor}`}
+      className={`px-5 rounded-lg h-10 border ${color} ${backgroundColor} ${borderColor} ${className}`}
+      style={style}
     >
       {children}
     </button>
