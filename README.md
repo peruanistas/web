@@ -4,6 +4,15 @@ Web project for Peruanistas, the citizen participation platform.
 
 ![The Peruanistas feed: "El damero"](./static/design.png)
 
+## Technologies
+
+- Data fetching: [Tanstack query](https://tanstack.com/query/latest)
+- State management: [Zustand](https://zustand.docs.pmnd.rs/getting-started/introduction)
+- Forms: [React Hook Form](https://react-hook-form.com/get-started)
+- Routing: [Wouter](https://github.com/molefrog/wouter)
+- Styling: CSS or [SCSS](https://sass-lang.com/) or [Tailwind](https://tailwindcss.com/)
+- Auth: [Supabase Auth](https://supabase.com/docs/guides/auth)
+
 ## Project structure
 
 The views and functionality is divided into features.
