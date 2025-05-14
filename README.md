@@ -12,6 +12,7 @@ Web project for Peruanistas, the citizen participation platform.
 - Routing: [Wouter](https://github.com/molefrog/wouter)
 - Styling: CSS or [SCSS](https://sass-lang.com/) or [Tailwind](https://tailwindcss.com/)
 - Auth: [Supabase Auth](https://supabase.com/docs/guides/auth)
+- Icons: [Lucide React](https://lucide.dev/icons/)
 
 ## Project structure
 
