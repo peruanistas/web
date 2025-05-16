@@ -25,6 +25,7 @@
     padding: 10px;
     margin: 10px;
     flex: 1 1 0;
+    font-size: 20px;
 }
 .project_detail_layout__title{
     font-size: 26px;
@@ -44,10 +45,6 @@
     margin: 5px;
 }
 
-/* No, esa no es la forma correcta de aplicar temas o variantes a botones en CSS. 
-Los selectores `.project_detail_button main` y `.project_detail_button secondary` buscan elementos <main> y <secondary> dentro de un elemento con la clase .project_detail_button, lo cual no es válido para variantes de botones. 
-En su lugar, deberías usar clases adicionales para los diferentes estilos de botón, por ejemplo: */
-
 .project_detail_button.main {
     background-color: var(--main-color-bt-bg);
 }
@@ -56,4 +53,22 @@ En su lugar, deberías usar clases adicionales para los diferentes estilos de bo
     background-color: #ffffff;
     color: black;
     border: 1px solid ;
+}
+
+.project_detail_layout__score_title{
+    display: flex;
+    align-items: center; /* Centra verticalmente los textos */
+    gap: 10px;
+    flex-direction: row;
+    font-size: 20px;
+    overflow: auto;
+}
+.project_detail_layout__score_stars{
+    font-weight: bold;
+}
+
+.project_detail_layout__score_stars{
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
 }
