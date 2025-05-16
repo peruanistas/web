@@ -2,8 +2,9 @@ import { Redirect, Route, Switch } from 'wouter';
 import { createRoot } from 'react-dom/client';
 import { StrictMode } from 'react';
 import { HomePage } from '@home/pages/home';
-import './index.css';
 import { SignUpPage } from './features/auth/pages/signup';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import './index.css';
 
 export function PeruanistasRoot() {
   return (
@@ -17,8 +18,12 @@ export function PeruanistasRoot() {
   );
 }
 
+const queryClient = new QueryClient();
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <PeruanistasRoot />
+    <QueryClientProvider client={queryClient}>
+      <PeruanistasRoot />
+    </QueryClientProvider>
   </StrictMode>
 );
