@@ -1,4 +1,5 @@
 import { Button } from '@common/components/button';
+import { Link } from 'wouter';
 
 // TODO: manage responsiveness
 export function Header() {
@@ -19,7 +20,9 @@ export function Header() {
           Crea un proyecto
         </Button>
         <Button variant='red' className='font-semibold'>
-          Sé peruanista
+          <Link to="/signup">
+            Sé peruanista
+          </Link>
         </Button>
       </div>
     </header>

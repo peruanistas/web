@@ -5,14 +5,16 @@ import { HomePage } from '@home/pages/home';
 import { SignUpPage } from '@auth/pages/signup';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { EventsPage } from '@events/pages/events';
-import './index.css';
+import { LoginPage } from '@auth/pages/login';
 import ProjectsDetailsPage from '@projects/pages/details';
+import './index.css';
 
 export function PeruanistasRoot() {
   return (
     <Switch>
       <Route path='/' component={HomePage} />
       <Route path='/signup' component={SignUpPage} />
+      <Route path='/login' component={LoginPage} />
       <Route path='/eventos/' component={EventsPage} />
       <Route path='proyectos/:id' >
         {({id}) => {

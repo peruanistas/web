@@ -1,4 +1,5 @@
 import { Button } from "@common/components/button";
+import { Link } from "wouter";
 
 export const SignUpForm = () => {
   return (
@@ -13,11 +14,17 @@ export const SignUpForm = () => {
           <p className="text-[#757575] text-[14px] text-center">¡Sé parte de la comunidad más transformadora del Perú!</p>
         </div>
         <form className="flex flex-col">
-          <label className="text-[#404040] text-[12px] mb-2">Correo electrónico</label>
-          <input type="text" placeholder="Email" className="border border-[#D9D9D9] rounded-lg p-2 mb-4 w-full text-[#757575] text-[12px]"/>
-          <label className="text-[#404040] text-[12px] mb-2">Contraseña</label>
-          <input type="password" placeholder="Contraseña" className="border border-[#D9D9D9] rounded-lg p-2 mb-4 w-full text-[#757575] text-[12px]"/>
-          <Button variant='red' className='font-semibold w-full'>Crear cuenta</Button>
+          <label className="text-[#404040] mb-2">Correo electrónico</label>
+          <input type="text" placeholder="Email" className="border border-[#D9D9D9] rounded-lg p-2 mb-4 w-full text-[#757575]"/>
+          <label className="text-[#404040] mb-2">Contraseña</label>
+          <input type="password" placeholder="Contraseña" className="border border-[#D9D9D9] rounded-lg p-2 mb-4 w-full text-[#757575]"/>
+          <Button variant='red' className='font-semibold w-full mb-4'>Crear cuenta</Button>
+            <label className="text-[#757575] text-[14px] text-center">
+            ¿Ya tienes una cuenta?{" "}
+            <Link to="/login" className="underline cursor-pointer">
+              Inicia sesión
+            </Link>
+            </label>
         </form>
       </div>
     </div>
