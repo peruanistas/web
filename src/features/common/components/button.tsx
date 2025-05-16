@@ -22,7 +22,7 @@ export function Button({ children, style, className, variant }: ButtonProps) {
     case 'red':
       color = 'text-white';
       backgroundColor = 'bg-primary';
-      borderColor = 'border-red-600';
+      borderColor = 'border-[#A31818]';
       break;
     default:
       throw new Error(`Unknown Button variant: ${variant}`);

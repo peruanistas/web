@@ -16,7 +16,8 @@ export default defineConfig({
       '@events': fileURLToPath(new URL('./src/features/events', import.meta.url)),
       '@news': fileURLToPath(new URL('./src/features/news', import.meta.url)),
       '@projects': fileURLToPath(new URL('./src/features/projects', import.meta.url)),
-      '@db': fileURLToPath(new URL('./src/services/db', import.meta.url)),
+      '@auth': fileURLToPath(new URL('./src/features/auth', import.meta.url)),
+      '@db': fileURLToPath(new URL('./src/services/db', import.meta.url))
     },
   },
 });
