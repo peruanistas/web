@@ -1,6 +1,7 @@
 import '@projects/styles/styles.css';
 import ProjectDetailButton from './project_detail_button';
 import { MapPin, Star } from 'lucide-react';
+import ProjectUserCard from './project_user_card';
 export default function ProjectsDetailLayout() {
     return(
         <div className="project_detail_layout__container">
@@ -34,6 +35,7 @@ export default function ProjectsDetailLayout() {
                     <p style={{color:'var(--main-color-bt-bg)'}}><strong>#12</strong> en reparaciones</p>
                     <ProjectDetailButton title='Vota por este proyecto'/>
                     <ProjectDetailButton title='compartir' theme='secondary'/>
+                    <ProjectUserCard />
             </div>
         </div>
     );
