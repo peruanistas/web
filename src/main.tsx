@@ -2,8 +2,9 @@ import { Redirect, Route, Switch } from 'wouter';
 import { createRoot } from 'react-dom/client';
 import { StrictMode } from 'react';
 import { HomePage } from '@home/pages/home';
-import { SignUpPage } from './features/auth/pages/signup';
+import { SignUpPage } from '@auth/pages/signup';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { EventsPage } from '@events/pages/events';
 import './index.css';
 
 export function PeruanistasRoot() {
@@ -11,6 +12,7 @@ export function PeruanistasRoot() {
     <Switch>
       <Route path='/' component={HomePage} />
       <Route path='/signup' component={SignUpPage} />
+      <Route path='/eventos/' component={EventsPage} />
       <Route>
         {/* 404 */} <Redirect to='/' />
       </Route>
