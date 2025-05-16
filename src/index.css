@@ -1,5 +1,20 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Inter';
+  src: url('../src/assets/fonts/InterVariable.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Cargar la fuente Inter Bold */
+@font-face {
+  font-family: 'Inter';
+  src: url('../src/assets/fonts/InterVariable.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
 /* See tailwind variables here https://tailwindcss.com/docs/theme */
 @theme {
   /* The peruanistas red color */
@@ -24,6 +39,7 @@
 }
 
 body {
+  font-family: 'Inter', sans-serif;
   margin: 0;
   padding: 0;
   color: var(--font-color);
