@@ -6,6 +6,7 @@ import { SignUpPage } from '@auth/pages/signup';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { EventsPage } from '@events/pages/events';
 import './index.css';
+import ProjectsDetailsPage from '@projects/pages/details';
 
 export function PeruanistasRoot() {
   return (
@@ -13,6 +14,12 @@ export function PeruanistasRoot() {
       <Route path='/' component={HomePage} />
       <Route path='/signup' component={SignUpPage} />
       <Route path='/eventos/' component={EventsPage} />
+      <Route path='proyectos/:id' >
+        {({id}) => {
+          return <ProjectsDetailsPage id={id} />;
+        }
+      }
+      </Route>
       <Route>
         {/* 404 */} <Redirect to='/' />
       </Route>
