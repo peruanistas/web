@@ -1,21 +1,25 @@
+import React from 'react';
+
 type ButtonVariant = 'white' | 'red';
 
-type ButtonProps = {
-  children: React.ReactNode;
-  type?: 'button' | 'submit' | 'reset';
-  disabled?: boolean;
-  style?: React.CSSProperties;
-  className?: string;
+type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: ButtonVariant;
 };
 
-export function Button({ children, type, disabled, style, className, variant }: ButtonProps) {
-  let color;
-  let backgroundColor;
-  let borderColor;
+export function Button({
+  children,
+  type = 'button',
+  disabled,
+  style,
+  className,
+  variant = 'white',
+  ...rest
+}: ButtonProps) {
+  let color: string;
+  let backgroundColor: string;
+  let borderColor: string;
 
-  switch (variant ?? 'white') {
-    // tailwind styles
+  switch (variant) {
     case 'white':
       color = 'text-gray-900';
       backgroundColor = 'bg-white';
@@ -34,8 +38,9 @@ export function Button({ children, type, disabled, style, className, variant }: 
     <button
       type={type}
       disabled={disabled}
-      className={`px-5 rounded-lg h-10 cursor-pointer border ${color} ${backgroundColor} ${borderColor} ${className}`}
+      className={`px-5 rounded-lg h-10 cursor-pointer border ${color} ${backgroundColor} ${borderColor} ${className ?? ''}`}
       style={style}
+      {...rest}
     >
       {children}
     </button>

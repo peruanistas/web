@@ -1,12 +1,10 @@
 import type React from 'react';
 
-type LayoutProps = {
-  children?: React.ReactNode
-}
+type LayoutProps = React.HTMLAttributes<HTMLElement>;
 
-export function Layout({ children }: LayoutProps) {
+export function Layout({ children, className, ...rest }: LayoutProps) {
   return (
-    <main id='layout-wrapper'>
+    <main id="layout-wrapper" className={className} {...rest}>
       {children}
     </main>
   );

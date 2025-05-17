@@ -2,17 +2,21 @@ import { Button } from '@common/components/button';
 import { TABS } from '@common/constants';
 import { Link, useLocation } from 'wouter';
 
-type HeaderProps = {
+type HeaderProps = React.HTMLAttributes<HTMLDivElement> & {
   showNavigation?: boolean,
 }
 
-export function Header({ showNavigation }: HeaderProps) {
+export function Header({ showNavigation, ...rest }: HeaderProps) {
   const [pathname,] = useLocation();
 
   return (
-    <header style={{
+    <header {...rest} style={{
       whiteSpace: 'nowrap',
-    }}>
+      position: 'sticky',
+      zIndex: 6969,
+      top: 0,
+      ...rest.style,
+    }} >
       <div className='flex justify-between items-center p-4 bg-white px-page'>
         <div className='flex items-center gap-3'>
           <img src='/favicon.svg' alt='logo' className='h-8' width={45} />
