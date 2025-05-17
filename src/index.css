@@ -39,25 +39,25 @@
 
 @media (min-width: 640px) {
   :root {
-    --spacing-page: 48px;
+    --spacing-page: 24px;
   }
 }
 
 @media (min-width: 968px) {
   :root {
-    --spacing-page: 64px;
+    --spacing-page: 32px;
   }
 }
 
 @media (min-width: 1280px) {
   :root {
-    --spacing-page: 128px;
+    --spacing-page: 64px;
   }
 }
 
-@media (min-width: 1600px) {
+@media (min-width: 1536px) {
   :root {
-    --spacing-page: 320px;
+    --spacing-page: 64px;
   }
 }
 

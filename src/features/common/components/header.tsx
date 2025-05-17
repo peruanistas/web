@@ -13,13 +13,14 @@ export function Header({ showNavigation, ...rest }: HeaderProps) {
   return (
     <header {...rest} style={{
       whiteSpace: 'nowrap',
+      backgroundColor: 'white',
       position: 'sticky',
       zIndex: 6969,
       top: 0,
       ...rest.style,
     }} >
       <ContentLayout>
-        <div className='flex justify-between items-center py-4 bg-white'>
+        <div className='flex justify-between items-center py-4'>
           <div className='flex items-center gap-3'>
             <img src='/favicon.svg' alt='logo' className='h-8' width={45} />
             <h2 className="inline-block text-[18px] text-black font-semibold">
