@@ -4,9 +4,9 @@ https://daypicker.dev/docs/styling
 */
 
 .rdp-root {
-  --rdp-accent-color: var(--color-primary);
+  --rdp-accent-color: var(--color-primary) !important;
 }
 
 [data-theme="dark"] .rdp-root {
-  --rdp-accent-color: var(--color-primary);
+  --rdp-accent-color: var(--color-primary) !important;
 }
