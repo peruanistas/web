@@ -4,8 +4,8 @@ type ContentLayoutProps = React.HTMLAttributes<HTMLDivElement> & {
 
 export function ContentLayout({ children, style, className, ...rest }: ContentLayoutProps) {
   return (
-    <div className={`w-full px-6 ${className ?? ''}`} style={style} {...rest}>
-      <div className='max-w-3xl m-auto h-full w-full'>
+    <div className={`w-full px-page ${className ?? ''}`} style={style} {...rest}>
+      <div className='max-w-[78rem] m-auto h-full w-full'>
         {children}
       </div>
     </div>
