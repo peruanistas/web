@@ -13,7 +13,7 @@ export function PageBanner({ title, description, trailing }: PageBannerProps) {
       backgroundImage: `url(${bannersmall})`,
       backgroundSize: 'cover',
       backgroundRepeat: 'no-repeat',
-      backgroundPosition: 'center calc(100% + 180px)',
+      backgroundPosition: 'center top',
       maxHeight: 175,
       height: 175,
       boxShadow: 'inset 0px 175px 0px rgba(0, 0, 0, 0.62)',
