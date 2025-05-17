@@ -1,4 +1,4 @@
-import { Redirect, Route, Switch } from 'wouter';
+import { Route, Switch } from 'wouter';
 import { createRoot } from 'react-dom/client';
 import { StrictMode } from 'react';
 import { HomePage } from '@home/pages/home';
@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { EventsPage } from '@events/pages/events';
 import { LoginPage } from '@auth/pages/login';
 import ProjectsDetailsPage from '@projects/pages/details';
+import { NotFoundPage } from '@common/pages/404';
 import './index.css';
 
 export function PeruanistasRoot() {
@@ -17,13 +18,13 @@ export function PeruanistasRoot() {
       <Route path='/login' component={LoginPage} />
       <Route path='/eventos/' component={EventsPage} />
       <Route path='proyectos/:id' >
-        {({id}) => {
+        {({ id }) => {
           return <ProjectsDetailsPage id={id} />;
         }
-      }
+        }
       </Route>
       <Route>
-        {/* 404 */} <Redirect to='/' />
+        <NotFoundPage />
       </Route>
     </Switch>
   );
