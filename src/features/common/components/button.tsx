@@ -30,7 +30,7 @@ export function Button({ children, style, className, variant }: ButtonProps) {
 
   return (
     <button
-      className={`px-5 rounded-lg h-10 border ${color} ${backgroundColor} ${borderColor} ${className}`}
+      className={`px-5 rounded-lg h-10 cursor-pointer border ${color} ${backgroundColor} ${borderColor} ${className}`}
       style={style}
     >
       {children}
