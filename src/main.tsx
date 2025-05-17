@@ -12,6 +12,7 @@ import EventsCreatePage from '@events/pages/events_create';
 import { NotFoundPage } from '@common/pages/404';
 
 import './index.css';
+import { CompleteRegisterPage } from '@auth/pages/complete-register';
 import 'react-loading-skeleton/dist/skeleton.css';
 import 'react-datepicker/dist/react-datepicker.css';
 import 'leaflet/dist/leaflet.css';
@@ -22,7 +23,8 @@ export function PeruanistasRoot() {
       <Route path='/' component={HomePage} />
       <Route path='/signup' component={SignUpPage} />
       <Route path='/login' component={LoginPage} />
-      <Route path='/eventos/' component={EventsPage} />
+      <Route path='/completar-registro' component={CompleteRegisterPage} />
+      <Route path='/eventos' component={EventsPage} />
       <Route path='/eventos/crear' component={EventsCreatePage} />
       <Route path='/proyectos/crear' component={ProjectsCreatePage} />
       <Route path='proyectos/:id' >

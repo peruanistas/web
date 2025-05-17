@@ -21,23 +21,31 @@ export function Header({ showNavigation, ...rest }: HeaderProps) {
     }} >
       <ContentLayout>
         <div className='flex justify-between items-center py-4'>
-          <div className='flex items-center gap-3'>
-            <img src='/favicon.svg' alt='logo' className='h-8' width={45} />
-            <h2 className="inline-block text-[18px] text-black font-semibold">
-              El peruanista
-            </h2>
-          </div>
+          <Link href='/'>
+            <div className='flex items-center gap-3'>
+              <img src='/favicon.svg' alt='logo' className='h-8' width={45} />
+              <h2 className="inline-block text-[18px] text-black font-semibold">
+                El peruanista
+              </h2>
+            </div>
+          </Link>
 
-          {/* Dissapear on sm screens */}
           <div className='flex gap-4 items-center'>
             <Link className={'cursor-pointer'} href='/about'>
-              <div className='hidden md:flex'>
+                <div className='hidden md:flex hover:text-[#C4320A]'>
                 Quiénes somos
+                </div>
+            </Link>
+            <Link className={'cursor-pointer'} href='/'>
+              <div className='hidden md:flex hover:text-[#C4320A]'>
+                Crea un proyecto
               </div>
             </Link>
-            <Button variant='white' className='font-semibold hidden lg:flex items-center'>
-              Crea un proyecto
-            </Button>
+            <Link className={'cursor-pointer'} href='/login'>
+              <Button variant='white' className='font-semibold hidden lg:flex items-center'>
+                Iniciar sesión
+              </Button>
+            </Link>
             <Link to='/signup'>
               <Button variant='red' className='font-semibold'>
                 Sé peruanista
