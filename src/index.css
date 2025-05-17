@@ -43,15 +43,15 @@
   }
 }
 
-@media (min-width: 768px) {
+@media (min-width: 968px) {
   :root {
-    --spacing-page: 96px;
+    --spacing-page: 64px;
   }
 }
 
 @media (min-width: 1280px) {
   :root {
-    --spacing-page: 256px;
+    --spacing-page: 128px;
   }
 }
 
