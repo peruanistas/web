@@ -29,6 +29,7 @@
 
 :root {
   color-scheme: light;
+  scrollbar-gutter: stable;
   font-size: 16px;
 
   font-synthesis: none;
