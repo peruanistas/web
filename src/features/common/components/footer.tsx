@@ -7,9 +7,9 @@ export function Footer() {
 
   return (
     <ContentLayout>
-      <footer className='flex flex-col justify-start py-4 bg-white border-t-2 border-border'>
+      <footer className='flex flex-col justify-start py-4 bg-white border-t-1 border-border'>
 
-        <div className='flex items-center border-b-2 border-border pb-6 gap-16'>
+        <div className='flex items-center border-b-1 border-border pb-6 gap-16'>
           <img src='/favicon.svg' alt='logo' width={128} />
           <div className='flex flex-col gap-2'>
             <div className='font-bold'>MENÚ</div>

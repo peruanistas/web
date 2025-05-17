@@ -55,8 +55,8 @@ export function Header({ showNavigation, ...rest }: HeaderProps) {
           }}>
             <ContentLayout style={{
               height: 46,
-              paddingBottom: '4px',
-              paddingTop: '4px',
+              paddingBottom: '3px',
+              paddingTop: '2px',
             }}>
               <div className='flex items-center gap-6 h-full'>
                 {
