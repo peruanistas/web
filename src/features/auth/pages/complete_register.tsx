@@ -1,13 +1,13 @@
 import { Footer } from '@common/components/footer';
 import { Header } from '@common/components/header';
-import { LoginForm } from '@auth/components/login_form';
+import { CompleteProfileForm } from '@auth/components/complete_register_form';
 import '@auth/styles/signup.scss';
 
-export function LoginPage() {
+export function CompleteRegisterPage() {
   return (
     <main className="signup-wrapper">
       <Header />
-      <LoginForm />
+      <CompleteProfileForm />
       <Footer />
     </main>
   );

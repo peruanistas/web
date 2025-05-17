@@ -10,12 +10,11 @@ import ProjectsCreatePage from '@projects/pages/project_create';
 import ProjectsDetailsPage from '@projects/pages/details';
 import EventsCreatePage from '@events/pages/events_create';
 import { NotFoundPage } from '@common/pages/404';
-
-import './index.css';
-import { CompleteRegisterPage } from '@auth/pages/complete-register';
+import { CompleteRegisterPage } from '@auth/pages/complete_register';
 import 'react-loading-skeleton/dist/skeleton.css';
 import 'react-datepicker/dist/react-datepicker.css';
 import 'leaflet/dist/leaflet.css';
+import './index.css';
 
 export function PeruanistasRoot() {
   return (
