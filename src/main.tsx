@@ -1,4 +1,4 @@
-import { Redirect, Route, Switch } from 'wouter';
+import { Route, Switch } from 'wouter';
 import { createRoot } from 'react-dom/client';
 import { StrictMode } from 'react';
 import { HomePage } from '@home/pages/home';
@@ -9,6 +9,7 @@ import { LoginPage } from '@auth/pages/login';
 import ProjectsCreatePage from '@projects/pages/project_create';
 import ProjectsDetailsPage from '@projects/pages/details';
 import EventsCreatePage from '@events/pages/events_create';
+import { NotFoundPage } from '@common/pages/404';
 import './index.css';
 
 export function PeruanistasRoot() {
@@ -21,13 +22,13 @@ export function PeruanistasRoot() {
       <Route path='/eventos/crear' component={EventsCreatePage} />
       <Route path='/proyectos/crear' component={ProjectsCreatePage} />
       <Route path='proyectos/:id' >
-        {({id}) => {
+        {({ id }) => {
           return <ProjectsDetailsPage id={id} />;
         }
-      }
+        }
       </Route>
       <Route>
-        {/* 404 */} <Redirect to='/' />
+        <NotFoundPage />
       </Route>
     </Switch>
   );
