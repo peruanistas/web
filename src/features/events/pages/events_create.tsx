@@ -3,45 +3,39 @@ import { useForm } from "react-hook-form";
 import { Layout } from "@common/components/layout";
 import { Header } from "@common/components/header";
 
-type ProjectFormData = {
-  projectName: string;
+type EventFormData = {
+  eventName: string;
   description: string;
   link?: string;
+  dateTime: string;
   coverImage: FileList;
   department: string;
   city: string;
   district: string;
   acceptTerms: boolean;
-  projectType: 'improve' | 'create';
-  projectCategory: 'Opcion 1' | 'Opcion 2';
-  productiveUnit: 'Opcion 1' | 'Opcion 2';
-  improvementChoice: 'Opcion 1' | 'Opcion 2';
-  creditStatus: 'Aprobado' | 'Desaprobado';
 };
 
-export default function ProjectsCreatePage() {
+export default function EventsCreatePage() {
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     watch,
     reset
-  } = useForm<ProjectFormData>();
+  } = useForm<EventFormData>();
 
-  const onSubmit = async (data: ProjectFormData) => {
-    // Simulamos el envío del formulario
-    console.log("Datos del proyecto:", {
+  const onSubmit = async (data: EventFormData) => {
+    console.log("Datos del evento:", {
       ...data,
-      coverImage: data.coverImage[0]?.name // Solo mostramos el nombre del archivo
+      coverImage: data.coverImage[0]?.name
     });
     
-    // Aquí iría la llamada a tu API
     await new Promise(resolve => setTimeout(resolve, 1000));
     reset();
   };
 
   useEffect(() => {
-    document.title = "Crear Proyecto";
+    document.title = "Crear Evento";
   }, []);
 
   return (
@@ -49,32 +43,32 @@ export default function ProjectsCreatePage() {
       <Header />
       <div className="flex flex-col items-center justify-center min-h-screen py-12 px-4">
         <div className="w-full max-w-4xl bg-white p-8 rounded-lg">
-          <h1 className="text-3xl font-bold text-center mb-4">Crear Proyecto</h1>
+          <h1 className="text-3xl font-bold text-center mb-4">Crear Evento</h1>
           <p className="text-lg text-center text-gray-600 mb-8">
-            Completa el formulario para registrar un nuevo proyecto
+            Completa el formulario para registrar un nuevo evento
           </p>
           
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {/* Nombre del Proyecto */}
+            {/* Nombre del Evento */}
             <div>
-              <label htmlFor="projectName" className="block text-lg font-medium text-gray-700 mb-1">
-                Nombre del Proyecto <span className="text-red-500">*</span>
+              <label htmlFor="eventName" className="block text-lg font-medium text-gray-700 mb-1">
+                Nombre del Evento <span className="text-red-500">*</span>
               </label>
               <input
-                id="projectName"
+                id="eventName"
                 type="text"
-                {...register("projectName", {
-                  required: "El nombre del proyecto es obligatorio",
+                {...register("eventName", {
+                  required: "El nombre del evento es obligatorio",
                   maxLength: {
                     value: 25,
                     message: "Máximo 25 caracteres"
                   }
                 })}
-                className={`w-full px-3 py-2 border rounded-md ${errors.projectName ? 'border-red-500' : 'border-gray-300'}`}
-                placeholder="Mi proyecto innovador"
+                className={`w-full px-3 py-2 border rounded-md ${errors.eventName ? 'border-red-500' : 'border-gray-300'}`}
+                placeholder="Mi evento increíble"
               />
-              {errors.projectName && (
-                <p className="mt-1 text-sm text-red-600">{errors.projectName.message}</p>
+              {errors.eventName && (
+                <p className="mt-1 text-sm text-red-600">{errors.eventName.message}</p>
               )}
             </div>
 
@@ -94,7 +88,7 @@ export default function ProjectsCreatePage() {
                   }
                 })}
                 className={`w-full px-3 py-2 border rounded-md ${errors.description ? 'border-red-500' : 'border-gray-300'}`}
-                placeholder="Describe detalladamente tu proyecto..."
+                placeholder="Describe detalladamente tu evento..."
               ></textarea>
               {errors.description && (
                 <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>
@@ -120,6 +114,24 @@ export default function ProjectsCreatePage() {
               />
               {errors.link && (
                 <p className="mt-1 text-sm text-red-600">{errors.link.message}</p>
+              )}
+            </div>
+
+            {/* Fecha y Hora */}
+            <div>
+              <label htmlFor="dateTime" className="block text-lg font-medium text-gray-700 mb-1">
+                Fecha y Hora <span className="text-red-500">*</span>
+              </label>
+              <input
+                id="dateTime"
+                type="datetime-local"
+                {...register("dateTime", {
+                  required: "La fecha y hora son obligatorias"
+                })}
+                className={`w-full px-3 py-2 border rounded-md ${errors.dateTime ? 'border-red-500' : 'border-gray-300'}`}
+              />
+              {errors.dateTime && (
+                <p className="mt-1 text-sm text-red-600">{errors.dateTime.message}</p>
               )}
             </div>
 
@@ -219,133 +231,22 @@ export default function ProjectsCreatePage() {
                 )}
               </div>
             </div>
-            <div className="mt-8 pt-8">
 
-            {/* Sección de evaluación del proyecto */}
-            <h2 className="text-xl font-semibold mb-6">Evalúa tu proyecto</h2>
-            {/* Radio buttons para tipo de proyecto */}
-            <div className="mb-6">
-                <label className="block text-lg font-medium text-gray-700 mb-3">
-                Tipo de proyecto <span className="text-red-500">*</span>
-                </label>
-                <div className="flex space-x-6">
-                <label className="inline-flex items-center">
-                    <input
-                    type="radio"
-                    value="improve"
-                    {...register("projectType", { required: "Selecciona una opción" })}
-                    className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300"
-                    />
-                    <span className="ml-2 text-gray-700">Mejorar algo que ya existe</span>
-                </label>
-                <label className="inline-flex items-center">
-                    <input
-                    type="radio"
-                    value="create"
-                    {...register("projectType", { required: "Selecciona una opción" })}
-                    className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300"
-                    />
-                    <span className="ml-2 text-gray-700">Crear algo nuevo</span>
-                </label>
-                </div>
-                {errors.projectType && (
-                <p className="mt-1 text-sm text-red-600">{errors.projectType.message}</p>
-                )}
-            </div>
-
-            {/* Tipo de proyecto y Unidad productiva en misma fila */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-                <label htmlFor="projectCategory" className="block text-lg font-medium text-gray-700 mb-1">
-                Tipo de proyecto <span className="text-red-500">*</span>
-                </label>
-                <select
-                id="projectCategory"
-                {...register("projectCategory", { required: "Selecciona un tipo de proyecto" })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                >
-                <option value="">Selecciona...</option>
-                <option value="Opcion 1">Opción 1</option>
-                <option value="Opcion 2">Opción 2</option>
-                </select>
-                {errors.projectCategory && (
-                <p className="mt-1 text-sm text-red-600">{errors.projectCategory.message}</p>
-                )}
-            </div>
-
-            <div>
-                <label htmlFor="productiveUnit" className="block text-lg font-medium text-gray-700 mb-1">
-                Unidad productiva <span className="text-red-500">*</span>
-                </label>
-                <select
-                id="productiveUnit"
-                {...register("productiveUnit", { required: "Selecciona una unidad productiva" })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                >
-                <option value="">Selecciona...</option>
-                <option value="Opcion 1">Opción 1</option>
-                <option value="Opcion 2">Opción 2</option>
-                </select>
-                {errors.productiveUnit && (
-                <p className="mt-1 text-sm text-red-600">{errors.productiveUnit.message}</p>
-                )}
-            </div>
-            </div>
-
-            {/* Escoge tu mejora y Crédito en misma fila */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div>
-                <label htmlFor="improvementChoice" className="block text-lg font-medium text-gray-700 mb-1">
-                Escoge tu mejora <span className="text-red-500">*</span>
-                </label>
-                <select
-                id="improvementChoice"
-                {...register("improvementChoice", { required: "Selecciona una mejora" })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                >
-                <option value="">Selecciona...</option>
-                <option value="Opcion 1">Opción 1</option>
-                <option value="Opcion 2">Opción 2</option>
-                </select>
-                {errors.improvementChoice && (
-                <p className="mt-1 text-sm text-red-600">{errors.improvementChoice.message}</p>
-                )}
-            </div>
-
-            <div>
-                <label htmlFor="creditStatus" className="block text-lg font-medium text-gray-700 mb-1">
-                Crédito de línea <span className="text-red-500">*</span>
-                </label>
-                <select
-                id="creditStatus"
-                {...register("creditStatus", { required: "Selecciona un estado de crédito" })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                >
-                <option value="">Selecciona...</option>
-                <option value="Aprobado">Aprobado</option>
-                <option value="Desaprobado">Desaprobado</option>
-                </select>
-                {errors.creditStatus && (
-                <p className="mt-1 text-sm text-red-600">{errors.creditStatus.message}</p>
-                )}
-            </div>
-            </div>
-            </div>
             {/* Términos y condiciones */}
             <div className="flex items-start">
-              <div>
+              <div className="flex items-center h-5">
                 <input
                   id="acceptTerms"
                   type="checkbox"
                   {...register("acceptTerms", {
                     required: "Debes aceptar los términos y condiciones"
                   })}
-                  className="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-blue-500"
+                  className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
                 />
               </div>
               <div className="ml-3 text-base">
                 <label htmlFor="acceptTerms" className="font-medium text-gray-700">
-                  Acepto los términos y condiciones
+                  Acepto los términos y condiciones <span className="text-red-500">*</span>
                 </label>
                 {errors.acceptTerms && (
                   <p className="mt-1 text-sm text-red-600">{errors.acceptTerms.message}</p>
@@ -360,7 +261,7 @@ export default function ProjectsCreatePage() {
                 disabled={isSubmitting}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {isSubmitting ? "Creando proyecto..." : "Crear Proyecto"}
+                {isSubmitting ? "Publicando..." : "Publicar"}
               </button>
             </div>
           </form>
