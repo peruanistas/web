@@ -24,8 +24,11 @@ export const PE_DEPARTMENTS = {
     '22': { code: '22', name: 'San Martin' },
     '14': { code: '14', name: 'Lambayeque' },
     '02': { code: '02', name: 'Ancash' },
-} as const;
+} as Record<string, { code: string; name: string }>;
 
+// ⚠️ *Note*:
+// To get only the districts for an specific department
+// use the function `getDistrictsForDepartment` in utils.ts
 export const PE_DISTRICTS = {
     '130102': { code: '130102', name: 'El Porvenir' },
     '090109': { code: '090109', name: 'Laria' },
@@ -1918,4 +1921,4 @@ export const PE_DISTRICTS = {
     '040115': { code: '040115', name: 'Quequeña' },
     '080909': { code: '080909', name: 'Vilcabamba' },
     '060810': { code: '060810', name: 'San Felipe' },
-} as const;
+} as Record<string, { code: string; name: string }>;

@@ -1,3 +1,4 @@
+import { PE_DISTRICTS } from '@common/data/geo';
 
 /**
  * Formats a date-like type to a human-readable format used and loved by Peruanistas.
@@ -18,4 +19,11 @@ export function formatDate(rawDate: number | string | Date) {
   }).format(date);
 
   return `${weekday}, ${month} ${day} · ${timeFormat}`;
+}
+
+
+export function getDistrictsForDepartment(departmentCode: string) {
+  return Object.entries(PE_DISTRICTS).filter(([, district]) => {
+    return district.code.startsWith(departmentCode);
+  });
 }
