@@ -1,17 +1,10 @@
 import { Button } from '@common/components/button';
+import { TABS } from '@common/constants';
 import { Link, useLocation } from 'wouter';
 
 type HeaderProps = {
   showNavigation?: boolean,
 }
-
-const tabs = [
-  { name: 'Inicio', regex: /\/$/, href: '/' },
-  { name: 'Proyectos', regex: /^\/proyectos/, href: '/proyectos' },
-  { name: 'Ayllu', regex: /^\/ayllu/, href: '/ayllu' },
-  { name: 'Grupos', regex: /^\/grupos/, href: '/grupos' },
-  { name: 'Eventos', regex: /^\/eventos/, href: '/eventos' },
-];
 
 export function Header({ showNavigation }: HeaderProps) {
   const [pathname,] = useLocation();
@@ -52,7 +45,7 @@ export function Header({ showNavigation }: HeaderProps) {
           }}>
             <div className='flex items-center gap-6 py-[2px] h-full px-page'>
               {
-                tabs.map((tab) => (
+                TABS.map((tab) => (
                   <Link
                     key={tab.name}
                     href={tab.href}
