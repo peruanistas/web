@@ -1,9 +1,9 @@
-import { useForm } from "react-hook-form";
-import { Button } from "@common/components/button";
-import { Link, useLocation } from "wouter";
-import { db } from "@db/client";
-import { useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { useForm } from 'react-hook-form';
+import { Button } from '@common/components/button';
+import { Link, useLocation } from 'wouter';
+import { db } from '@db/client';
+import { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 
 type Inputs = {
   email: string;
@@ -17,7 +17,7 @@ export const LoginForm = () => {
     formState: { errors, isSubmitting },
   } = useForm<Inputs>();
 
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [, setLocation] = useLocation();
 
@@ -32,8 +32,8 @@ export const LoginForm = () => {
     if (error) {
       setErrorMessage(error.message);
     } else {
-      setErrorMessage("");
-      setLocation("/");
+      setErrorMessage('');
+      setLocation('/');
     }
   };
 
@@ -43,7 +43,7 @@ export const LoginForm = () => {
         <div className="flex flex-col items-center mb-8">
           <h2 className="text-[30px] font-bold text-gray-900 mb-1">Iniciar sesión</h2>
           <div className="text-[#757575] text-[14px] text-center w-full">
-            ¿Aún no tienes cuenta?{" "}
+            ¿Aún no tienes cuenta?{' '}
             <Link to="/signup" className="underline cursor-pointer">
               Regístrate
             </Link>
@@ -56,17 +56,17 @@ export const LoginForm = () => {
             type="email"
             placeholder="Email"
             className="border border-[#D9D9D9] rounded-lg p-2 mb-2 w-full text-[#757575]"
-            {...register("email", { required: true })}
+            {...register('email', { required: true })}
           />
           {errors.email && <p className="text-red-500 text-sm mb-2">{errors.email.message}</p>}
 
           <label className="text-[#404040] mb-2 mt-2">Contraseña</label>
           <div className="relative">
             <input
-              type={showPassword ? "text" : "password"}
+              type={showPassword ? 'text' : 'password'}
               placeholder="Contraseña"
               className="border border-[#D9D9D9] rounded-lg p-2 pr-10 w-full text-[#757575]"
-              {...register("password", { required: true })}
+              {...register('password', { required: true })}
             />
             <button
               type="button"

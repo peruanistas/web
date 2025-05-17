@@ -2,12 +2,14 @@ type ButtonVariant = 'white' | 'red';
 
 type ButtonProps = {
   children: React.ReactNode;
+  type?: 'button' | 'submit' | 'reset';
+  disabled?: boolean;
   style?: React.CSSProperties;
   className?: string;
   variant?: ButtonVariant;
 };
 
-export function Button({ children, style, className, variant }: ButtonProps) {
+export function Button({ children, type, disabled, style, className, variant }: ButtonProps) {
   let color;
   let backgroundColor;
   let borderColor;
@@ -30,6 +32,8 @@ export function Button({ children, style, className, variant }: ButtonProps) {
 
   return (
     <button
+      type={type}
+      disabled={disabled}
       className={`px-5 rounded-lg h-10 cursor-pointer border ${color} ${backgroundColor} ${borderColor} ${className}`}
       style={style}
     >
