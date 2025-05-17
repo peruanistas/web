@@ -1,0 +1,12 @@
+/*
+See Styling for React Daypicker
+https://daypicker.dev/docs/styling
+*/
+
+.rdp-root {
+  --rdp-accent-color: var(--color-primary);
+}
+
+[data-theme="dark"] .rdp-root {
+  --rdp-accent-color: var(--color-primary);
+}
