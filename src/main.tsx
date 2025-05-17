@@ -7,7 +7,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { EventsPage } from '@events/pages/events';
 import { LoginPage } from '@auth/pages/login';
 import ProjectsCreatePage from '@projects/pages/project_create';
-import ProjectsDetailsPage from '@projects/pages/details';
+import ProjectsDetailsPage from '@projects/pages/project_detail';
 import EventsCreatePage from '@events/pages/events_create';
 import { NotFoundPage } from '@common/pages/404';
 import { CompleteRegisterPage } from '@auth/pages/complete_register';

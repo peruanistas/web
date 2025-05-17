@@ -1,7 +1,7 @@
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { Layout } from "@common/components/layout";
-import { Header } from "@common/components/header";
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { Layout } from '@common/components/layout';
+import { Header } from '@common/components/header';
 
 type ProjectFormData = {
   projectName: string;
@@ -30,7 +30,7 @@ export default function ProjectsCreatePage() {
 
   const onSubmit = async (data: ProjectFormData) => {
     // Simulamos el envío del formulario
-    console.log("Datos del proyecto:", {
+    console.log('Datos del proyecto:', {
       ...data,
       coverImage: data.coverImage[0]?.name // Solo mostramos el nombre del archivo
     });
@@ -41,7 +41,7 @@ export default function ProjectsCreatePage() {
   };
 
   useEffect(() => {
-    document.title = "Crear Proyecto";
+    document.title = 'Crear Proyecto';
   }, []);
 
   return (
@@ -63,11 +63,11 @@ export default function ProjectsCreatePage() {
               <input
                 id="projectName"
                 type="text"
-                {...register("projectName", {
-                  required: "El nombre del proyecto es obligatorio",
+                {...register('projectName', {
+                  required: 'El nombre del proyecto es obligatorio',
                   maxLength: {
                     value: 25,
-                    message: "Máximo 25 caracteres"
+                    message: 'Máximo 25 caracteres'
                   }
                 })}
                 className={`w-full px-3 py-2 border rounded-md ${errors.projectName ? 'border-red-500' : 'border-gray-300'}`}
@@ -86,11 +86,11 @@ export default function ProjectsCreatePage() {
               <textarea
                 id="description"
                 rows={4}
-                {...register("description", {
-                  required: "La descripción es obligatoria",
+                {...register('description', {
+                  required: 'La descripción es obligatoria',
                   maxLength: {
                     value: 500,
-                    message: "Máximo 500 caracteres"
+                    message: 'Máximo 500 caracteres'
                   }
                 })}
                 className={`w-full px-3 py-2 border rounded-md ${errors.description ? 'border-red-500' : 'border-gray-300'}`}
@@ -109,10 +109,10 @@ export default function ProjectsCreatePage() {
               <input
                 id="link"
                 type="url"
-                {...register("link", {
+                {...register('link', {
                   pattern: {
                     value: /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/,
-                    message: "Ingresa una URL válida"
+                    message: 'Ingresa una URL válida'
                   }
                 })}
                 className={`w-full px-3 py-2 border rounded-md ${errors.link ? 'border-red-500' : 'border-gray-300'}`}
@@ -146,13 +146,13 @@ export default function ProjectsCreatePage() {
                     id="coverImage"
                     type="file"
                     accept="image/*"
-                    {...register("coverImage", {
-                        required: "La imagen de portada es obligatoria",
+                    {...register('coverImage', {
+                        required: 'La imagen de portada es obligatoria',
                         validate: {
                         fileType: (files) => 
-                            files[0]?.type.startsWith("image/") || "Debe ser un archivo de imagen",
+                            files[0]?.type.startsWith('image/') || 'Debe ser un archivo de imagen',
                         fileSize: (files) => 
-                            files[0]?.size <= 5 * 1024 * 1024 || "El tamaño máximo es 5MB"
+                            files[0]?.size <= 5 * 1024 * 1024 || 'El tamaño máximo es 5MB'
                         }
                     })}
                     className="hidden"
@@ -172,8 +172,8 @@ export default function ProjectsCreatePage() {
                 <input
                   id="department"
                   type="text"
-                  {...register("department", {
-                    required: "El departamento es obligatorio"
+                  {...register('department', {
+                    required: 'El departamento es obligatorio'
                   })}
                   className={`w-full px-3 py-2 border rounded-md ${errors.department ? 'border-red-500' : 'border-gray-300'}`}
                   placeholder="Lima"
@@ -190,8 +190,8 @@ export default function ProjectsCreatePage() {
                 <input
                   id="city"
                   type="text"
-                  {...register("city", {
-                    required: "La ciudad es obligatoria"
+                  {...register('city', {
+                    required: 'La ciudad es obligatoria'
                   })}
                   className={`w-full px-3 py-2 border rounded-md ${errors.city ? 'border-red-500' : 'border-gray-300'}`}
                   placeholder="Lima"
@@ -208,8 +208,8 @@ export default function ProjectsCreatePage() {
                 <input
                   id="district"
                   type="text"
-                  {...register("district", {
-                    required: "El distrito es obligatorio"
+                  {...register('district', {
+                    required: 'El distrito es obligatorio'
                   })}
                   className={`w-full px-3 py-2 border rounded-md ${errors.district ? 'border-red-500' : 'border-gray-300'}`}
                   placeholder="Miraflores"
@@ -233,7 +233,7 @@ export default function ProjectsCreatePage() {
                     <input
                     type="radio"
                     value="improve"
-                    {...register("projectType", { required: "Selecciona una opción" })}
+                    {...register('projectType', { required: 'Selecciona una opción' })}
                     className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300"
                     />
                     <span className="ml-2 text-gray-700">Mejorar algo que ya existe</span>
@@ -242,7 +242,7 @@ export default function ProjectsCreatePage() {
                     <input
                     type="radio"
                     value="create"
-                    {...register("projectType", { required: "Selecciona una opción" })}
+                    {...register('projectType', { required: 'Selecciona una opción' })}
                     className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300"
                     />
                     <span className="ml-2 text-gray-700">Crear algo nuevo</span>
@@ -261,7 +261,7 @@ export default function ProjectsCreatePage() {
                 </label>
                 <select
                 id="projectCategory"
-                {...register("projectCategory", { required: "Selecciona un tipo de proyecto" })}
+                {...register('projectCategory', { required: 'Selecciona un tipo de proyecto' })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
                 <option value="">Selecciona...</option>
@@ -279,7 +279,7 @@ export default function ProjectsCreatePage() {
                 </label>
                 <select
                 id="productiveUnit"
-                {...register("productiveUnit", { required: "Selecciona una unidad productiva" })}
+                {...register('productiveUnit', { required: 'Selecciona una unidad productiva' })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
                 <option value="">Selecciona...</option>
@@ -300,7 +300,7 @@ export default function ProjectsCreatePage() {
                 </label>
                 <select
                 id="improvementChoice"
-                {...register("improvementChoice", { required: "Selecciona una mejora" })}
+                {...register('improvementChoice', { required: 'Selecciona una mejora' })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
                 <option value="">Selecciona...</option>
@@ -318,7 +318,7 @@ export default function ProjectsCreatePage() {
                 </label>
                 <select
                 id="creditStatus"
-                {...register("creditStatus", { required: "Selecciona un estado de crédito" })}
+                {...register('creditStatus', { required: 'Selecciona un estado de crédito' })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
                 <option value="">Selecciona...</option>
@@ -337,8 +337,8 @@ export default function ProjectsCreatePage() {
                 <input
                   id="acceptTerms"
                   type="checkbox"
-                  {...register("acceptTerms", {
-                    required: "Debes aceptar los términos y condiciones"
+                  {...register('acceptTerms', {
+                    required: 'Debes aceptar los términos y condiciones'
                   })}
                   className="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-blue-500"
                 />
@@ -360,7 +360,7 @@ export default function ProjectsCreatePage() {
                 disabled={isSubmitting}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {isSubmitting ? "Creando proyecto..." : "Crear Proyecto"}
+                {isSubmitting ? 'Creando proyecto...' : 'Crear Proyecto'}
               </button>
             </div>
           </form>
