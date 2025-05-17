@@ -205,6 +205,7 @@ export type Database = {
           content: string
           created_at: string
           downvotes: number
+          feed_post_hash: string | null
           id: string
           image_url: string | null
           impression_count: number
@@ -221,6 +222,7 @@ export type Database = {
           content: string
           created_at?: string
           downvotes?: number
+          feed_post_hash?: string | null
           id?: string
           image_url?: string | null
           impression_count?: number
@@ -237,6 +239,7 @@ export type Database = {
           content?: string
           created_at?: string
           downvotes?: number
+          feed_post_hash?: string | null
           id?: string
           image_url?: string | null
           impression_count?: number
