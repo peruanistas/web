@@ -12,9 +12,11 @@ export type Database = {
       events: {
         Row: {
           active: boolean
+          attendees: number
           author_id: string
           content: string
           created_at: string
+          event_date: string
           geo_department: string
           geo_district: string
           id: string
@@ -27,9 +29,11 @@ export type Database = {
         }
         Insert: {
           active?: boolean
+          attendees?: number
           author_id: string
           content: string
           created_at?: string
+          event_date: string
           geo_department: string
           geo_district: string
           id?: string
@@ -42,9 +46,11 @@ export type Database = {
         }
         Update: {
           active?: boolean
+          attendees?: number
           author_id?: string
           content?: string
           created_at?: string
+          event_date?: string
           geo_department?: string
           geo_district?: string
           id?: string
