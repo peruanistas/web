@@ -9,9 +9,10 @@ import { LoginPage } from '@auth/pages/login';
 import ProjectsCreatePage from '@projects/pages/project_create';
 import ProjectsDetailsPage from '@projects/pages/project_detail';
 import EventsCreatePage from '@events/pages/events_create';
-import { EventDetailBasic } from '@events/pages/event_detail'; 
+import { EventDetailBasic } from '@events/pages/event_detail';
 import { NotFoundPage } from '@common/pages/404';
 import { CompleteRegisterPage } from '@auth/pages/complete_register';
+import { AuthProvider } from '@auth/providers/auth_provider';
 import 'react-day-picker/style.css';
 import 'leaflet/dist/leaflet.css';
 import './index.css';
@@ -26,14 +27,11 @@ export function PeruanistasRoot() {
       <Route path='/eventos' component={EventsPage} />
       <Route path='/eventos/crear' component={EventsCreatePage} />
       <Route path='/eventos/:id'>
-      {({ id }) => <EventDetailBasic id={id} />}
+        {({ id }) => <EventDetailBasic id={id} />}
       </Route>
       <Route path='/proyectos/crear' component={ProjectsCreatePage} />
-      <Route path='proyectos/:id' >
-        {({ id }) => {
-          return <ProjectsDetailsPage id={id} />;
-        }
-        }
+      <Route path='proyectos/:id'>
+        {({ id }) => <ProjectsDetailsPage id={id} />}
       </Route>
       <Route>
         <NotFoundPage />
@@ -47,7 +45,9 @@ const queryClient = new QueryClient();
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <PeruanistasRoot />
+      <AuthProvider>
+        <PeruanistasRoot />
+      </AuthProvider>
     </QueryClientProvider>
   </StrictMode>
 );
