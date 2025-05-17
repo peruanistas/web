@@ -9,6 +9,7 @@ import { LoginPage } from '@auth/pages/login';
 import ProjectsCreatePage from '@projects/pages/project_create';
 import ProjectsDetailsPage from '@projects/pages/project_detail';
 import EventsCreatePage from '@events/pages/events_create';
+import { EventDetailBasic } from '@events/pages/event_detail'; 
 import { NotFoundPage } from '@common/pages/404';
 import { CompleteRegisterPage } from '@auth/pages/complete_register';
 import 'react-day-picker/style.css';
@@ -24,6 +25,9 @@ export function PeruanistasRoot() {
       <Route path='/completar-registro' component={CompleteRegisterPage} />
       <Route path='/eventos' component={EventsPage} />
       <Route path='/eventos/crear' component={EventsCreatePage} />
+      <Route path='/eventos/:id'>
+      {({ id }) => <EventDetailBasic id={id} />}
+      </Route>
       <Route path='/proyectos/crear' component={ProjectsCreatePage} />
       <Route path='proyectos/:id' >
         {({ id }) => {
