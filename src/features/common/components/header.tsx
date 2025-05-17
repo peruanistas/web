@@ -23,9 +23,11 @@ export function Header({ showNavigation }: HeaderProps) {
 
         {/* Dissapear on sm screens */}
         <div className='flex gap-4 items-center'>
-          <div className='hidden md:flex'>
-            Quiénes somos
-          </div>
+          <Link className={'cursor-pointer'} href='/about'>
+            <div className='hidden md:flex'>
+              Quiénes somos
+            </div>
+          </Link>
           <Button variant='white' className='font-semibold hidden lg:flex items-center'>
             Crea un proyecto
           </Button>
