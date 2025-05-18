@@ -20,6 +20,7 @@ import 'react-day-picker/style.css';
 import 'leaflet/dist/leaflet.css';
 import './index.css';
 import { ArticlePage } from '@news/pages/ArticlePage';
+import NewCreatePage from '@news/pages/new_create';
 
 export function PeruanistasRoot() {
   useQueryFavicon();
@@ -30,6 +31,7 @@ export function PeruanistasRoot() {
       <Route path='/signup' component={SignUpPage} />
       <Route path='/login' component={LoginPage} />
       <Route path='/completar-registro' component={CompleteRegisterPage} />
+
       <Route path='/eventos' component={EventsPage} />
       <Route path='/eventos/crear' component={EventsCreatePage} />
       <Route path='/eventos/:id'>
@@ -37,9 +39,11 @@ export function PeruanistasRoot() {
       </Route>
       <Route path='/proyectos' component={ProjectsPage} />
       <Route path='/proyectos/crear' component={ProjectsCreatePage} />
-      <Route path='proyectos/:id'>
+      <Route path='/proyectos/:id'>
         {({ id }) => <ProjectsDetailsPage id={id} />}
       </Route>
+      <Route path='/noticias' component={ArticlePage} />
+      <Route path='/noticias/crear' component={NewCreatePage} />
       <Route>
         <NotFoundPage />
       </Route>
