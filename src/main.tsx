@@ -17,7 +17,7 @@ import { ProjectsPage } from '@projects/pages/projects';
 import 'react-day-picker/style.css';
 import 'leaflet/dist/leaflet.css';
 import './index.css';
-
+import { ArticlePage } from '@news/pages/ArticlePage';
 
 export function PeruanistasRoot() {
   return (
