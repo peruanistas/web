@@ -33,14 +33,7 @@ const NewsCard: React.FC<NewsCardProps> = ({
 
         {/* Contenido Principal */}
         <div className="flex-1">
-          {/* Autor y Fecha */}
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <span className="text-sm text-gray-500">Historia de</span>
-              <span className="text-sm font-bold ml-1">{author}</span>
-            </div>
-            <span className="text-sm text-gray-500">{date}</span>
-          </div>
+
 
           {/* Imagen Principal */}
           <img
@@ -48,6 +41,15 @@ const NewsCard: React.FC<NewsCardProps> = ({
             alt="Article Image"
             className="w-full h-auto object-cover rounded-lg mb-4"
           />
+
+                    {/* Autor y Fecha */}
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <span className="text-sm text-gray-500">Historia de</span>
+              <span className="text-sm font-bold ml-1">{author}</span>
+            </div>
+            <span className="text-sm text-gray-500">{date}</span>
+          </div>
 
           {/* Contenido del Artículo */}
           <ArticleContent content={content} />

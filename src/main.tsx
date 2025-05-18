@@ -18,6 +18,7 @@ import 'react-day-picker/style.css';
 import 'leaflet/dist/leaflet.css';
 import './index.css';
 
+
 export function PeruanistasRoot() {
   return (
     <Switch>
