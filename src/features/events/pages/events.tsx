@@ -15,6 +15,12 @@ import type { DateRange } from 'react-day-picker';
 import type { EventPreview } from '@events/types';
 import { CalendarFilter } from '@events/components/calendar_filter';
 
+const EVENTS_ORDER_OPTIONS = [
+  { value: 'event_date_asc', label: 'Por fecha (cercanos)' },
+  { value: 'event_date_desc', label: 'Por fecha (lejanos)' },
+  // We can add more filters but I don't find them useful for now
+] as const;
+
 export function EventsPage() {
   const [department, setDepartment] = useState('');
   const [district, setDistrict] = useState('');
@@ -43,7 +49,7 @@ export function EventsPage() {
               onChange={setSearch}
               value={search}
             />
-            <OrderByDropdown value={orderBy} onChange={setOrderBy} />
+            <OrderByDropdown value={orderBy} orderOptions={EVENTS_ORDER_OPTIONS} onChange={setOrderBy} />
           </div>
           <div className='flex w-full py-1 gap-4 flex-col md:flex-row md:gap-6'>
             {/* Left side */}

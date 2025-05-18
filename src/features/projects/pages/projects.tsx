@@ -18,6 +18,12 @@ import { useLocation } from 'wouter';
 import { ProjectFilters } from '@projects/components/projects_filters';
 import '@projects/styles/projects_list.scss';
 
+const PROJECTS_ORDER_OPTIONS = [
+  { value: 'event_date_asc', label: 'Por fecha (antiguos)' },
+  { value: 'event_date_desc', label: 'Por fecha (nuevos)' },
+  // We can add more filters but I don't find them useful for now
+] as const;
+
 export function ProjectsPage() {
   const [department, setDepartment] = useState('');
   const [district, setDistrict] = useState('');
@@ -48,7 +54,7 @@ export function ProjectsPage() {
               value={search}
             />
             <div className='flex flex-wrap items-center gap-4'>
-              <OrderByDropdown value={orderBy} onChange={setOrderBy} />
+              <OrderByDropdown value={orderBy} orderOptions={PROJECTS_ORDER_OPTIONS} onChange={setOrderBy} />
               <Button
                 variant='red'
                 trailing={<Plus size={20} />}
