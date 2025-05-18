@@ -1,7 +1,11 @@
+import { db } from "@db/client";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Layout } from "@common/components/layout";
 import { Header } from "@common/components/header";
+import { PageBanner } from "@common/components/page_banner";
+import { getDistrictsForDepartment } from '@common/utils';
+import { PE_DEPARTMENTS } from '@common/data/geo';
 
 type EventFormData = {
   eventName: string;
@@ -25,13 +29,35 @@ export default function EventsCreatePage() {
   } = useForm<EventFormData>();
 
   const onSubmit = async (data: EventFormData) => {
-    console.log("Datos del evento:", {
-      ...data,
-      coverImage: data.coverImage[0]?.name
-    });
-    
-    await new Promise(resolve => setTimeout(resolve, 1000));
+  try {
+    const { data: { user }, error: userError } = await db.auth.getUser();
+    if (userError || !user) throw new Error('Debes iniciar sesión para crear un evento');
+
+    const eventData = {
+      title: data.eventName,                
+      content: data.description,            
+      geo_department: data.department,      
+      geo_district: data.district,          
+      image_url: data.coverImage[0]?.name || null, 
+      event_date: new Date(data.dateTime).toISOString(), 
+      author_id: user.id,                  
+      published_at: new Date().toISOString(), 
+    };
+
+    const { error } = await db
+      .from('events')
+      .insert(eventData);
+
+    if (error) throw error;
+
     reset();
+    alert('Evento creado exitosamente!');
+
+  } catch (error) {
+    console.error('Error al crear evento:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Ocurrió un error desconocido';
+    alert(`Error: ${errorMessage}`);
+  }
   };
 
   useEffect(() => {
@@ -41,12 +67,12 @@ export default function EventsCreatePage() {
   return (
     <Layout>
       <Header />
-      <div className="flex flex-col items-center justify-center min-h-screen py-12 px-4">
+      <div className="flex flex-col items-center justify-center min-h-screen pb-12">
+        <PageBanner
+          title="Crear Proyecto"
+          description="Completa el formulario para crear un nuevo proyecto"
+        />
         <div className="w-full max-w-4xl bg-white p-8 rounded-lg">
-          <h1 className="text-3xl font-bold text-center mb-4">Crear Evento</h1>
-          <p className="text-center text-gray-600 mb-8">
-            Completa el formulario para registrar un nuevo evento
-          </p>
           
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Nombre del Evento */}
@@ -176,59 +202,64 @@ export default function EventsCreatePage() {
             </div>
 
             {/* Ubicación - Departamento, Ciudad, Distrito */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Select para Departamento */}
               <div>
                 <label htmlFor="department" className="block font-medium text-gray-700 mb-1">
                   Departamento <span className="text-red-500">*</span>
                 </label>
-                <input
+                <select
                   id="department"
-                  type="text"
-                  {...register("department", {
-                    required: "El departamento es obligatorio"
+                  {...register('department', {
+                    required: 'El departamento es obligatorio'
                   })}
-                  className={`w-full px-3 py-2 border rounded-md ${errors.department ? 'border-red-500' : 'border-gray-300'}`}
-                  placeholder="Lima"
-                />
+                  className={`w-full px-3 py-2 border rounded-md ${
+                    errors.department ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                >
+                  <option value="">Seleccione un departamento</option>
+                  {Object.values(PE_DEPARTMENTS).map((dept) => (
+                    <option key={dept.code} value={dept.code}>
+                      {dept.name}
+                    </option>
+                  ))}
+                </select>
                 {errors.department && (
                   <p className="mt-1 text-sm text-red-600">{errors.department.message}</p>
                 )}
               </div>
 
-              <div>
-                <label htmlFor="city" className="block font-medium text-gray-700 mb-1">
-                  Ciudad <span className="text-red-500">*</span>
-                </label>
-                <input
-                  id="city"
-                  type="text"
-                  {...register("city", {
-                    required: "La ciudad es obligatoria"
-                  })}
-                  className={`w-full px-3 py-2 border rounded-md ${errors.city ? 'border-red-500' : 'border-gray-300'}`}
-                  placeholder="Lima"
-                />
-                {errors.city && (
-                  <p className="mt-1 text-sm text-red-600">{errors.city.message}</p>
-                )}
-              </div>
-
-              <div>
-                <label htmlFor="district" className="block font-medium text-gray-700 mb-1">
-                  Distrito <span className="text-red-500">*</span>
-                </label>
-                <input
-                  id="district"
-                  type="text"
-                  {...register("district", {
-                    required: "El distrito es obligatorio"
-                  })}
-                  className={`w-full px-3 py-2 border rounded-md ${errors.district ? 'border-red-500' : 'border-gray-300'}`}
-                  placeholder="Miraflores"
-                />
-                {errors.district && (
-                  <p className="mt-1 text-sm text-red-600">{errors.district.message}</p>
-                )}
+              {/* Select para Distrito (dependiente del Departamento seleccionado) */}
+                <div>
+                  <label htmlFor="district" className="block font-medium text-gray-700 mb-1">
+                    Distrito <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    id="district"
+                    disabled={!watch('department')}
+                    {...register('district', {
+                      required: 'Debe seleccionar un distrito'
+                    })}
+                    className={`w-full px-3 py-2 border rounded-md ${
+                      errors.district ? 'border-red-500' : 'border-gray-300'
+                    } ${!watch('department') ? 'bg-gray-100' : ''}`}
+                  >
+                    <option value="">
+                      {watch('department') 
+                        ? 'Seleccione un distrito' 
+                        : ''}
+                    </option>
+                    {watch('department') && 
+                      getDistrictsForDepartment(watch('department')).map(([code, district]) => (
+                        <option key={code} value={code}>
+                          {district.name}
+                        </option>
+                      ))
+                    }
+                  </select>
+                  {errors.district && (
+                    <p className="mt-1 text-sm text-red-600">{errors.district.message}</p>
+                  )}
               </div>
             </div>
 
