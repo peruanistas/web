@@ -14,12 +14,16 @@ import { NotFoundPage } from '@common/pages/404';
 import { CompleteRegisterPage } from '@auth/pages/complete_register';
 import { AuthProvider } from '@auth/providers/auth_provider';
 import { ProjectsPage } from '@projects/pages/projects';
+import { useQueryFavicon } from '@hooks/query_favicon';
+
 import 'react-day-picker/style.css';
 import 'leaflet/dist/leaflet.css';
 import './index.css';
 import { ArticlePage } from '@news/pages/ArticlePage';
 
 export function PeruanistasRoot() {
+  useQueryFavicon();
+
   return (
     <Switch>
       <Route path='/' component={HomePage} />

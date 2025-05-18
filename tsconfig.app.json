@@ -33,6 +33,7 @@
       "@projects/*": ["./src/features/projects/*"],
       "@auth/*": ["./src/features/auth/*"],
       "@db/*": ["./src/services/db/*"],
+      "@hooks/*": ["./src/features/hooks/*"],
     }
   },
   "include": ["src"]

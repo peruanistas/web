@@ -17,7 +17,8 @@ export default defineConfig({
       '@news': fileURLToPath(new URL('./src/features/news', import.meta.url)),
       '@projects': fileURLToPath(new URL('./src/features/projects', import.meta.url)),
       '@auth': fileURLToPath(new URL('./src/features/auth', import.meta.url)),
-      '@db': fileURLToPath(new URL('./src/services/db', import.meta.url))
+      '@db': fileURLToPath(new URL('./src/services/db', import.meta.url)),
+      '@hooks': fileURLToPath(new URL('./src/features/hooks', import.meta.url))
     },
   },
 });
