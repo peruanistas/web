@@ -15,6 +15,7 @@ import { Button } from '@common/components/button';
 import { Plus } from 'lucide-react';
 import type { ProjectPreview } from '@projects/types';
 import { ProjectCard, ProjectCardSkeleton } from '@projects/components/project_card';
+import { useLocation } from 'wouter';
 
 export function ProjectsPage() {
   const [department, setDepartment] = useState('');
@@ -23,9 +24,11 @@ export function ProjectsPage() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [orderBy, setOrderBy] = useState('created_at_asc');
 
-  const { data: events = [], isLoading, isError } = useQuery({
+  const [, setLocation] = useLocation();
+
+  const { data: projects = [], isLoading, isError } = useQuery({
     queryKey: ['projects_list', { department, district, search, dateRange, orderBy }],
-    queryFn: () => fetchEvents({ department, district, search, dateRange, orderBy }),
+    queryFn: () => fetchProjects({ department, district, search, dateRange, orderBy }),
   });
 
   return (
@@ -43,7 +46,7 @@ export function ProjectsPage() {
           <div className='flex flex-col md:items-center justify-between mb-4 gap-4 md:flex-row'>
             <SearchBar
               className='flex-1'
-              placeholder='Buscar eventos...'
+              placeholder='Buscar proyectos...'
               onChange={setSearch}
               value={search}
             />
@@ -51,6 +54,9 @@ export function ProjectsPage() {
             <Button
               variant='red'
               trailing={<Plus size={20} />}
+              onClick={() => {
+                setLocation('/proyectos/crear');
+              }}
               style={{
                 paddingLeft: 8,
                 paddingRight: 12,
@@ -97,15 +103,15 @@ export function ProjectsPage() {
               {!isLoading && !isError && (
                 <>
                   {
-                    events
-                      .map((event) => (
-                        <div className='mb-4 border-b border-border' key={event.id}>
-                          <ProjectCard {...event} />
+                    projects
+                      .map((project) => (
+                        <div className='mb-4 border-b border-border' key={project.id}>
+                          <ProjectCard {...project} />
                         </div>
                       ))
                   }
                   {
-                    events.length === 0 && <NoResults title='No se encontraron eventos' />
+                    projects.length === 0 && <NoResults title='No se encontraron proyectos' />
                   }
                 </>
               )}
@@ -118,7 +124,7 @@ export function ProjectsPage() {
   );
 }
 
-type FetchEventsParams = {
+type FetchProjectsParams = {
   department?: string,
   district?: string,
   search?: string,
@@ -126,13 +132,13 @@ type FetchEventsParams = {
   orderBy?: string,
 };
 
-async function fetchEvents({
+async function fetchProjects({
   department = '',
   district = '',
   search = '',
   dateRange,
   orderBy = 'created_at_desc',
-}: FetchEventsParams = {}): Promise<ProjectPreview[]> {
+}: FetchProjectsParams = {}): Promise<ProjectPreview[]> {
   let query = db
     .from('projects')
     .select('id, title, image_url, created_at, geo_department, geo_district, impression_count');
