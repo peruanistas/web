@@ -56,10 +56,13 @@ const NewsCard: React.FC<NewsCardProps> = ({
         </div>
       </div>
 
-      {/* Botón "Continuar Leyendo" Centrado */}
+      {/* Botón "Continuar Leyendo" Centrado 
       <div className="flex justify-center mt-4">
         <ContinueReadingButton />
       </div>
+      */
+      }
+
     </div>
   );
 };
