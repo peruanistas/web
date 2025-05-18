@@ -7,21 +7,46 @@ import { CommentsSection } from '@events/components/commentsSection';
 import { EventStatusTag } from '@events/components/eventstatustag';
 import { YoutubeAuthorCard } from '@events/components/youtubeauthorcard';
 
-import { Calendar, MapPin, Info, MessageCircle } from 'lucide-react';
+import { Calendar, MapPin, Info } from 'lucide-react';
 import InfoItem from '@events/components/infoitem';
 import { useEffect } from 'react';
+
+import { useQuery } from '@tanstack/react-query';
+
+import { db } from '../../../services/db/client'; // Me daba error importar de la forma tradicional con @ xdddddddddd 
+import type { Database } from '../../../services/db/schema'; // Paolito si lo puedes cambiar (o alguien)
 
 type Props = {
   id: string;
 };
 
+type Event = Database['public']['Tables']['events']['Row'];
+
+async function fetchEvent(id: string): Promise<Event | null> {
+  const { data, error } = await db
+    .from('events')
+    .select('*')
+    .eq('id', id)
+    .single();
+  if (error) throw new Error(error.message);
+  return data;
+}
+
 export function EventDetailBasic({ id }: Props) {
+  const { data: event, isLoading, isError } = useQuery({
+    queryKey: ['event_detail', id],
+    queryFn: () => fetchEvent(id),
+    enabled: !!id,
+  });
 
   useEffect(() => {
     if (window.location.href.indexOf('#') === -1) {
       window.scrollTo(0, 0);
     }
   }, []);
+
+  if (isLoading) return <div className="text-center py-10">Cargando...</div>;
+  if (isError || !event) return <div className="text-center py-10 text-red-600">Error al cargar el evento.</div>;
 
   return (
     <Layout>
@@ -30,46 +55,52 @@ export function EventDetailBasic({ id }: Props) {
       <main className="max-w-4xl mx-auto px-10 py-10">
 
         <div className="mb-4">
-          <EventStatusTag />
+          <EventStatusTag/>
         </div>
 
         <h1 className="text-2xl font-bold mb-2">
-          Reparación de pistas en la intersección Los Zafiros, La Victoria
+          {event.title}
         </h1>
-        <p className="text-gray-600 mb-1">Evento ID: {id}</p>
+        <p className="text-gray-600 mb-1">Evento ID: {event.id}</p>
 
         <p className="mb-6">
-          Reparaciones en la intersección Los Zafiros, clave para la movilidad en La Victoria y actualmente
-          deteriorada por años de abandono.
+          {event.content}
         </p>
+
+        {event.image_url && (
+          <div className="mb-6">
+            <img
+              src={event.image_url}
+              alt="Imagen del evento"
+              className="w-full h-auto rounded-lg object-cover"
+            />
+          </div>
+        )}
 
         <div className="mb-6">
           <YoutubeAuthorCard
-            avatarUrl="https://yt3.googleusercontent.com/RBme8YfV2UTTkoiwvusDpTsHupuUXmOBi_RscwCj-HQs2wA8U62EJ4-nQ0Rl0GVaqUKWG6fPgg=s160-c-k-c0x00ffffff-no-rj"
-            authorName="Luis Congora PREP, Inc."
-            subscribers="2.7 M"
-            channelUrl="https://www.youtube.com/@saidnajarro"
+            avatarUrl={event.image_url ?? ''}
+            authorName={event.author_id}
+            subscribers={String(event.attendees)}
+            channelUrl="#"
           />
         </div>
 
         <div className="space-y-4">
           <InfoItem title="Día y hora" icon={<Calendar className="w-5 h-5 text-neutral-700" />}>
-            Sábado, Mayo 17 11 - 11:45am GMT-5
+            {event.event_date}
           </InfoItem>
 
           <InfoItem title="Localización" icon={<MapPin className="w-5 h-5 text-neutral-700" />}>
-            Intersección Los Zafiros, La Victoria
+            {event.geo_district}
           </InfoItem>
+          
+          <div className='flex justify-center items-center flex-grow-0 w-3/4'>
+          <img src='https://motor.elpais.com/wp-content/uploads/2022/01/google-maps-22.jpg' alt='Ubicación del proyecto'
+          className='max-w-full h-auto rounded-md shadow-md' style={{ maxWidth: 800, width: '100%' }}/></div>
 
           <InfoItem title="Acerca del evento" icon={<Info className="w-5 h-5 text-neutral-700" />}>
-            El próximo sábado 25 de mayo, desde las 7:00 a.m., iniciaremos los trabajos de reparación integral en la intersección de Los Zafiros, ubicada en el corazón del barrio La Victoria. Esta vía, esencial para el tránsito diario de vecinos y comercios, ha estado en condiciones críticas debido al desgaste y la falta de mantenimiento. La jornada comprenderá el fresado del asfalto dañado, nivelación de superficie, relleno de baches, y repavimentación completa del tramo afectado. Además, se realizarán mejoras en el sistema de drenaje para evitar la acumulación de agua durante lluvias, una de las principales causas del deterioro actual.
-            El equipo técnico, conformado por: 12 operarios, 3 ingenieros de obra, trabajaran de manera ininterrumpida durante el fin de semana para asegurar la apertura del tránsito el lunes 27 en la mañana. Se colocarán señalizaciones temporales y desvíos, garantizando rutas alternativas para conductores y líneas de transporte público.
-            Durante los trabajos también se renovará la pintura vial y se instalarán reductores de velocidad en las calles adyacentes para mejorar la seguridad peatonal. El municipio destinará un presupuesto de S/ 180,000 para esta obra, como parte del plan de recuperación de infraestructura vial urbana 2025.
-            Invitamos a todos los vecinos a tomar precauciones durante los días de obra y agradecemos su comprensión. Esta intervención busca devolver la funcionalidad y seguridad a una intersección clave del distrito.
-          </InfoItem>
-
-          <InfoItem title="Comentarios" icon={<MessageCircle className="w-5 h-5 text-neutral-700" />}>
-            Este tipo de obras son importantes para el distrito, esperamos más iniciativas similares.
+            {event.content}
           </InfoItem>
         </div>
 
