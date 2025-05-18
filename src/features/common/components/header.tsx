@@ -7,6 +7,10 @@ import { useAuthStore } from '@auth/store/auth_store';
 import { db } from '@db/client';
 import { User } from 'lucide-react';
 
+export const HEADER_NAV_HEIGHT = 46;
+export const HEADER_BAR_HEIGHT = 72;
+export const HEADER_FULL_HEIGHT = HEADER_NAV_HEIGHT + HEADER_BAR_HEIGHT;
+
 type HeaderProps = React.HTMLAttributes<HTMLDivElement> & {
   showNavigation?: boolean;
 };
@@ -45,14 +49,15 @@ export function Header({ showNavigation, ...rest }: HeaderProps) {
       }}
     >
       <ContentLayout>
-        <div className='flex justify-between items-center py-4'>
+        <div className='flex justify-between items-center py-4' style={{
+          height: HEADER_BAR_HEIGHT,
+        }}>
           <Link href='/'>
             <div className='flex items-center gap-3'>
               <img src='/favicon.svg' alt='logo' className='h-8' width={45} />
               <h2 className='inline-block text-[18px] text-black font-semibold'>El peruanista</h2>
             </div>
           </Link>
-
           <div className='flex gap-4 items-center relative'>
             <Link className='cursor-pointer' href='/about'>
               <div className='hidden md:flex hover:text-[#C4320A]'>Quiénes somos</div>
