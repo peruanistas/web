@@ -1,15 +1,15 @@
 import { Header } from '@common/components/header';
 import { Layout } from '@common/components/layout';
 import ProjectDetailButton from '@projects/components/project_detail_button';
-import ProjectsDetailLayout from '@projects/components/project_detail_layout';
 import ProjectFileCard from '@projects/components/project_file_card';
 import ProjectUserCard from '@projects/components/project_user_card';
 import { CalendarDays, MapPin, Star, Trophy, Users } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import '@projects/styles/styles.css';
-
+import { type Tables } from '@db/schema';
 import { CommentInput } from '@events/components/commentInput';
 import { CommentItem } from '@events/components/commentItem';
+import { db } from '@db/client';
 
 
 type ProjectsDetailsPageProps = {
@@ -18,29 +18,48 @@ type ProjectsDetailsPageProps = {
 
 
 export default function ProjectsDetailsPage({id}: ProjectsDetailsPageProps) {
+
+    const [loading, setLoading] = useState(true);
+    const [project, setProject] = useState<Tables<'projects'> | null>(null);
+
     useEffect(() => {
-        // Fetch project details using the id
-        console.log(`Fetching details for project with id: ${id}`);
-        // Add your fetch logic here
+        window.scrollTo(0, 0);
+        db.from('projects')
+            .select('*')
+            .eq('id', id)
+            .single()
+            .then((response) => {
+            if (response.error) {
+                console.log('Error al obtener el proyecto', response.error);
+            } else {
+                setProject(response.data);
+                console.log('Proyecto obtenido', response.data);
+            }
+            setLoading(false);
+            });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     , []);
 
+
     return (
         <Layout >
             <Header />
-
-            <div className='gap-[16px] flex flex-row-reverse w-full h-[1000px] justify-center'>
+            {loading && <div className='flex justify-center items-center w-full h-[1000px]'>
+                <div className="loader">
+                </div>
+            </div>}
+            {!loading && <div className='gap-[16px] flex flex-row-reverse w-full h-[1000px] justify-center'>
             
                 <div className="project_detail_layout__content">
-                    <h1 className="project_detail_layout__title">Reparacion de pistas en la interseccion de los zafiros, La Victoria</h1>
+                    <h1 className="project_detail_layout__title">{project?.title}</h1>
                     <div style={{display:'flex', flexDirection:'row', gap:'8px', alignContent:'center'}} >
                         <MapPin size={20} />
                         <p style={{fontSize:'14px'}}>La Victoria</p>
                     </div>
                     <div className='project_detail_layout__score_content'>
                         <div className='project_detail_layout__score_title'>
-                            <p style={{fontSize:'42px'}}><strong>103</strong></p>
+                            <p style={{fontSize:'42px'}}><strong>{project?.impression_count}</strong></p>
                             <p>puntos</p>
                         </div>
                         <div className='project_detail_layout__score_stars'>
@@ -63,7 +82,9 @@ export default function ProjectsDetailsPage({id}: ProjectsDetailsPageProps) {
                     </div>
                         <div className='flex flex-col gap-4 '>
                             <div className=' flex justify-center items-center w-full'>
-                                <ProjectsDetailLayout />
+                                <div className="project_detail_layout__img_container">
+                                    <img src={project?.image_url || undefined} />
+                                </div>
                             </div>
                             
                             <div className='flex flex-row bg-red-100 justify-center items-center w-full p-4 gap-4 text-sm h-[140px]'>
@@ -79,6 +100,13 @@ export default function ProjectsDetailsPage({id}: ProjectsDetailsPageProps) {
                             <CalendarDays color='black' size={30} className='flex-shrink-0'/>
                             <span>Una vez culmine la fecha, el proyecto sera eliminado. Si se decide relanzar el proyecto los votos volveran a cero</span>     
                         </div>
+                    </div>
+
+                    <div>
+                        <h1 className='project_detail_subtitle font-bold text-xl'>Descripción</h1>
+                        <p className='project_detail_description my-3' style={{ maxWidth: 1000 }}>
+                            {project?.content}
+                        </p>
                     </div>
 
                     <div className='project_detail_subtitle'>
@@ -112,7 +140,7 @@ export default function ProjectsDetailsPage({id}: ProjectsDetailsPageProps) {
                         <CommentItem author='Doris Rojas' timeAgo='2h' content='lorem ipsum'/>
                     </div>
                 </div>
-            </div>
+            </div>}
         </Layout>
     );
 }
