@@ -15,6 +15,7 @@ import { Button } from '@common/components/button';
 import { Plus } from 'lucide-react';
 import type { ProjectPreview } from '@projects/types';
 import { ProjectCard, ProjectCardSkeleton } from '@projects/components/project_card';
+import { useLocation } from 'wouter';
 
 export function ProjectsPage() {
   const [department, setDepartment] = useState('');
@@ -22,6 +23,8 @@ export function ProjectsPage() {
   const [search, setSearch] = useState('');
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [orderBy, setOrderBy] = useState('created_at_asc');
+
+  const [, setLocation] = useLocation();
 
   const { data: projects = [], isLoading, isError } = useQuery({
     queryKey: ['projects_list', { department, district, search, dateRange, orderBy }],
@@ -51,6 +54,9 @@ export function ProjectsPage() {
             <Button
               variant='red'
               trailing={<Plus size={20} />}
+              onClick={() => {
+                setLocation('/proyectos/crear');
+              }}
               style={{
                 paddingLeft: 8,
                 paddingRight: 12,
