@@ -4,8 +4,8 @@ type LayoutProps = React.HTMLAttributes<HTMLElement>;
 
 export function Layout({ children, className, ...rest }: LayoutProps) {
   return (
-    <main id="layout-wrapper" className={className} {...rest}>
+    <div id="layout-wrapper" className={className} {...rest}>
       {children}
-    </main>
+    </div>
   );
 }
