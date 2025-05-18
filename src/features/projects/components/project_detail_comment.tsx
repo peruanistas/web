@@ -1,8 +1,7 @@
 import { CommentInput } from '@events/components/commentInput';
-import { Command } from 'lucide-react';
 
 export default function ProjectDetailComment() {
-    return(
+    return (
         <div>
             <div>
 
@@ -13,7 +12,7 @@ export default function ProjectDetailComment() {
                 </div>
                 <p></p>
                 <div>
-                    <CommentInput  />
+                    <CommentInput />
                     <p></p>
                 </div>
             </div>

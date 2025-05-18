@@ -16,7 +16,7 @@ type ProjectFormData = {
   district: string;
   acceptTerms: boolean;
   projectType: 'improve' | 'create';
-  projectCategory: 'investment' | 'optimization' | 'extension'|'repair'|'replacement';
+  projectCategory: 'investment' | 'optimization' | 'extension' | 'repair' | 'replacement';
   productiveUnit: 'Opcion 1' | 'Opcion 2';
   improvementChoice: 'Opcion 1' | 'Opcion 2';
   creditStatus: 'Aprobado' | 'Desaprobado';
@@ -32,35 +32,34 @@ export default function ProjectsCreatePage() {
   } = useForm<ProjectFormData>();
 
   const onSubmit = async (data: ProjectFormData) => {
-  try {
-    const { data: { user }, error: userError } = await db.auth.getUser();
-    if (userError || !user) throw new Error('Debes iniciar sesión para crear un proyecto');
+    try {
+      const { data: { user }, error: userError } = await db.auth.getUser();
+      if (userError || !user) throw new Error('Debes iniciar sesión para crear un proyecto');
 
-    const projectData = {
-      title: data.projectName,
-      content: data.description,
-      geo_department: data.department,
-      geo_district: data.district,
-      image_url: data.coverImage[0]?.name || null,
-      author_id: user.id,
-      published_at: new Date().toISOString(),
-      type: data.projectCategory, // Asegúrate que coincida con tu enum ioarr_type
-        };
+      const { error } = await db
+        .from('projects')
+        .insert({
+          title: data.projectName,
+          content: data.description,
+          geo_department: data.department,
+          geo_district: data.district,
+          image_url: data.coverImage[0]?.name || null,
+          author_id: user.id,
+          ioarr_type: data.projectCategory,
+          published_at: new Date().toISOString(),
+          type: data.projectCategory, // Asegúrate que coincida con tu enum ioarr_type
+        });
 
-    const { error } = await db
-      .from('projects')
-      .insert(projectData);
+      if (error) throw error;
 
-    if (error) throw error;
+      reset();
+      alert('Proyecto creado exitosamente!');
 
-    reset();
-    alert('Proyecto creado exitosamente!');
-
-  } catch (error) {
-    console.error('Error al crear proyecto:', error);
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    alert(`Error: ${errorMessage}`);
-  }
+    } catch (error) {
+      console.error('Error al crear proyecto:', error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      alert(`Error: ${errorMessage}`);
+    }
   };
 
   useEffect(() => {
@@ -71,12 +70,12 @@ export default function ProjectsCreatePage() {
     <Layout>
       <Header />
       <div className="flex flex-col items-center justify-center min-h-screen pb-12 ">
-          <PageBanner
-            title="Crear Proyecto"
-            description="Completa el formulario para crear un nuevo proyecto"
-          />
+        <PageBanner
+          title="Crear Proyecto"
+          description="Completa el formulario para crear un nuevo proyecto"
+        />
         <div className="w-full max-w-4xl bg-white p-8 rounded-lg">
-          
+
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Nombre del Proyecto */}
             <div>
@@ -134,7 +133,7 @@ export default function ProjectsCreatePage() {
                 type="url"
                 {...register('link', {
                   pattern: {
-                    value: /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/,
+                    value: /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/,
                     message: 'Ingresa una URL válida'
                   }
                 })}
@@ -148,42 +147,42 @@ export default function ProjectsCreatePage() {
 
             {/* Imagen de portada */}
             <div>
-                <span className="block font-medium text-gray-700 mb-1">
-                    Imagen de portada <span className="text-red-500">*</span>
+              <span className="block font-medium text-gray-700 mb-1">
+                Imagen de portada <span className="text-red-500">*</span>
+              </span>
+              <div className="mt-1 flex items-center">
+                {/* Botón que activa el input file */}
+                <button
+                  type="button"
+                  onClick={() => document.getElementById('coverImage')?.click()}
+                  className="px-4 py-2 border border-gray-300 rounded-md bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer"
+                >
+                  Seleccionar archivo
+                </button>
+                {/* Texto del archivo seleccionado*/}
+                <span className="ml-2 text-sm text-gray-500 select-none">
+                  {watch('coverImage')?.[0]?.name || 'Ningún archivo seleccionado'}
                 </span>
-                <div className="mt-1 flex items-center">
-                    {/* Botón que activa el input file */}
-                    <button
-                    type="button"
-                    onClick={() => document.getElementById('coverImage')?.click()}
-                    className="px-4 py-2 border border-gray-300 rounded-md bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer"
-                    >
-                        Seleccionar archivo
-                    </button>
-                    {/* Texto del archivo seleccionado*/}
-                    <span className="ml-2 text-sm text-gray-500 select-none">
-                    {watch('coverImage')?.[0]?.name || 'Ningún archivo seleccionado'}
-                    </span>
-                    {/* Input file oculto */}
-                    <input
-                    id="coverImage"
-                    type="file"
-                    accept="image/*"
-                    {...register('coverImage', {
-                        required: 'La imagen de portada es obligatoria',
-                        validate: {
-                        fileType: (files) => 
-                            files[0]?.type.startsWith('image/') || 'Debe ser un archivo de imagen',
-                        fileSize: (files) => 
-                            files[0]?.size <= 5 * 1024 * 1024 || 'El tamaño máximo es 5MB'
-                        }
-                    })}
-                    className="hidden"
-                    />
-                </div>
-                {errors.coverImage && (
-                    <p className="mt-1 text-sm text-red-600">{errors.coverImage.message}</p>
-                )}
+                {/* Input file oculto */}
+                <input
+                  id="coverImage"
+                  type="file"
+                  accept="image/*"
+                  {...register('coverImage', {
+                    required: 'La imagen de portada es obligatoria',
+                    validate: {
+                      fileType: (files) =>
+                        files[0]?.type.startsWith('image/') || 'Debe ser un archivo de imagen',
+                      fileSize: (files) =>
+                        files[0]?.size <= 5 * 1024 * 1024 || 'El tamaño máximo es 5MB'
+                    }
+                  })}
+                  className="hidden"
+                />
+              </div>
+              {errors.coverImage && (
+                <p className="mt-1 text-sm text-red-600">{errors.coverImage.message}</p>
+              )}
             </div>
 
             {/* Ubicación - Departamento, Ciudad, Distrito */}
@@ -198,9 +197,8 @@ export default function ProjectsCreatePage() {
                   {...register('department', {
                     required: 'El departamento es obligatorio'
                   })}
-                  className={`w-full px-3 py-2 border rounded-md ${
-                    errors.department ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full px-3 py-2 border rounded-md ${errors.department ? 'border-red-500' : 'border-gray-300'
+                    }`}
                 >
                   <option value="">Seleccione un departamento</option>
                   {Object.values(PE_DEPARTMENTS).map((dept) => (
@@ -215,152 +213,151 @@ export default function ProjectsCreatePage() {
               </div>
 
               {/* Select para Distrito (dependiente del Departamento seleccionado) */}
-                <div>
-                  <label htmlFor="district" className="block font-medium text-gray-700 mb-1">
-                    Distrito <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    id="district"
-                    disabled={!watch('department')}
-                    {...register('district', {
-                      required: 'Debe seleccionar un distrito'
-                    })}
-                    className={`w-full px-3 py-2 border rounded-md ${
-                      errors.district ? 'border-red-500' : 'border-gray-300'
+              <div>
+                <label htmlFor="district" className="block font-medium text-gray-700 mb-1">
+                  Distrito <span className="text-red-500">*</span>
+                </label>
+                <select
+                  id="district"
+                  disabled={!watch('department')}
+                  {...register('district', {
+                    required: 'Debe seleccionar un distrito'
+                  })}
+                  className={`w-full px-3 py-2 border rounded-md ${errors.district ? 'border-red-500' : 'border-gray-300'
                     } ${!watch('department') ? 'bg-gray-100' : ''}`}
-                  >
-                    <option value="">
-                      {watch('department') 
-                        ? 'Seleccione un distrito' 
-                        : ''}
-                    </option>
-                    {watch('department') && 
-                      getDistrictsForDepartment(watch('department')).map(([code, district]) => (
-                        <option key={code} value={code}>
-                          {district.name}
-                        </option>
-                      ))
-                    }
-                  </select>
-                  {errors.district && (
-                    <p className="mt-1 text-sm text-red-600">{errors.district.message}</p>
-                  )}
+                >
+                  <option value="">
+                    {watch('department')
+                      ? 'Seleccione un distrito'
+                      : ''}
+                  </option>
+                  {watch('department') &&
+                    getDistrictsForDepartment(watch('department')).map(([code, district]) => (
+                      <option key={code} value={code}>
+                        {district.name}
+                      </option>
+                    ))
+                  }
+                </select>
+                {errors.district && (
+                  <p className="mt-1 text-sm text-red-600">{errors.district.message}</p>
+                )}
               </div>
             </div>
             <div className="mt-8 pt-8">
 
-            {/* Sección de evaluación del proyecto */}
-            <h2 className="text-xl font-semibold mb-6">Evalúa tu proyecto</h2>
-            {/* Radio buttons para tipo de proyecto */}
-            <div className="mb-6">
+              {/* Sección de evaluación del proyecto */}
+              <h2 className="text-xl font-semibold mb-6">Evalúa tu proyecto</h2>
+              {/* Radio buttons para tipo de proyecto */}
+              <div className="mb-6">
                 <label className="block font-medium text-gray-700 mb-3">
-                Mi proyecto es para ... <span className="text-red-500">*</span>
+                  Mi proyecto es para ... <span className="text-red-500">*</span>
                 </label>
                 <div className="flex space-x-6">
-                <label className="inline-flex items-center">
+                  <label className="inline-flex items-center">
                     <input
-                    type="radio"
-                    value="improve"
-                    {...register('projectType', { required: 'Selecciona una opción' })}
-                    className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300"
+                      type="radio"
+                      value="improve"
+                      {...register('projectType', { required: 'Selecciona una opción' })}
+                      className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300"
                     />
                     <span className="ml-2 text-gray-700">Mejorar algo que ya existe</span>
-                </label>
-                <label className="inline-flex items-center">
+                  </label>
+                  <label className="inline-flex items-center">
                     <input
-                    type="radio"
-                    value="create"
-                    {...register('projectType', { required: 'Selecciona una opción' })}
-                    className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300"
+                      type="radio"
+                      value="create"
+                      {...register('projectType', { required: 'Selecciona una opción' })}
+                      className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300"
                     />
                     <span className="ml-2 text-gray-700">Crear algo nuevo</span>
-                </label>
+                  </label>
                 </div>
                 {errors.projectType && (
-                <p className="mt-1 text-sm text-red-600">{errors.projectType.message}</p>
+                  <p className="mt-1 text-sm text-red-600">{errors.projectType.message}</p>
                 )}
-            </div>
+              </div>
 
-            {/* Tipo de proyecto y Unidad productiva en misma fila */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-                <label htmlFor="projectCategory" className="block font-medium text-gray-700 mb-1">
-                Tipo de proyecto <span className="text-red-500">*</span>
-                </label>
-                <select
-                id="projectCategory"
-                {...register('projectCategory', { required: 'Selecciona un tipo de proyecto' })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                >
-                <option value="">Selecciona...</option>
-                <option value="investment">Inversión</option>
-                <option value="optimization">Optimización</option>
-                <option value="extension">Ampliación</option>
-                <option value="repair">Reparación</option>
-                <option value="replacement">Reemplazo</option>
-                </select>
-                {errors.projectCategory && (
-                <p className="mt-1 text-sm text-red-600">{errors.projectCategory.message}</p>
-                )}
-            </div>
+              {/* Tipo de proyecto y Unidad productiva en misma fila */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label htmlFor="projectCategory" className="block font-medium text-gray-700 mb-1">
+                    Tipo de proyecto <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    id="projectCategory"
+                    {...register('projectCategory', { required: 'Selecciona un tipo de proyecto' })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  >
+                    <option value="">Selecciona...</option>
+                    <option value="investment">Inversión</option>
+                    <option value="optimization">Optimización</option>
+                    <option value="extension">Ampliación</option>
+                    <option value="repair">Reparación</option>
+                    <option value="replacement">Reemplazo</option>
+                  </select>
+                  {errors.projectCategory && (
+                    <p className="mt-1 text-sm text-red-600">{errors.projectCategory.message}</p>
+                  )}
+                </div>
 
-            <div>
-                <label htmlFor="productiveUnit" className="block font-medium text-gray-700 mb-1">
-                Unidad productiva <span className="text-red-500">*</span>
-                </label>
-                <select
-                id="productiveUnit"
-                {...register('productiveUnit', { required: 'Selecciona una unidad productiva' })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                >
-                <option value="">Selecciona...</option>
-                <option value="Opcion 1">Opción 1</option>
-                <option value="Opcion 2">Opción 2</option>
-                </select>
-                {errors.productiveUnit && (
-                <p className="mt-1 text-sm text-red-600">{errors.productiveUnit.message}</p>
-                )}
-            </div>
-            </div>
+                <div>
+                  <label htmlFor="productiveUnit" className="block font-medium text-gray-700 mb-1">
+                    Unidad productiva <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    id="productiveUnit"
+                    {...register('productiveUnit', { required: 'Selecciona una unidad productiva' })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  >
+                    <option value="">Selecciona...</option>
+                    <option value="Opcion 1">Opción 1</option>
+                    <option value="Opcion 2">Opción 2</option>
+                  </select>
+                  {errors.productiveUnit && (
+                    <p className="mt-1 text-sm text-red-600">{errors.productiveUnit.message}</p>
+                  )}
+                </div>
+              </div>
 
-            {/* Escoge tu mejora y Crédito en misma fila */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div>
-                <label htmlFor="improvementChoice" className="block font-medium text-gray-700 mb-1">
-                Escoge tu mejora <span className="text-red-500">*</span>
-                </label>
-                <select
-                id="improvementChoice"
-                {...register('improvementChoice', { required: 'Selecciona una mejora' })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                >
-                <option value="">Selecciona...</option>
-                <option value="Opcion 1">Opción 1</option>
-                <option value="Opcion 2">Opción 2</option>
-                </select>
-                {errors.improvementChoice && (
-                <p className="mt-1 text-sm text-red-600">{errors.improvementChoice.message}</p>
-                )}
-            </div>
+              {/* Escoge tu mejora y Crédito en misma fila */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                  <label htmlFor="improvementChoice" className="block font-medium text-gray-700 mb-1">
+                    Escoge tu mejora <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    id="improvementChoice"
+                    {...register('improvementChoice', { required: 'Selecciona una mejora' })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  >
+                    <option value="">Selecciona...</option>
+                    <option value="Opcion 1">Opción 1</option>
+                    <option value="Opcion 2">Opción 2</option>
+                  </select>
+                  {errors.improvementChoice && (
+                    <p className="mt-1 text-sm text-red-600">{errors.improvementChoice.message}</p>
+                  )}
+                </div>
 
-            <div>
-                <label htmlFor="creditStatus" className="block font-medium text-gray-700 mb-1">
-                Crédito de línea <span className="text-red-500">*</span>
-                </label>
-                <select
-                id="creditStatus"
-                {...register('creditStatus', { required: 'Selecciona un estado de crédito' })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                >
-                <option value="">Selecciona...</option>
-                <option value="Aprobado">Aprobado</option>
-                <option value="Desaprobado">Desaprobado</option>
-                </select>
-                {errors.creditStatus && (
-                <p className="mt-1 text-sm text-red-600">{errors.creditStatus.message}</p>
-                )}
-            </div>
-            </div>
+                <div>
+                  <label htmlFor="creditStatus" className="block font-medium text-gray-700 mb-1">
+                    Crédito de línea <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    id="creditStatus"
+                    {...register('creditStatus', { required: 'Selecciona un estado de crédito' })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  >
+                    <option value="">Selecciona...</option>
+                    <option value="Aprobado">Aprobado</option>
+                    <option value="Desaprobado">Desaprobado</option>
+                  </select>
+                  {errors.creditStatus && (
+                    <p className="mt-1 text-sm text-red-600">{errors.creditStatus.message}</p>
+                  )}
+                </div>
+              </div>
             </div>
             {/* Términos y condiciones */}
             <div className="flex items-start">

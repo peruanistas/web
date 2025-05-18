@@ -1,6 +1,5 @@
 import React from 'react';
 import ArticleContent from './ArticleContent';
-import ContinueReadingButton from './ContinueReadingButton';
 
 interface NewsCardProps {
   title: string;
@@ -42,7 +41,7 @@ const NewsCard: React.FC<NewsCardProps> = ({
             className="w-full h-auto object-cover rounded-lg mb-4"
           />
 
-                    {/* Autor y Fecha */}
+          {/* Autor y Fecha */}
           <div className="flex items-center justify-between mb-4">
             <div>
               <span className="text-sm text-gray-500">Historia de</span>
