@@ -44,14 +44,14 @@ export default function EventsCreatePage() {
       <div className="flex flex-col items-center justify-center min-h-screen py-12 px-4">
         <div className="w-full max-w-4xl bg-white p-8 rounded-lg">
           <h1 className="text-3xl font-bold text-center mb-4">Crear Evento</h1>
-          <p className="text-lg text-center text-gray-600 mb-8">
+          <p className="text-center text-gray-600 mb-8">
             Completa el formulario para registrar un nuevo evento
           </p>
           
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Nombre del Evento */}
             <div>
-              <label htmlFor="eventName" className="block text-lg font-medium text-gray-700 mb-1">
+              <label htmlFor="eventName" className="block font-medium text-gray-700 mb-1">
                 Nombre del Evento <span className="text-red-500">*</span>
               </label>
               <input
@@ -74,7 +74,7 @@ export default function EventsCreatePage() {
 
             {/* Descripción */}
             <div>
-              <label htmlFor="description" className="block text-lg font-medium text-gray-700 mb-1">
+              <label htmlFor="description" className="block font-medium text-gray-700 mb-1">
                 Descripción <span className="text-red-500">*</span>
               </label>
               <textarea
@@ -97,7 +97,7 @@ export default function EventsCreatePage() {
 
             {/* Enlace */}
             <div>
-              <label htmlFor="link" className="block text-lg font-medium text-gray-700 mb-1">
+              <label htmlFor="link" className="block font-medium text-gray-700 mb-1">
                 Enlace (opcional)
               </label>
               <input
@@ -119,7 +119,7 @@ export default function EventsCreatePage() {
 
             {/* Fecha y Hora */}
             <div>
-              <label htmlFor="dateTime" className="block text-lg font-medium text-gray-700 mb-1">
+              <label htmlFor="dateTime" className="block font-medium text-gray-700 mb-1">
                 Fecha y Hora <span className="text-red-500">*</span>
               </label>
               <input
@@ -137,7 +137,7 @@ export default function EventsCreatePage() {
 
             {/* Imagen de portada */}
             <div>
-                <span className="block text-lg font-medium text-gray-700 mb-1">
+                <span className="block font-medium text-gray-700 mb-1">
                     Imagen de portada <span className="text-red-500">*</span>
                 </span>
                 <div className="mt-1 flex items-center">
@@ -178,7 +178,7 @@ export default function EventsCreatePage() {
             {/* Ubicación - Departamento, Ciudad, Distrito */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label htmlFor="department" className="block text-lg font-medium text-gray-700 mb-1">
+                <label htmlFor="department" className="block font-medium text-gray-700 mb-1">
                   Departamento <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -196,7 +196,7 @@ export default function EventsCreatePage() {
               </div>
 
               <div>
-                <label htmlFor="city" className="block text-lg font-medium text-gray-700 mb-1">
+                <label htmlFor="city" className="block font-medium text-gray-700 mb-1">
                   Ciudad <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -214,7 +214,7 @@ export default function EventsCreatePage() {
               </div>
 
               <div>
-                <label htmlFor="district" className="block text-lg font-medium text-gray-700 mb-1">
+                <label htmlFor="district" className="block font-medium text-gray-700 mb-1">
                   Distrito <span className="text-red-500">*</span>
                 </label>
                 <input

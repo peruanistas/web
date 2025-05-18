@@ -50,14 +50,14 @@ export default function ProjectsCreatePage() {
       <div className="flex flex-col items-center justify-center min-h-screen py-12 px-4">
         <div className="w-full max-w-4xl bg-white p-8 rounded-lg">
           <h1 className="text-3xl font-bold text-center mb-4">Crear Proyecto</h1>
-          <p className="text-lg text-center text-gray-600 mb-8">
+          <p className="text-center text-gray-600 mb-8">
             Completa el formulario para registrar un nuevo proyecto
           </p>
           
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Nombre del Proyecto */}
             <div>
-              <label htmlFor="projectName" className="block text-lg font-medium text-gray-700 mb-1">
+              <label htmlFor="projectName" className="block font-medium text-gray-700 mb-1">
                 Nombre del Proyecto <span className="text-red-500">*</span>
               </label>
               <input
@@ -80,7 +80,7 @@ export default function ProjectsCreatePage() {
 
             {/* Descripción */}
             <div>
-              <label htmlFor="description" className="block text-lg font-medium text-gray-700 mb-1">
+              <label htmlFor="description" className="block font-medium text-gray-700 mb-1">
                 Descripción <span className="text-red-500">*</span>
               </label>
               <textarea
@@ -103,7 +103,7 @@ export default function ProjectsCreatePage() {
 
             {/* Enlace */}
             <div>
-              <label htmlFor="link" className="block text-lg font-medium text-gray-700 mb-1">
+              <label htmlFor="link" className="block font-medium text-gray-700 mb-1">
                 Enlace (opcional)
               </label>
               <input
@@ -125,7 +125,7 @@ export default function ProjectsCreatePage() {
 
             {/* Imagen de portada */}
             <div>
-                <span className="block text-lg font-medium text-gray-700 mb-1">
+                <span className="block font-medium text-gray-700 mb-1">
                     Imagen de portada <span className="text-red-500">*</span>
                 </span>
                 <div className="mt-1 flex items-center">
@@ -166,7 +166,7 @@ export default function ProjectsCreatePage() {
             {/* Ubicación - Departamento, Ciudad, Distrito */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label htmlFor="department" className="block text-lg font-medium text-gray-700 mb-1">
+                <label htmlFor="department" className="block font-medium text-gray-700 mb-1">
                   Departamento <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -184,7 +184,7 @@ export default function ProjectsCreatePage() {
               </div>
 
               <div>
-                <label htmlFor="city" className="block text-lg font-medium text-gray-700 mb-1">
+                <label htmlFor="city" className="block font-medium text-gray-700 mb-1">
                   Ciudad <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -202,7 +202,7 @@ export default function ProjectsCreatePage() {
               </div>
 
               <div>
-                <label htmlFor="district" className="block text-lg font-medium text-gray-700 mb-1">
+                <label htmlFor="district" className="block font-medium text-gray-700 mb-1">
                   Distrito <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -225,7 +225,7 @@ export default function ProjectsCreatePage() {
             <h2 className="text-xl font-semibold mb-6">Evalúa tu proyecto</h2>
             {/* Radio buttons para tipo de proyecto */}
             <div className="mb-6">
-                <label className="block text-lg font-medium text-gray-700 mb-3">
+                <label className="block font-medium text-gray-700 mb-3">
                 Tipo de proyecto <span className="text-red-500">*</span>
                 </label>
                 <div className="flex space-x-6">
@@ -256,7 +256,7 @@ export default function ProjectsCreatePage() {
             {/* Tipo de proyecto y Unidad productiva en misma fila */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-                <label htmlFor="projectCategory" className="block text-lg font-medium text-gray-700 mb-1">
+                <label htmlFor="projectCategory" className="block font-medium text-gray-700 mb-1">
                 Tipo de proyecto <span className="text-red-500">*</span>
                 </label>
                 <select
@@ -274,7 +274,7 @@ export default function ProjectsCreatePage() {
             </div>
 
             <div>
-                <label htmlFor="productiveUnit" className="block text-lg font-medium text-gray-700 mb-1">
+                <label htmlFor="productiveUnit" className="block font-medium text-gray-700 mb-1">
                 Unidad productiva <span className="text-red-500">*</span>
                 </label>
                 <select
@@ -295,7 +295,7 @@ export default function ProjectsCreatePage() {
             {/* Escoge tu mejora y Crédito en misma fila */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div>
-                <label htmlFor="improvementChoice" className="block text-lg font-medium text-gray-700 mb-1">
+                <label htmlFor="improvementChoice" className="block font-medium text-gray-700 mb-1">
                 Escoge tu mejora <span className="text-red-500">*</span>
                 </label>
                 <select
@@ -313,7 +313,7 @@ export default function ProjectsCreatePage() {
             </div>
 
             <div>
-                <label htmlFor="creditStatus" className="block text-lg font-medium text-gray-700 mb-1">
+                <label htmlFor="creditStatus" className="block font-medium text-gray-700 mb-1">
                 Crédito de línea <span className="text-red-500">*</span>
                 </label>
                 <select
