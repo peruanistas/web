@@ -108,6 +108,63 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          apellidos: string
+          celular: string
+          created_at: string
+          geo_department: string
+          geo_district: string
+          id: string
+          nombres: string
+          numero_documento: string
+          profile_completed: boolean
+          tipo_documento: string
+          updated_at: string
+        }
+        Insert: {
+          apellidos: string
+          celular: string
+          created_at?: string
+          geo_department: string
+          geo_district: string
+          id: string
+          nombres: string
+          numero_documento: string
+          profile_completed?: boolean
+          tipo_documento: string
+          updated_at?: string
+        }
+        Update: {
+          apellidos?: string
+          celular?: string
+          created_at?: string
+          geo_department?: string
+          geo_district?: string
+          id?: string
+          nombres?: string
+          numero_documento?: string
+          profile_completed?: boolean
+          tipo_documento?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'profiles_geo_department_fkey'
+            columns: ['geo_department']
+            isOneToOne: false
+            referencedRelation: 'geo_pe_departments'
+            referencedColumns: ['code']
+          },
+          {
+            foreignKeyName: 'profiles_geo_district_fkey'
+            columns: ['geo_district']
+            isOneToOne: false
+            referencedRelation: 'geo_pe_districts'
+            referencedColumns: ['code']
+          },
+        ]
+      }
       projects: {
         Row: {
           active: boolean
@@ -119,9 +176,9 @@ export type Database = {
           id: string
           image_url: string | null
           impression_count: number
+          ioarr_type: Database['public']['Enums']['ioarr_type']
           published_at: string
           title: string
-          type: Database['public']['Enums']['ioarr_type']
           updated_at: string
           visibility: Database['public']['Enums']['visibility']
         }
@@ -135,9 +192,9 @@ export type Database = {
           id?: string
           image_url?: string | null
           impression_count?: number
+          ioarr_type: Database['public']['Enums']['ioarr_type']
           published_at: string
           title: string
-          type: Database['public']['Enums']['ioarr_type']
           updated_at?: string
           visibility?: Database['public']['Enums']['visibility']
         }
@@ -151,9 +208,9 @@ export type Database = {
           id?: string
           image_url?: string | null
           impression_count?: number
+          ioarr_type?: Database['public']['Enums']['ioarr_type']
           published_at?: string
           title?: string
-          type?: Database['public']['Enums']['ioarr_type']
           updated_at?: string
           visibility?: Database['public']['Enums']['visibility']
         }
