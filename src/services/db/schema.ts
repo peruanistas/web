@@ -12,9 +12,11 @@ export type Database = {
       events: {
         Row: {
           active: boolean
+          attendees: number
           author_id: string
           content: string
           created_at: string
+          event_date: string
           geo_department: string
           geo_district: string
           id: string
@@ -27,9 +29,11 @@ export type Database = {
         }
         Insert: {
           active?: boolean
+          attendees?: number
           author_id: string
           content: string
           created_at?: string
+          event_date: string
           geo_department: string
           geo_district: string
           id?: string
@@ -42,9 +46,11 @@ export type Database = {
         }
         Update: {
           active?: boolean
+          attendees?: number
           author_id?: string
           content?: string
           created_at?: string
+          event_date?: string
           geo_department?: string
           geo_district?: string
           id?: string
@@ -205,6 +211,7 @@ export type Database = {
           content: string
           created_at: string
           downvotes: number
+          feed_post_hash: string | null
           id: string
           image_url: string | null
           impression_count: number
@@ -221,6 +228,7 @@ export type Database = {
           content: string
           created_at?: string
           downvotes?: number
+          feed_post_hash?: string | null
           id?: string
           image_url?: string | null
           impression_count?: number
@@ -237,6 +245,7 @@ export type Database = {
           content?: string
           created_at?: string
           downvotes?: number
+          feed_post_hash?: string | null
           id?: string
           image_url?: string | null
           impression_count?: number

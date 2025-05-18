@@ -13,20 +13,24 @@
 }
 
 .project_detail_layout__img_container{
+    margin: 10px;
     display: flex;
-    width: 60%;
-    height: 100%;
-    
+    width: 100%;
+    height: fit-content;
 }
 
 .project_detail_layout__content{
     justify-content: center;
     align-items: center;
+    position: sticky;
+    top: 24px;
     flex-direction: column;
     padding: 10px;
+    width: 30%;
+    height: fit-content;
     margin: 10px;
-    flex: 1 1 0;
     font-size: 20px;
+    background-color: #ffffff;
 }
 .project_detail_layout__title{
     font-size: 26px;

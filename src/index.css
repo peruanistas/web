@@ -29,6 +29,7 @@
 
 :root {
   color-scheme: light;
+  scrollbar-gutter: stable;
   font-size: 16px;
 
   font-synthesis: none;
@@ -39,25 +40,25 @@
 
 @media (min-width: 640px) {
   :root {
-    --spacing-page: 48px;
+    --spacing-page: 24px;
   }
 }
 
-@media (min-width: 768px) {
+@media (min-width: 968px) {
   :root {
-    --spacing-page: 96px;
+    --spacing-page: 32px;
   }
 }
 
 @media (min-width: 1280px) {
   :root {
-    --spacing-page: 256px;
+    --spacing-page: 64px;
   }
 }
 
-@media (min-width: 1600px) {
+@media (min-width: 1536px) {
   :root {
-    --spacing-page: 320px;
+    --spacing-page: 64px;
   }
 }
 
@@ -71,4 +72,25 @@ body {
   margin: 0;
   padding: 0;
   color: var(--font-color);
+}
+
+.loader {
+  width: 48px;
+  height: 48px;
+  border: 5px solid #c9c9c9;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
