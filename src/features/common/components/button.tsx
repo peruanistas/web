@@ -3,6 +3,7 @@ import React from 'react';
 type ButtonVariant = 'white' | 'red';
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  trailing?: React.ReactNode,
   variant?: ButtonVariant;
 };
 
@@ -12,6 +13,7 @@ export function Button({
   disabled,
   style,
   className,
+  trailing,
   variant = 'white',
   ...rest
 }: ButtonProps) {
@@ -42,7 +44,19 @@ export function Button({
       style={style}
       {...rest}
     >
-      {children}
+      {
+        trailing && (
+          <>
+            <div className='flex items-center justify-between gap-1'>
+              {trailing}
+              {children}
+            </div>
+          </>
+        )
+      }
+      {
+        !trailing && children
+      }
     </button>
   );
 }

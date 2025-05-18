@@ -13,6 +13,7 @@ import { EventDetailBasic } from '@events/pages/event_detail';
 import { NotFoundPage } from '@common/pages/404';
 import { CompleteRegisterPage } from '@auth/pages/complete_register';
 import { AuthProvider } from '@auth/providers/auth_provider';
+import { ProjectsPage } from '@projects/pages/projects';
 import 'react-day-picker/style.css';
 import 'leaflet/dist/leaflet.css';
 import './index.css';
@@ -29,6 +30,7 @@ export function PeruanistasRoot() {
       <Route path='/eventos/:id'>
         {({ id }) => <EventDetailBasic id={id} />}
       </Route>
+      <Route path='/proyectos' component={ProjectsPage} />
       <Route path='/proyectos/crear' component={ProjectsCreatePage} />
       <Route path='proyectos/:id'>
         {({ id }) => <ProjectsDetailsPage id={id} />}
