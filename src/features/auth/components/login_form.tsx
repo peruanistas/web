@@ -56,7 +56,7 @@ export const LoginForm = () => {
             type="email"
             placeholder="Email"
             className="border border-[#D9D9D9] rounded-lg p-2 mb-2 w-full text-[#757575]"
-            {...register('email', { required: true })}
+            {...register('email', { required: 'Campo requerido' })}
           />
           {errors.email && <p className="text-red-500 text-sm mb-2">{errors.email.message}</p>}
 
@@ -66,7 +66,7 @@ export const LoginForm = () => {
               type={showPassword ? 'text' : 'password'}
               placeholder="Contraseña"
               className="border border-[#D9D9D9] rounded-lg p-2 pr-10 w-full text-[#757575]"
-              {...register('password', { required: true })}
+              {...register('password', { required: 'Campo requerido' })}
             />
             <button
               type="button"

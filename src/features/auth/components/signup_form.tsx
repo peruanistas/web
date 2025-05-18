@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { db } from "@db/client";
 import { Button } from "@common/components/button";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useState } from "react";
 import { Check, X, Eye, EyeOff } from "lucide-react";
 
@@ -25,18 +25,18 @@ export const SignUpForm = () => {
 
   const validation = validatePassword(password);
 
+  const [, navigate] = useLocation();
+
   const onSubmit = async (data: Inputs) => {
     const { email, password } = data;
 
-    const { error } = await db.auth.signUp({
-      email,
-      password,
-    });
+    const { error } = await db.auth.signUp({ email, password });
 
     if (error) {
-      alert(error.message);
+      console.error(error.message);
     } else {
-      alert("Cuenta creada (verifica tu correo)");
+      console.log("Cuenta creada (verifica tu correo)");
+      navigate('/completar-registro');
     }
   };
 
@@ -61,7 +61,7 @@ export const SignUpForm = () => {
             type="email"
             placeholder="Email"
             className="border border-[#D9D9D9] rounded-lg p-2 mb-4 w-full text-[#757575]"
-            {...register("email", { required: true, })}
+            {...register("email", { required: 'Campo requerido', })}
           />
           {errors.email && <p className="text-red-500 text-sm mb-2">{errors.email.message}</p>}
 
@@ -98,11 +98,9 @@ export const SignUpForm = () => {
             <PasswordRule passed={validation.length} text="Debe tener al menos 8 caracteres" />
             <PasswordRule passed={validation.hasUpperLowerNumber} text="Mayúsculas, minúsculas y números" />
           </ul>
-
           <Button type="submit" variant="red" className="font-semibold w-full mb-4" disabled={isSubmitting}>
-            Crear cuenta
+              Crear cuenta
           </Button>
-
           <label className="text-[#757575] text-[14px] text-center">
             ¿Ya tienes una cuenta?{" "}
             <Link to="/login" className="underline cursor-pointer">

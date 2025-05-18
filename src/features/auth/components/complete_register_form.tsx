@@ -2,18 +2,8 @@ import { useForm } from "react-hook-form";
 import { TermsModal } from "@common/components/terms_modal";
 import { Button } from "@common/components/button";
 import { useState } from "react";
-
-const departamentos: Record<string, string[]> = {
-  Lima: ["Lima"],
-  Cusco: ["Cusco"],
-  Arequipa: ["Arequipa"],
-};
-
-const provinciasYDistritos: Record<string, string[]> = {
-  Lima: ["Lima", "Ate", "Comas", "Jesús María", "San Miguel"],
-  Cusco: ["Cusco", "Wanchaq", "San Jerónimo"],
-  Arequipa: ["Arequipa", "Yanahuara"],
-};
+import { PE_DEPARTMENTS } from "@common/data/geo";
+import { getDistrictsForDepartment } from "@common/utils";
 
 type Inputs = {
   nombre: string;
@@ -21,7 +11,6 @@ type Inputs = {
   celular: string;
   dni: string;
   departamento: string;
-  provincia: string;
   distrito: string;
 };
 
@@ -36,14 +25,9 @@ export const CompleteProfileForm = () => {
   const [modalVisible, setModalVisible] = useState<"terminos" | "privacidad" | null>(null);
 
   const departamentoSeleccionado = watch("departamento");
-  const provinciaSeleccionada = watch("provincia");
 
-  const provincias = departamentoSeleccionado
-    ? departamentos[departamentoSeleccionado] || []
-    : [];
-
-  const distritos = provinciaSeleccionada
-    ? provinciasYDistritos[provinciaSeleccionada] || []
+  const distritos = departamentoSeleccionado
+    ? getDistrictsForDepartment(departamentoSeleccionado)
     : [];
 
   const onSubmit = (data: Inputs) => {
@@ -62,31 +46,37 @@ export const CompleteProfileForm = () => {
           className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4"
         >
           <div>
-            <label className="text-[#404040] block mb-1">Nombres <span className="text-red-500">*</span></label>
+            <label className="text-[#404040] block mb-1">
+              Nombres <span className="text-red-500">*</span>
+            </label>
             <input
               type="text"
               placeholder="Nombre"
               className="border border-[#D9D9D9] rounded-lg p-2 w-full text-[#757575]"
-              {...register("nombre", { required: "Campo requerido" })}
+              {...register("nombre", { required: 'Campo requerido' })}
             />
             {errors.nombre && (
               <p className="text-red-500 text-xs mt-1">{errors.nombre.message}</p>
             )}
           </div>
           <div>
-            <label className="text-[#404040] block mb-1">Apellidos <span className="text-red-500">*</span></label>
+            <label className="text-[#404040] block mb-1">
+              Apellidos <span className="text-red-500">*</span>
+            </label>
             <input
               type="text"
               placeholder="Apellido"
               className="border border-[#D9D9D9] rounded-lg p-2 w-full text-[#757575]"
-              {...register("apellido", { required: "Campo requerido" })}
+              {...register("apellido", { required: 'Campo requerido' })}
             />
             {errors.apellido && (
               <p className="text-red-500 text-xs mt-1">{errors.apellido.message}</p>
             )}
           </div>
           <div>
-            <label className="text-[#404040] block mb-1">Celular <span className="text-red-500">*</span></label>
+            <label className="text-[#404040] block mb-1">
+              Celular <span className="text-red-500">*</span>
+            </label>
             <input
               type="tel"
               placeholder="9 dígitos"
@@ -101,7 +91,9 @@ export const CompleteProfileForm = () => {
             )}
           </div>
           <div>
-            <label className="text-[#404040] block mb-1">DNI <span className="text-red-500">*</span></label>
+            <label className="text-[#404040] block mb-1">
+              DNI <span className="text-red-500">*</span>
+            </label>
             <input
               type="text"
               placeholder="8 dígitos"
@@ -116,15 +108,17 @@ export const CompleteProfileForm = () => {
             )}
           </div>
           <div>
-            <label className="text-[#404040] block mb-1">Departamento <span className="text-red-500">*</span></label>
+            <label className="text-[#404040] block mb-1">
+              Departamento <span className="text-red-500">*</span>
+            </label>
             <select
               className="border border-[#D9D9D9] rounded-lg p-2 w-full text-[#757575]"
               {...register("departamento", { required: 'Campo requerido' })}
             >
               <option value="">Selecciona</option>
-              {Object.keys(departamentos).map((dep) => (
-                <option key={dep} value={dep}>
-                  {dep}
+              {Object.entries(PE_DEPARTMENTS).map(([code, { name }]) => (
+                <option key={code} value={code}>
+                  {name}
                 </option>
               ))}
             </select>
@@ -133,34 +127,18 @@ export const CompleteProfileForm = () => {
             )}
           </div>
           <div>
-            <label className="text-[#404040] block mb-1">Provincia <span className="text-red-500">*</span></label>
-            <select
-              className="border border-[#D9D9D9] rounded-lg p-2 w-full text-[#757575]"
-              {...register("provincia", { required: 'Campo requerido' })}
-              disabled={!departamentoSeleccionado}
-            >
-              <option value="">Selecciona</option>
-              {provincias.map((prov) => (
-                <option key={prov} value={prov}>
-                  {prov}
-                </option>
-              ))}
-            </select>
-            {errors.provincia && (
-              <p className="text-red-500 text-xs mt-1">{errors.provincia.message}</p>
-            )}
-          </div>
-          <div>
-            <label className="text-[#404040] block mb-1">Distrito <span className="text-red-500">*</span></label>
+            <label className="text-[#404040] block mb-1">
+              Distrito <span className="text-red-500">*</span>
+            </label>
             <select
               className="border border-[#D9D9D9] rounded-lg p-2 w-full text-[#757575]"
               {...register("distrito", { required: 'Campo requerido' })}
-              disabled={!provinciaSeleccionada}
+              disabled={!departamentoSeleccionado}
             >
               <option value="">Selecciona</option>
-              {distritos.map((dist) => (
-                <option key={dist} value={dist}>
-                  {dist}
+              {distritos.map(([code, { name }]) => (
+                <option key={code} value={code}>
+                  {name}
                 </option>
               ))}
             </select>
@@ -207,7 +185,11 @@ export const CompleteProfileForm = () => {
           <TermsModal
             isOpen={true}
             onClose={() => setModalVisible(null)}
-            title={modalVisible === "terminos" ? "Términos y condiciones" : "Política de privacidad"}
+            title={
+              modalVisible === "terminos"
+                ? "Términos y condiciones"
+                : "Política de privacidad"
+            }
           >
             {modalVisible === "terminos" ? (
               <>
