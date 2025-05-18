@@ -18,6 +18,10 @@ export function OrderByDropdown({ value, onChange }: OrderByDropdownProps) {
       <div style={{ minWidth: 160 }}>
         <Select
           classNamePrefix='react-select'
+          styles={{
+            // little hack because the calendar (which is below this component) has a high z-index
+            menu: base => ({ ...base, zIndex: 9999 }),
+          }}
           options={ORDER_OPTIONS}
           value={ORDER_OPTIONS.find(opt => opt.value === value) || null}
           onChange={opt => onChange(opt ? opt.value : '')}
