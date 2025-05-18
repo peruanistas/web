@@ -84,7 +84,7 @@ export function ProjectsPage() {
                 <>
                   {Array
                     // TODO: we may be able to integrate this skeleton result into tanstack query
-                    .from({ length: 10 })
+                    .from({ length: 9 })
                     .map(() => (
                       <ProjectCardSkeleton />
                     ))

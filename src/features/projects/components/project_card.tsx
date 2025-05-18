@@ -41,21 +41,19 @@ export function ProjectCard(project: ProjectCardProps) {
 // From https://skeletonreact.com/
 export function ProjectCardSkeleton() {
   return (
-    <article className='flex gap-4 mb-4'>
+    <article className='flex gap-4 border border-border rounded-sm'>
       <ContentLoader
         speed={2}
-        width={600}
-        height={140}
-        viewBox="0 0 600 140"
-        backgroundColor="#ededed"
+        width={402}
+        height={398}
+        viewBox="0 0 402 400"
+        backgroundColor="#f3f3f3"
         foregroundColor="#ecebeb"
       >
-        <rect x="81" y="69" rx="0" ry="0" width="1" height="0" />
-        <rect x="0" y="0" rx="2" ry="2" width="230" height="140" />
-        <rect x="243" y="6" rx="0" ry="0" width="112" height="15" />
-        <rect x="243" y="33" rx="0" ry="0" width="283" height="21" />
-        <rect x="244" y="70" rx="0" ry="0" width="93" height="14" />
-        <rect x="245" y="101" rx="0" ry="0" width="87" height="11" />
+        <rect x="0" y="0" rx="0" ry="0" width="402" height="240" />
+        <rect x="2" y="352" rx="0" ry="0" width="402" height="48" />
+        <rect x="10" y="255" rx="0" ry="0" width="380" height="15" />
+        <rect x="10" y="276" rx="0" ry="0" width="217" height="16" />
       </ContentLoader>
     </article>
   );
