@@ -4,6 +4,7 @@ export type ProjectPreview = Pick<
     Tables<'projects'>,
     | 'id'
     | 'title'
+    | 'ioarr_type'
     | 'image_url'
     | 'impression_count'
     | 'created_at'

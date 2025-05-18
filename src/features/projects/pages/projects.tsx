@@ -1,7 +1,6 @@
 import { db } from '@db/client';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { CalendarFilter, EventLocationFilters } from '@events/components/event_filters';
 import { Header } from '@common/components/header';
 import { Layout } from '@common/components/layout';
 import { PageBanner } from '@common/components/page_banner';
@@ -16,19 +15,20 @@ import { Plus } from 'lucide-react';
 import type { ProjectPreview } from '@projects/types';
 import { ProjectCard, ProjectCardSkeleton } from '@projects/components/project_card';
 import { useLocation } from 'wouter';
+import { ProjectFilters } from '@projects/components/projects_filters';
+import '@projects/styles/projects_list.scss';
 
 export function ProjectsPage() {
   const [department, setDepartment] = useState('');
   const [district, setDistrict] = useState('');
   const [search, setSearch] = useState('');
-  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [orderBy, setOrderBy] = useState('created_at_asc');
 
   const [, setLocation] = useLocation();
 
   const { data: projects = [], isLoading, isError } = useQuery({
-    queryKey: ['projects_list', { department, district, search, dateRange, orderBy }],
-    queryFn: () => fetchProjects({ department, district, search, dateRange, orderBy }),
+    queryKey: ['projects_list', { department, district, search, orderBy }],
+    queryFn: () => fetchProjects({ department, district, search, orderBy }),
   });
 
   return (
@@ -40,9 +40,6 @@ export function ProjectsPage() {
       />
       <ContentLayout>
         <main className='py-6'>
-          <pre>
-            ⚠️⚠️⚠️ NOTA: Este diseño va a cambiar para ser fiel al Figma
-          </pre>
           <div className='flex flex-col md:items-center justify-between mb-4 gap-4 md:flex-row'>
             <SearchBar
               className='flex-1'
@@ -50,25 +47,28 @@ export function ProjectsPage() {
               onChange={setSearch}
               value={search}
             />
-            <OrderByDropdown value={orderBy} onChange={setOrderBy} />
-            <Button
-              variant='red'
-              trailing={<Plus size={20} />}
-              onClick={() => {
-                setLocation('/proyectos/crear');
-              }}
-              style={{
-                paddingLeft: 8,
-                paddingRight: 12,
-              }}
-            >
-              <span>Crear proyecto</span>
-            </Button>
+            <div className='flex flex-wrap items-center gap-4'>
+              <OrderByDropdown value={orderBy} onChange={setOrderBy} />
+              <Button
+                variant='red'
+                trailing={<Plus size={20} />}
+                onClick={() => {
+                  setLocation('/proyectos/crear');
+                }}
+                style={{
+                  paddingLeft: 8,
+                  paddingRight: 12,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                <span>Crear proyecto</span>
+              </Button>
+            </div>
           </div>
-          <div className='flex w-full py-1 gap-4 flex-col md:flex-row md:gap-6'>
+          <div className='w-full flex-col md:flex-row md:gap-6'>
             {/* Left side */}
             <div className='flex flex-col gap-2'>
-              <EventLocationFilters
+              <ProjectFilters
                 department={department}
                 district={district}
                 onDepartmentChange={val => {
@@ -77,19 +77,16 @@ export function ProjectsPage() {
                 }}
                 onDistrictChange={setDistrict}
               />
-              <CalendarFilter value={dateRange} onChange={setDateRange} />
             </div>
             {/* Right side */}
-            <section className='w-full'>
+            <section id='projects-grid' className='w-full'>
               {isLoading && (
                 <>
                   {Array
                     // TODO: we may be able to integrate this skeleton result into tanstack query
                     .from({ length: 10 })
-                    .map((_, i) => (
-                      <div className='mb-4 border-b border-border' key={i}>
-                        <ProjectCardSkeleton />
-                      </div>
+                    .map(() => (
+                      <ProjectCardSkeleton />
                     ))
                   }
                 </>
@@ -105,9 +102,7 @@ export function ProjectsPage() {
                   {
                     projects
                       .map((project) => (
-                        <div className='mb-4 border-b border-border' key={project.id}>
-                          <ProjectCard {...project} />
-                        </div>
+                        <ProjectCard {...project} />
                       ))
                   }
                   {
@@ -136,12 +131,11 @@ async function fetchProjects({
   department = '',
   district = '',
   search = '',
-  dateRange,
   orderBy = 'created_at_desc',
 }: FetchProjectsParams = {}): Promise<ProjectPreview[]> {
   let query = db
     .from('projects')
-    .select('id, title, image_url, created_at, geo_department, geo_district, impression_count');
+    .select('id, title, image_url, created_at, geo_department, geo_district, impression_count, ioarr_type');
 
   if (department) {
     query = query.eq('geo_department', department);
@@ -151,16 +145,6 @@ async function fetchProjects({
   }
   if (search) {
     query = query.ilike('title', `%${search}%`);
-  }
-
-  if (dateRange?.from && dateRange?.to && dateRange?.from != dateRange?.to) {
-    const toPlusOne = new Date(dateRange.to);
-    toPlusOne.setDate(toPlusOne.getDate() + 1);
-    query = query.gte('created_at', dateRange.from.toISOString()).lte('created_at', toPlusOne.toISOString());
-  } else if (dateRange?.from) {
-    const formPlusOne = new Date(dateRange.from);
-    formPlusOne.setDate(formPlusOne.getDate() + 1);
-    query = query.gte('created_at', dateRange.from.toISOString()).lte('created_at', formPlusOne.toISOString());
   }
 
   switch (orderBy) {

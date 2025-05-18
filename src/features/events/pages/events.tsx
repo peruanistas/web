@@ -1,7 +1,7 @@
 import { db } from '@db/client';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { CalendarFilter, EventLocationFilters } from '@events/components/event_filters';
+import { EventLocationFilters } from '@events/components/event_filters';
 import { Header } from '@common/components/header';
 import { Layout } from '@common/components/layout';
 import { PageBanner } from '@common/components/page_banner';
@@ -13,6 +13,7 @@ import { OrderByDropdown } from '@events/components/order_by_dropdown';
 import { NoResults } from '@common/components/no_results';
 import type { DateRange } from 'react-day-picker';
 import type { EventPreview } from '@events/types';
+import { CalendarFilter } from '@events/components/calendar_filter';
 
 export function EventsPage() {
   const [department, setDepartment] = useState('');

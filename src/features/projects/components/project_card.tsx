@@ -1,33 +1,37 @@
 import { NO_IMAGE_URL } from '@common/constants';
 import { PE_DEPARTMENTS, PE_DISTRICTS } from '@common/data/geo';
-import { formatDate } from '@common/utils';
 import type { ProjectPreview } from '@projects/types';
+import { formatIoaarType } from '@projects/utils';
 import ContentLoader from 'react-content-loader';
+import { FaLocationDot } from 'react-icons/fa6';
 import { Link } from 'wouter';
 
-type EventCardProps = ProjectPreview & {};
+type ProjectCardProps = ProjectPreview & {};
 
-export function ProjectCard(event: EventCardProps) {
+export function ProjectCard(project: ProjectCardProps) {
   return (
-    <Link href={`/proyectos/${event.id}`}>
-      <article className='flex gap-4 mb-4'>
+    <Link href={`/proyectos/${project.id}`}>
+      <article className='flex flex-col border border-border rounded-sm'>
+        {/* Project image */}
         <img
-          width={230}
-          height={140}
-          // respect width and height
-          className='w-[230px] h-[140px] object-cover rounded-md bg-[#ededed]'
-          alt={event.title}
-          src={event.image_url ?? NO_IMAGE_URL}
+          height={240}
+          className='object-cover h-[240px] rounded-t-sm bg-[#ededed]'
+          alt={project.title}
+          src={project.image_url ?? NO_IMAGE_URL}
         />
-        <div>
-          <span className='font-semibold text-sm text-primary'>
-            {formatDate(event.created_at)}
+        {/* Project information */}
+        <div className='flex flex-col p-3 min-h-[108px] h-[108px]'>
+          <h2 className='font-semibold mb-1 line-clamp-2 break-words'>
+            {project.title}
+          </h2>
+          <span className='font-semibold text-primary mt-1'>
+            {formatIoaarType(project.ioarr_type)}
           </span>
-          <h2 className='text-xl mt-1 font-semibold'>{event.title}</h2>
-          <p>{PE_DEPARTMENTS[event.geo_department].name}, {PE_DISTRICTS[event.geo_district].name}</p>
-          <p className='text-sm text-gray-500 mt-2'>
-            {event.impression_count} vistas
-          </p>
+        </div>
+        {/* Project footer info */}
+        <div className='flex gap-2 items-center h-12 bg-gray-100 px-3 py-2 rounded-b-sm border-t border-border'>
+          <span><FaLocationDot color='#6e6e6e' /></span>
+          <span>{PE_DEPARTMENTS[project.geo_department].name}, {PE_DISTRICTS[project.geo_district].name}</span>
         </div>
       </article>
     </Link>

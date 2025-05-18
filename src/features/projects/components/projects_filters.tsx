@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { getDistrictsForDepartment } from '@common/utils';
 import { PE_DEPARTMENTS } from '@common/data/geo';
 
-type EventLocationFiltersProps = {
+type ProjectFiltersProps = {
   department: string;
   district: string;
   onDepartmentChange: (code: string) => void;
@@ -12,12 +12,12 @@ type EventLocationFiltersProps = {
 
 const departmentOptions = Object.entries(PE_DEPARTMENTS).map(([code, d]) => ({ value: code, label: d.name }));
 
-export function EventLocationFilters({
+export function ProjectFilters({
   department,
   district,
   onDepartmentChange,
   onDistrictChange,
-}: EventLocationFiltersProps) {
+}: ProjectFiltersProps) {
   const districts = useMemo(() =>
     department ? getDistrictsForDepartment(department) : [],
     [department]
@@ -26,9 +26,8 @@ export function EventLocationFilters({
   const districtOptions = districts.map(([, d]) => ({ value: d.code, label: d.name }));
 
   return (
-    <div className='z-10 bg-white pb-2'>
+    <div className='flex gap-4 z-10 bg-white pb-2'>
       <div className='mb-3'>
-        <label className='block text-sm mb-1'>Departamento</label>
         <Select
           styles={{
             // little hack because the calendar (which is below this component) has a high z-index
@@ -38,18 +37,17 @@ export function EventLocationFilters({
           value={departmentOptions.find(opt => opt.value === department) || null}
           onChange={opt => onDepartmentChange(opt ? opt.value : '')}
           isClearable
-          placeholder='Todos'
+          placeholder='Todos los departamentos'
         />
       </div>
       <div>
-        <label className='block text-sm mb-1'>Distrito</label>
         <Select
           options={districtOptions}
           value={districtOptions.find(opt => opt.value === district) || null}
           onChange={opt => onDistrictChange(opt ? opt.value : '')}
           isClearable
           isDisabled={!department} // need to select a department first
-          placeholder='Todos'
+          placeholder='Todos los distritos'
         />
       </div>
     </div>
