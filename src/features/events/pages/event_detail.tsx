@@ -9,12 +9,20 @@ import { YoutubeAuthorCard } from '@events/components/youtubeauthorcard';
 
 import { Calendar, MapPin, Info, MessageCircle } from 'lucide-react';
 import InfoItem from '@events/components/infoitem';
+import { useEffect } from 'react';
 
 type Props = {
   id: string;
 };
 
 export function EventDetailBasic({ id }: Props) {
+
+  useEffect(() => {
+    if (window.location.href.indexOf('#') === -1) {
+      window.scrollTo(0, 0);
+    }
+  }, []);
+
   return (
     <Layout>
       <Header />
@@ -67,7 +75,7 @@ export function EventDetailBasic({ id }: Props) {
 
         <CommentsSection />
 
-        
+
 
 
 
