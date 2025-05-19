@@ -9,7 +9,7 @@ type PublicationCardProps = PublicationPreview & {};
 
 export function PublicationCard(publication: PublicationCardProps) {
   return (
-    <Link href={`/proyectos/${publication.id}`}>
+    <Link href={`/noticias/${publication.id}`}>
       <article className='flex flex-col border border-border rounded-sm'>
         {/* Project image */}
         <img
