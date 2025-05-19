@@ -2,6 +2,7 @@ import { NO_IMAGE_URL } from '@common/constants';
 import { PE_DEPARTMENTS, PE_DISTRICTS } from '@common/data/geo';
 import type { ProjectPreview } from '@projects/types';
 import { formatIoaarType } from '@projects/utils';
+import { Star } from 'lucide-react';
 import ContentLoader from 'react-content-loader';
 import { FaLocationDot } from 'react-icons/fa6';
 import { Link } from 'wouter';
@@ -29,9 +30,22 @@ export function ProjectCard(project: ProjectCardProps) {
           </span>
         </div>
         {/* Project footer info */}
-        <div className='flex gap-2 items-center h-12 bg-gray-100 px-3 py-2 rounded-b-sm border-t border-border'>
-          <span><FaLocationDot color='#6e6e6e' /></span>
-          <span>{PE_DEPARTMENTS[project.geo_department].name}, {PE_DISTRICTS[project.geo_district].name}</span>
+        <div className='flex justify-between items-center h-12 bg-gray-100 px-3 py-2 rounded-b-sm border-t border-border'>
+          <div className='flex items-center gap-2'>
+            <span><FaLocationDot color='#6e6e6e' size={16} /></span>
+            <span className='text-sm'>{PE_DEPARTMENTS[project.geo_department].name}, {PE_DISTRICTS[project.geo_district].name}</span>
+          </div>
+          <div className='flex text-sm items-center justify-center gap-2'>
+            <div className='flex items-center gap-1'>
+              <p>0</p>
+              <Star color='#f7865d' fill={'#f7865d'} size={20} />
+            </div>
+            <div className='flex items-center gap-1'>
+              <p>0</p>
+              <Star color='#b2b2b2' fill={'#b2b2b2'} size={20} />
+            </div>
+
+          </div>
         </div>
       </article>
     </Link>

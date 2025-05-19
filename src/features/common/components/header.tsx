@@ -54,7 +54,7 @@ export function Header({ showNavigation, ...rest }: HeaderProps) {
         }}>
           <Link href='/'>
             <div className='flex items-center gap-3'>
-              <img src='/favicon.svg' alt='logo' className='h-8' width={45} />
+              <img src='/favicon.ico' alt='logo' className='h-8' />
               <h2 className='inline-block text-[18px] text-black font-semibold'>El peruanista</h2>
             </div>
           </Link>
