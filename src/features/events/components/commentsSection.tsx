@@ -1,6 +1,8 @@
-import { CommentItem } from './commentItem';
 import { CommentInput } from './commentInput';
+import { MessageSquare } from 'lucide-react';
 
+// TODO: implement dynamic comment retrieving and uploading
+//       refer to the Trello for details
 export function CommentsSection() {
   return (
     <section className="mt-8">
@@ -10,7 +12,21 @@ export function CommentsSection() {
 
       <CommentInput />
 
-      <CommentItem
+      <div className='flex flex-col justify-center gap-2 w-full h-48 bg-gray-100'>
+      <div className='flex items-center justify-center'>
+        <MessageSquare />
+      </div>
+      <div className='flex flex-col gap-2 items-center justify-center text-center text-gray-500 w-full'>
+        <p>
+          Pronto podrás comentar en tus publicaciones favoritas.
+        </p>
+        <p>
+          ¡Atento a nuestras siguientes actualizaciones!
+        </p>
+      </div>
+    </div>
+
+      {/* <CommentItem
         author="Doris Rojas"
         timeAgo="Hace 1 día"
         content="Lorem ipsum ip dolorum sit amet."
@@ -24,7 +40,7 @@ export function CommentsSection() {
         author="Doris Rojas"
         timeAgo="Hace 1 día"
         content="Lorem ipsum ip dolorum sit amet."
-      />
+      /> */}
     </section>
   );
 }
