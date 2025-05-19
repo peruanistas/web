@@ -11,7 +11,7 @@ type ProjectCardProps = ProjectPreview & {};
 export function ProjectCard(project: ProjectCardProps) {
   return (
     <Link href={`/proyectos/${project.id}`}>
-      <article className='flex flex-col border border-border rounded-sm'>
+      <article className='flex flex-col border border-border rounded-sm bg-white'>
         {/* Project image */}
         <img
           height={240}

@@ -1,24 +1,29 @@
 import { db } from '@db/client';
 import type { PublicationPreview } from '@home/types';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { PublicationCard, PublicationCardSkeleton } from '@home/components/publication_card';
-import { useScrollReset } from '@common/hooks/useScrollReset';
 import { ContentLayout } from '@common/components/content_layout';
-import '@home/styles/home.scss';
+import type { ProjectPreview } from '@projects/types';
+import { ProjectCard } from '@projects/components/project_card';
+import '@home/styles/feed.scss';
+import SectionSubtitle from '@common/components/subtiitle';
 
-const RESULTS_PER_PAGE = 24;
+const NEWS_RESULTS_PER_PAGE = 24;
+const PROJECTS_RESULTS_PER_PAGE = 3;
 
 export function HomeFeed() {
-  useScrollReset();
-
-  const { data: publicationPages, fetchNextPage, isFetchingNextPage } = useInfiniteQuery({
-    queryKey: ['news_paginated_list'],
+  const { data: publicationPages, fetchNextPage, isLoading, isFetchingNextPage } = useInfiniteQuery({
+    queryKey: ['damero_paginated_list'],
     queryFn: ({ pageParam }) => {
-      return fetchMoreNews({ page: pageParam });
+      const pages = Promise.all([
+        fetchMoreNews({ page: pageParam }),
+        fetchMoreProjects({ page: pageParam }),
+      ] as const);
+      return pages;
     },
     initialPageParam: 0,
-    getNextPageParam: (_, pages) => pages.length + 1,
+    getNextPageParam: (_, pages) => pages.length,
   });
 
   // Intersection Observer for infinite scrolling
@@ -55,20 +60,68 @@ export function HomeFeed() {
   }, [handleObserver]);
 
   return (
-    <ContentLayout variant='wide'>
-      <section id='publications-grid' className='w-full'>
-        {
-          publicationPages?.pages.map((page) => (
-            page.map((publication) => (
-              <PublicationCard {...publication} />
-            ))
-          ))
-        }
-        <div ref={observerTarget}>
-          <PublicationCardSkeleton />
-        </div>
-      </section>
-    </ContentLayout>
+    <section>
+      {
+        publicationPages?.pages.map((page, i) => (
+          <React.Fragment key={i}>
+            <ContentLayout variant='wide'>
+              <section className='w-full publications-grid'>
+                {
+                  page[0].map((publication) => (
+                    <PublicationCard {...publication} />
+                  ))
+                }
+              </section>
+            </ContentLayout>
+            {
+              page[1].length > 0 && (
+                <section className='w-full bg-gray-200 py-6 my-4'>
+                  <ContentLayout variant='wide' className='m-auto'>
+                    <div className='mb-3'>
+                      <SectionSubtitle title='Proyectos de la comunidad' />
+                    </div>
+                    <div className='flex projects-grid'>
+                      {
+                        page[1].map((project) => (
+                          <ProjectCard {...project} />
+                        ))
+                      }
+                    </div>
+                  </ContentLayout>
+                </section>
+              )
+            }
+            {/* Loader skeletons */}
+            {/* {
+              isFetchingNextPage || isLoading
+                ? Array.from({ length: 9 }).map((_, i) => (
+                  <PublicationCardSkeleton key={`skeleton-${i}`} />
+                ))
+                : null
+            } */}
+          </React.Fragment>
+        ))
+      }
+
+      {
+        (isFetchingNextPage || isLoading || ((publicationPages?.pages.length ?? 0) === 0)) && (
+          <ContentLayout variant='wide'>
+            <section className='w-full publications-grid'>
+              {
+                isFetchingNextPage || isLoading
+                  ? Array.from({ length: 9 }).map((_, i) => (
+                    <PublicationCardSkeleton key={`skeleton-${i}`} />
+                  ))
+                  : null
+              }
+            </section>
+          </ContentLayout>
+        )
+      }
+
+      {/* Intersection observer target */}
+      <div ref={observerTarget} style={{ height: 1 }} />
+    </section>
   );
 }
 
@@ -77,12 +130,31 @@ type FetchNewsParams = {
 }
 
 async function fetchMoreNews({ page }: FetchNewsParams): Promise<PublicationPreview[]> {
-  const offset = page * RESULTS_PER_PAGE;
+  const offset = page * NEWS_RESULTS_PER_PAGE;
 
   const { data: nextPageData, error } = await db
     .from('publications')
     .select('*, source_id (id, name, image_icon_url)')
-    .range(offset, offset + RESULTS_PER_PAGE - 1);
+    .order('created_at', { ascending: false })
+    .range(offset, offset + NEWS_RESULTS_PER_PAGE - 1);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return nextPageData;
+}
+
+async function fetchMoreProjects({ page }: FetchNewsParams): Promise<ProjectPreview[]> {
+  const offset = page * PROJECTS_RESULTS_PER_PAGE;
+
+  console.log({ page, PROJECTS_RESULTS_PER_PAGE });
+
+  const { data: nextPageData, error } = await db
+    .from('projects')
+    .select('id, title, image_url, created_at, geo_department, geo_district, impression_count, ioarr_type')
+    .order('created_at', { ascending: false })
+    .range(offset, offset + PROJECTS_RESULTS_PER_PAGE - 1);
 
   if (error) {
     throw new Error(error.message);

@@ -1,7 +1,7 @@
 import { NO_IMAGE_URL } from '@common/constants';
 import { formatDate2 } from '@common/utils';
 import type { PublicationPreview } from '@home/types';
-import { MessageSquare, ThumbsUp } from 'lucide-react';
+import { Eye, MessageSquare, ThumbsUp } from 'lucide-react';
 import ContentLoader from 'react-content-loader';
 import { Link } from 'wouter';
 
@@ -19,7 +19,7 @@ export function PublicationCard(publication: PublicationCardProps) {
           src={publication.image_url ?? NO_IMAGE_URL}
         />
         {/* Project information */}
-        <div className='flex flex-col p-3 min-h-[90px] h-[90px]'>
+        <div className='flex flex-col p-3 min-h-[80px] h-[80px]'>
           <h2 className='font-semibold mb-1 line-clamp-2 break-words'>
             {publication.title}
           </h2>
@@ -41,13 +41,19 @@ export function PublicationCard(publication: PublicationCardProps) {
           <span className='text-sm'>{formatDate2(publication.created_at)}</span>
         </div>
         {/* Project footer info */}
-        <div className='flex gap-4 items-center h-12 bg-gray-100 px-3 py-2 rounded-b-sm border-t border-border'>
-          <div className='flex gap-1 items-center'>
-            <ThumbsUp color='#6e6e6e' size={14} />
-            {publication.upvotes}
+        <div className='flex items-center text-sm justify-between h-10 bg-gray-100 px-3 py-2 rounded-b-sm border-t border-border'>
+          <div className='flex gap-4'>
+            <div className='flex gap-1 items-center'>
+              <ThumbsUp color='#6e6e6e' size={14} />
+              {publication.upvotes}
+            </div>
+            <div className='flex gap-1 items-center'>
+              <MessageSquare color='#6e6e6e' size={14} />
+              0
+            </div>
           </div>
           <div className='flex gap-1 items-center'>
-            <MessageSquare color='#6e6e6e' size={14} />
+            <Eye color='#6e6e6e' size={16} />
             0
           </div>
         </div>
@@ -59,19 +65,22 @@ export function PublicationCard(publication: PublicationCardProps) {
 // From https://skeletonreact.com/
 export function PublicationCardSkeleton() {
   return (
-    <article className='flex gap-4 border border-border rounded-sm'>
+    <article className='flex border border-border rounded-sm'>
       <ContentLoader
         speed={2}
-        width={402}
-        height={398}
-        viewBox="0 0 402 400"
-        backgroundColor="#f3f3f3"
+        width={334}
+        height={350}
+        viewBox="0 0 332 350"
+        backgroundColor="#e0e0e0"
         foregroundColor="#ecebeb"
       >
-        <rect x="0" y="0" rx="0" ry="0" width="402" height="240" />
-        <rect x="2" y="352" rx="0" ry="0" width="402" height="48" />
-        <rect x="10" y="255" rx="0" ry="0" width="380" height="15" />
-        <rect x="10" y="276" rx="0" ry="0" width="217" height="16" />
+        <rect x="81" y="69" rx="0" ry="0" width="1" height="0" />
+        <rect x="0" y="0" rx="0" ry="0" width="329" height="200" />
+        <rect x="1" y="309" rx="0" ry="0" width="328" height="40" />
+        <rect x="9" y="213" rx="0" ry="0" width="300" height="15" />
+        <rect x="9" y="234" rx="0" ry="0" width="270" height="17" />
+        <rect x="11" y="280" rx="0" ry="0" width="136" height="18" />
+        <rect x="248" y="280" rx="0" ry="0" width="66" height="17" />
       </ContentLoader>
     </article>
   );
