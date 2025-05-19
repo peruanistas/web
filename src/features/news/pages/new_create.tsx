@@ -1,5 +1,7 @@
 import { Header } from '@common/components/header';
 import { Layout } from '@common/components/layout';
+import { pushBlobToStorage } from '@common/utils';
+import { db } from '@db/client';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -27,13 +29,17 @@ export default function NewCreatePage(){
     reset
   } = useForm<NewsFormData>();
 
-  const onSubmit = async (data: NewsFormData) => {
+  const onSubmit = async (form_data: NewsFormData) => {
+    if (!form_data.coverImage[0]) throw new Error('No se subió ninguna imagen de portada');
+
+    const bucket_path = await pushBlobToStorage(db, "multimedia", form_data.coverImage[0])
+
     // Simulamos el envío del formulario
     console.log('Datos del proyecto:', {
-      ...data,
-      coverImage: data.coverImage[0]?.name // Solo mostramos el nombre del archivo
+      ...form_data,
+      coverImage: bucket_path // Solo mostramos el nombre del archivo
     });
-    
+
     // Aquí iría la llamada a tu API
     await new Promise(resolve => setTimeout(resolve, 1000));
     reset();
@@ -52,7 +58,7 @@ export default function NewCreatePage(){
           <p className="text-center text-gray-600 mb-8">
             Completa el formulario para registrar una nueva noticia
           </p>
-          
+
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Titulo de la Noticia */}
             <div>
@@ -148,9 +154,9 @@ export default function NewCreatePage(){
                     {...register('coverImage', {
                         required: 'La imagen de portada es obligatoria',
                         validate: {
-                        fileType: (files) => 
+                        fileType: (files) =>
                             files[0]?.type.startsWith('image/') || 'Debe ser un archivo de imagen',
-                        fileSize: (files) => 
+                        fileSize: (files) =>
                             files[0]?.size <= 5 * 1024 * 1024 || 'El tamaño máximo es 5MB'
                         }
                     })}
@@ -219,7 +225,7 @@ export default function NewCreatePage(){
               </div>
             </div>
 
-            
+
             {/* Términos y condiciones */}
             <div className="flex items-start">
               <div>

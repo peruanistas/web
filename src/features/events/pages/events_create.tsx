@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { Layout } from "@common/components/layout";
 import { Header } from "@common/components/header";
 import { PageBanner } from "@common/components/page_banner";
-import { getDistrictsForDepartment } from '@common/utils';
+import { getDistrictsForDepartment, pushBlobToStorage } from '@common/utils';
 import { PE_DEPARTMENTS } from '@common/data/geo';
 import { useAuthStore } from "@auth/store/auth_store";
 import { Admonition } from "@common/components/admonition";
@@ -33,35 +33,37 @@ export default function EventsCreatePage() {
 
   const { user } = useAuthStore();
 
-  const onSubmit = async (data: EventFormData) => {
-  try {
-    if (!user) throw new Error('Debes iniciar sesión para crear un evento');
+  const onSubmit = async (form_data: EventFormData) => {
+    try {
+      if (!user) throw new Error('Debes iniciar sesión para crear un evento');
+      if (!form_data.coverImage[0]) throw new Error('No se subió ninguna imagen de portada');
 
-    const eventData = {
-      title: data.eventName,                
-      content: data.description,            
-      geo_department: data.department,      
-      geo_district: data.district,          
-      image_url: data.coverImage[0]?.name || null, 
-      event_date: new Date(data.dateTime).toISOString(), 
-      author_id: user.id,                  
-      published_at: new Date().toISOString(), 
-    };
+      const bucket_path = await pushBlobToStorage(db, "multimedia", form_data.coverImage[0])
 
-    const { error } = await db
+      const eventData = {
+          title: form_data.eventName,
+          content: form_data.description,
+          geo_department: form_data.department,
+          geo_district: form_data.district,
+          image_url: bucket_path,
+          event_date: new Date(form_data.dateTime).toISOString(),
+          author_id: user.id,
+          published_at: new Date().toISOString(),
+      };
+
+      const { error } = await db
       .from('events')
       .insert(eventData);
 
-    if (error) throw error;
+      if (error) throw error;
 
-    reset();
-    alert('Evento creado exitosamente!');
-
-  } catch (error) {
-    console.error('Error al crear evento:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Ocurrió un error desconocido';
-    alert(`Error: ${errorMessage}`);
-  }
+      reset();
+      alert('Evento creado exitosamente!');
+    } catch (error) {
+      console.error('Error al crear evento:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Ocurrió un error desconocido';
+      alert(`Error: ${errorMessage}`);
+    }
   };
 
   useEffect(() => {
@@ -77,7 +79,7 @@ export default function EventsCreatePage() {
           description="Completa el formulario para crear un nuevo proyecto"
         />
         <div className="w-full max-w-4xl bg-white p-8 rounded-lg">
-          
+
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Nombre del Evento */}
             {
@@ -196,9 +198,9 @@ export default function EventsCreatePage() {
                     {...register("coverImage", {
                         required: "La imagen de portada es obligatoria",
                         validate: {
-                        fileType: (files) => 
+                        fileType: (files) =>
                             files[0]?.type.startsWith("image/") || "Debe ser un archivo de imagen",
-                        fileSize: (files) => 
+                        fileSize: (files) =>
                             files[0]?.size <= 5 * 1024 * 1024 || "El tamaño máximo es 5MB"
                         }
                     })}
@@ -254,11 +256,11 @@ export default function EventsCreatePage() {
                     } ${!watch('department') ? 'bg-gray-100' : ''}`}
                   >
                     <option value="">
-                      {watch('department') 
-                        ? 'Seleccione un distrito' 
+                      {watch('department')
+                        ? 'Seleccione un distrito'
                         : ''}
                     </option>
-                    {watch('department') && 
+                    {watch('department') &&
                       getDistrictsForDepartment(watch('department')).map(([code, district]) => (
                         <option key={code} value={code}>
                           {district.name}
