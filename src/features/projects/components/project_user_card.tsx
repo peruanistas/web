@@ -3,7 +3,7 @@ import '@projects/styles/styles.css';
 import { useEffect, useState } from 'react';
 
 type ProjectUserCardProps = {
-    author_id: string;
+    author_id?: string; // Cambiado a opcional (temporary build fix)
 };
 
 export default function ProjectUserCard({author_id='cad9e6aa-a592-4f37-80b8-600818e564a1' }: ProjectUserCardProps) {
