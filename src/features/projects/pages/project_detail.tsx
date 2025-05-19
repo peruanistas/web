@@ -72,6 +72,7 @@ export default function ProjectsDetailsPage({id}: ProjectsDetailsPageProps) {
                             });
                     }
 
+
             }
             setLoading(false);
             });
@@ -94,7 +95,7 @@ export default function ProjectsDetailsPage({id}: ProjectsDetailsPageProps) {
                     <h1 className="project_detail_layout__title">{project?.title}</h1>
                     <div style={{display:'flex', flexDirection:'row', gap:'8px', alignContent:'center'}} >
                         <MapPin size={20} />
-                        <p style={{fontSize:'14px'}}>{departament}</p>
+                        <p style={{fontSize:'18px'}}>{departament}</p>
                     </div>
                     <div className='project_detail_layout__score_content'>
                         <div className='project_detail_layout__score_title'>
@@ -121,7 +122,7 @@ export default function ProjectsDetailsPage({id}: ProjectsDetailsPageProps) {
                     </div>
                         <div className='flex flex-col gap-4 '>
                             <div className=' flex justify-center items-center w-full'>
-                                <div className="project_detail_layout__img_container">
+                                <div className="project_detail_layout__img_container" style={{ maxWidth: 1000 }}>
                                     <img src={project?.image_url || undefined} />
                                 </div>
                             </div>
