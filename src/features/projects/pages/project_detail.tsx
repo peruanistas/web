@@ -7,9 +7,8 @@ import { CalendarDays, MapPin, Star, Trophy, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import '@projects/styles/styles.css';
 import { type Tables } from '@db/schema';
-import { CommentInput } from '@events/components/commentInput';
-import { CommentItem } from '@events/components/commentItem';
 import { db } from '@db/client';
+import { CommentsSection } from '@events/components/commentsSection';
 
 
 type ProjectsDetailsPageProps = {
@@ -129,16 +128,7 @@ export default function ProjectsDetailsPage({id}: ProjectsDetailsPageProps) {
                             style={{ maxWidth: 800, width: '100%' }}
                         />
                     </div>
-                    <div className='project_detail_subtitle'>
-                        <h1 className='font-bold text-xl'>Comentarios (12)</h1>
-                    </div>
-                    <div className='flex flex-col gap-0'>
-                        <CommentInput />
-                        <CommentItem author='Doris Rojas' timeAgo='2h' content='lorem ipsum'/>
-                        <CommentItem author='Doris Rojas' timeAgo='2h' content='lorem ipsum'/>
-                        <CommentItem author='Doris Rojas' timeAgo='2h' content='lorem ipsum'/>
-                        <CommentItem author='Doris Rojas' timeAgo='2h' content='lorem ipsum'/>
-                    </div>
+                    <CommentsSection />
                 </div>
             </div>}
         </Layout>
