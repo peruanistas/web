@@ -102,7 +102,7 @@ export const CompleteProfileForm = () => {
 
   return (
     <div className="w-full xl:w-[300px] mx-auto">
-      <div className="bg-white border border-[#D9D9D9] rounded-lg p-8">
+      <div className="w-[600px] bg-white border border-[#D9D9D9] rounded-lg p-8">
         <h2 className="text-[24px] font-bold text-gray-900 mb-6 text-center">
           Completa tu perfil
         </h2>

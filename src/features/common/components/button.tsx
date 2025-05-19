@@ -1,6 +1,6 @@
 import React from 'react';
 
-type ButtonVariant = 'white' | 'red';
+type ButtonVariant = 'white' | 'red' | 'hero';
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   trailing?: React.ReactNode,
@@ -22,6 +22,11 @@ export function Button({
   let borderColor: string;
 
   switch (variant) {
+    case 'hero':
+      color= 'text-white';
+      backgroundColor = 'bg-[#DD4141]';
+      borderColor = 'border-[#A31818]';
+      break;
     case 'white':
       color = 'text-gray-900';
       backgroundColor = 'bg-white';
