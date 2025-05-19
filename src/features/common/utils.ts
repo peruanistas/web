@@ -49,7 +49,7 @@ export function getDistrictsForDepartment(departmentCode: string) {
 }
 
 /*
-  * This function throws on upload errors
+  * This function throws on upload errors with a supabase StorageEror
   * */
 export async function pushBlobToStorage(client: SupabaseClient, bucketname: string, file: File) {
   const filename = `public/${file.name}+${Date.now().toString()}`
@@ -58,11 +58,11 @@ export async function pushBlobToStorage(client: SupabaseClient, bucketname: stri
     .from(bucketname)
     .upload(filename, file)
 
-  if (bucket_ret.error) throw new Error('He fallado chaval ostia puta')
+  if (bucket_ret.error) throw bucket_ret.error
 
   const { data } = client.storage
-  .from('multimedia')
-  .getPublicUrl(filename)
+    .from(bucketname)
+    .getPublicUrl(filename)
 
   return data.publicUrl
 }
