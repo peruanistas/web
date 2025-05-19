@@ -7,7 +7,7 @@ import { ContentLayout } from '@common/components/content_layout';
 import type { ProjectPreview } from '@projects/types';
 import { ProjectCard } from '@projects/components/project_card';
 import '@home/styles/feed.scss';
-import SectionSubtitle from '@common/components/subtiitle';
+import SectionSubtitle from '@common/components/subtitle';
 
 const NEWS_RESULTS_PER_PAGE = 8;
 const PROJECTS_RESULTS_PER_PAGE = 3;
