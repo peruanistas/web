@@ -9,7 +9,9 @@ export function HomePage() {
     <Layout>
       <Header />
       <HomeBanner />
-      <HomeFeed />
+      <div className='mt-8'>
+        <HomeFeed />
+      </div>
       <Footer />
     </Layout>
   );
