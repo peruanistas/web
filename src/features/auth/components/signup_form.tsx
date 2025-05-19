@@ -4,6 +4,7 @@ import { Button } from "@common/components/button";
 import { Link, useLocation } from "wouter";
 import { useState } from "react";
 import { Check, X, Eye, EyeOff } from "lucide-react";
+import { useAuthStore } from "@auth/store/auth_store";
 
 type Inputs = {
   email: string;
@@ -27,15 +28,18 @@ export const SignUpForm = () => {
 
   const [, navigate] = useLocation();
 
-  const onSubmit = async (data: Inputs) => {
-    const { email, password } = data;
+  const { setUser } = useAuthStore();
 
-    const { error } = await db.auth.signUp({ email, password });
+  const onSubmit = async (formData: Inputs) => {
+    const { email, password } = formData;
+
+    const { data, error } = await db.auth.signUp({ email, password });
 
     if (error) {
       console.error(error.message);
     } else {
       console.log("Cuenta creada (verifica tu correo)");
+      setUser(data.user);
       navigate('/completar-registro');
     }
   };
@@ -60,7 +64,7 @@ export const SignUpForm = () => {
           <input
             type="email"
             placeholder="Email"
-            className="border border-[#D9D9D9] rounded-lg p-2 mb-4 w-full text-[#757575]"
+            className="border border-[#D9D9D9] rounded-lg p-2 mb-4 w-full text-[#404040]"
             {...register("email", { required: 'Campo requerido', })}
           />
           {errors.email && <p className="text-red-500 text-sm mb-2">{errors.email.message}</p>}
@@ -70,9 +74,9 @@ export const SignUpForm = () => {
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Contraseña"
-              className="border border-[#D9D9D9] rounded-lg p-2 w-full text-[] pr-10"
+              className="border border-[#D9D9D9] rounded-lg p-2 w-full text-[] pr-10 text-[#404040]"
               {...register("password", {
-                required: true,
+                required: 'Campo requerido',
                 minLength: { value: 8, message: "La contraseña debe tener al menos 8 caracteres" },
                 onChange: handlePasswordChange,
               })}
@@ -80,9 +84,7 @@ export const SignUpForm = () => {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-900 transition-colors"
-              aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-              tabIndex={-1}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-700"
             >
               {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
