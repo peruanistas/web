@@ -9,7 +9,7 @@ import { ProjectCard } from '@projects/components/project_card';
 import '@home/styles/feed.scss';
 import SectionSubtitle from '@common/components/subtiitle';
 
-const NEWS_RESULTS_PER_PAGE = 24;
+const NEWS_RESULTS_PER_PAGE = 12;
 const PROJECTS_RESULTS_PER_PAGE = 3;
 
 export function HomeFeed() {
