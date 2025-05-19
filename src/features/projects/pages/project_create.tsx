@@ -31,23 +31,45 @@ export default function ProjectsCreatePage() {
     reset
   } = useForm<ProjectFormData>();
 
-  const onSubmit = async (data: ProjectFormData) => {
+  const onSubmit = async (form_data: ProjectFormData) => {
     try {
       const { data: { user }, error: userError } = await db.auth.getUser();
       if (userError || !user) throw new Error('Debes iniciar sesión para crear un proyecto');
 
+      let bucket_path: string;
+
+      if (form_data.coverImage[0] === null) {
+          throw new Error('No se subió ninguna imagen de portada');
+      } else {
+          const filename = `public/${form_data.coverImage[0].name}+${Date.now().toString()}`
+
+          const bucket_ret = await db.storage
+              .from('multimedia')
+              .upload(filename, form_data.coverImage[0])
+
+          if (bucket_ret.error !== null)
+              throw bucket_ret.error
+          else {
+              const { data } = db.storage
+                  .from('multimedia')
+                  .getPublicUrl(filename)
+
+              bucket_path = data.publicUrl
+          }
+      }
+
       const { error } = await db
         .from('projects')
         .insert({
-          title: data.projectName,
-          content: data.description,
-          geo_department: data.department,
-          geo_district: data.district,
-          image_url: data.coverImage[0]?.name || null,
+          title: form_data.projectName,
+          content: form_data.description,
+          geo_department: form_data.department,
+          geo_district: form_data.district,
+          image_url: bucket_path,
           author_id: user.id,
-          ioarr_type: data.projectCategory,
+          ioarr_type: form_data.projectCategory,
           published_at: new Date().toISOString(),
-          type: data.projectCategory, // Asegúrate que coincida con tu enum ioarr_type
+          type: form_data.projectCategory, // Asegúrate que coincida con tu enum ioarr_type
         });
 
       if (error) throw error;
@@ -174,7 +196,7 @@ export default function ProjectsCreatePage() {
                       fileType: (files) =>
                         files[0]?.type.startsWith('image/') || 'Debe ser un archivo de imagen',
                       fileSize: (files) =>
-                        files[0]?.size <= 5 * 1024 * 1024 || 'El tamaño máximo es 5MB'
+                        files[0]?.size <= 8 * 1024 * 1024 || 'El tamaño máximo es 5MB'
                     }
                   })}
                   className="hidden"
