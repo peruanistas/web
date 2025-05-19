@@ -19,6 +19,7 @@ import { useQueryFavicon } from '@hooks/query_favicon';
 import { ArticlePage } from '@news/pages/ArticlePage';
 import NewCreatePage from '@news/pages/new_create';
 import { AboutPage } from '@about/pages/about';
+import { PublicationDetail } from '@news/pages/news_detail';
 
 import 'react-day-picker/style.css';
 import 'leaflet/dist/leaflet.css';
@@ -49,6 +50,9 @@ export function PeruanistasRouter() {
       </Route>
       <Route path='/noticias' component={ArticlePage} />
       <Route path='/noticias/crear' component={NewCreatePage} />
+      <Route path='/noticias/:id'>
+        {({ id }) => <PublicationDetail id={id} />}
+      </Route>
       <Route>
         <NotFoundPage />
       </Route>
