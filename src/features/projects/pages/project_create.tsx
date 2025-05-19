@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { Layout } from '@common/components/layout';
 import { Header } from '@common/components/header';
 import { PageBanner } from '@common/components/page_banner';
-import { getDistrictsForDepartment } from '@common/utils';
+import { getDistrictsForDepartment, pushBlobToStorage } from '@common/utils';
 import { PE_DEPARTMENTS } from '@common/data/geo';
 import { Admonition } from '@common/components/admonition';
 import { Info } from 'lucide-react';
@@ -39,27 +39,11 @@ export default function ProjectsCreatePage() {
     try {
       if (!user) throw new Error('Debes iniciar sesión para crear un proyecto');
 
-      let bucket_path: string;
-
-      if (form_data.coverImage[0] === null) {
+      if (!form_data.coverImage[0]) {
           throw new Error('No se subió ninguna imagen de portada');
-      } else {
-          const filename = `public/${form_data.coverImage[0].name}+${Date.now().toString()}`
-
-          const bucket_ret = await db.storage
-              .from('multimedia')
-              .upload(filename, form_data.coverImage[0])
-
-          if (bucket_ret.error !== null)
-              throw bucket_ret.error
-          else {
-              const { data } = db.storage
-                  .from('multimedia')
-                  .getPublicUrl(filename)
-
-              bucket_path = data.publicUrl
-          }
       }
+
+      const bucket_path = await pushBlobToStorage(db, "multimedia", form_data.coverImage[0])
 
       const { error } = await db
         .from('projects')
@@ -72,14 +56,12 @@ export default function ProjectsCreatePage() {
           author_id: user.id,
           ioarr_type: form_data.projectCategory,
           published_at: new Date().toISOString(),
-          type: form_data.projectCategory, // Asegúrate que coincida con tu enum ioarr_type
         });
 
       if (error) throw error;
 
       reset();
       alert('Proyecto creado exitosamente!');
-
     } catch (error) {
       console.error('Error al crear proyecto:', error);
       const errorMessage = error instanceof Error ? error.message : String(error);

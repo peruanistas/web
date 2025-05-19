@@ -1,4 +1,5 @@
 import { PE_DISTRICTS } from '@common/data/geo';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 /**
  * Formats a date-like type to a human-readable format used and loved by Peruanistas.
@@ -46,3 +47,23 @@ export function getDistrictsForDepartment(departmentCode: string) {
     return district.code.startsWith(departmentCode);
   });
 }
+
+/*
+  * This function throws on upload errors
+  * */
+export async function pushBlobToStorage(client: SupabaseClient, bucketname: string, file: File) {
+  const filename = `public/${file.name}+${Date.now().toString()}`
+
+  const bucket_ret = await client.storage
+    .from(bucketname)
+    .upload(filename, file)
+
+  if (bucket_ret.error) throw new Error('He fallado chaval ostia puta')
+
+  const { data } = client.storage
+  .from('multimedia')
+  .getPublicUrl(filename)
+
+  return data.publicUrl
+}
+
