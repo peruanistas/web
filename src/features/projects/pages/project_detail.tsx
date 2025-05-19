@@ -14,12 +14,32 @@ import { CommentsSection } from '@events/components/commentsSection';
 type ProjectsDetailsPageProps = {
   id: string;
 };
+function Modal({ open, onClose, children }: { open: boolean, onClose: () => void, children: React.ReactNode }) {
+  if (!open) return null;
+  return (
+    <div
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white p-6 rounded shadow-lg relative"
+        style={{ maxWidth: 800, width: '100%' }}
+        onClick={e => e.stopPropagation()}
+      >
+        <button className="absolute top-2 right-2" onClick={onClose}>✕</button>
+        {children}
+      </div>
+    </div>
+  );
+}
+
 
 
 export default function ProjectsDetailsPage({id}: ProjectsDetailsPageProps) {
-
+    const [modalOpen, setModalOpen] = useState(false);
     const [loading, setLoading] = useState(true);
     const [project, setProject] = useState<Tables<'projects'> | null>(null);
+    const [departament, setDepartament] = useState<string>();
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -33,18 +53,38 @@ export default function ProjectsDetailsPage({id}: ProjectsDetailsPageProps) {
             } else {
                 setProject(response.data);
                 console.log('Proyecto obtenido', response.data);
+
+
+                    // Si existe el código de departamento, buscar el departamento
+                    if (response.data?.geo_department) {
+                        db.from('geo_pe_departments')
+                            .select('name')
+                            .eq('code', response.data.geo_department)
+                            .single()
+                            .then((depResponse) => {
+                                if (depResponse.error) {
+                                    console.log('Error al obtener el departamento', depResponse.error);
+                                } else {
+                                    //setDepartament(depResponse.data);
+                                    setDepartament(depResponse.data.name);
+                                    console.log('Departamento obtenido', depResponse.data);
+                                }
+                            });
+                    }
+
             }
             setLoading(false);
             });
+
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     , []);
 
 
     return (
-        <Layout >
+        <Layout className='bg-white min-h-screen' >
             <Header />
-            {loading && <div className='flex justify-center items-center w-full h-[1000px]'>
+            {loading && <div className='flex justify-center items-center w-full h-[1000px] bg-white'>
                 <div className="loader">
                 </div>
             </div>}
@@ -54,20 +94,20 @@ export default function ProjectsDetailsPage({id}: ProjectsDetailsPageProps) {
                     <h1 className="project_detail_layout__title">{project?.title}</h1>
                     <div style={{display:'flex', flexDirection:'row', gap:'8px', alignContent:'center'}} >
                         <MapPin size={20} />
-                        <p style={{fontSize:'14px'}}>La Victoria</p>
+                        <p style={{fontSize:'14px'}}>{departament}</p>
                     </div>
                     <div className='project_detail_layout__score_content'>
                         <div className='project_detail_layout__score_title'>
-                            <p style={{fontSize:'42px'}}><strong>{project?.impression_count}</strong></p>
+                            <p style={{fontSize:'42px'}}><strong>0</strong></p>
                             <p>puntos</p>
                         </div>
                         <div className='project_detail_layout__score_stars'>
                             <div style={{display:'flex', flexDirection:'row', gap:'8px'}}>
-                                <p>38</p>
+                                <p>0</p>
                                 <Star color='#f7865d' fill = {'#f7865d'}size={24} />
                             </div>
                             <div style={{display:'flex', flexDirection:'row', gap:'8px'}}>
-                                <p>27</p>
+                                <p>0</p>
                                 <Star color='#b2b2b2' fill = {'#b2b2b2'}size={24} />
                             </div>
 
@@ -75,7 +115,7 @@ export default function ProjectsDetailsPage({id}: ProjectsDetailsPageProps) {
 
                     </div>
                     <p style={{color:'var(--main-color-bt-bg)'}}><strong>#12</strong> en reparaciones</p>
-                    <ProjectDetailButton title='Vota por este proyecto'/>
+                    <ProjectDetailButton title='Vota por este proyecto' onClick={()=>{setModalOpen(true);}} />
                     <ProjectDetailButton title='compartir' theme='secondary'/>
                     <ProjectUserCard />
                     </div>
@@ -131,6 +171,11 @@ export default function ProjectsDetailsPage({id}: ProjectsDetailsPageProps) {
                     <CommentsSection />
                 </div>
             </div>}
+            <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
+                <div className='text-2xl font-bold my-1 '>
+                    <h1>Lo Sentimos el sistema de votacion estara disponible proximamente</h1>
+                </div>
+            </Modal>
         </Layout>
     );
 }
