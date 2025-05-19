@@ -43,14 +43,15 @@ export const SignUpForm = () => {
       navigate('/completar-registro');
     }
   };
-  const signUpGoogle = async () => {
+    /*
+    const signUpGoogle = async () => {
     const { error } = await db.auth.signInWithOAuth({
       provider: 'google',
     });
     if (error) {
       console.error(error.message);
     }
-  };
+  };*/
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!hasTyped) setHasTyped(true);
@@ -66,6 +67,7 @@ export const SignUpForm = () => {
             ¡Sé parte de la comunidad más transformadora del Perú!
           </p>
         </div>
+        {/* temporarily disabled
         <div className="flex flex-col w-full gap-2">
           <button
             type="button"
@@ -83,6 +85,7 @@ export const SignUpForm = () => {
             <div className="flex-1 border-t border-[#D9D9D9]"></div>
           </div>
         </div>
+        */}
         <form className="flex flex-col" onSubmit={handleSubmit(signUpEmail)}>
           <label className="text-[#404040] mb-2">Correo electrónico</label>
           <input
