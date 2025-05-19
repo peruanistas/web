@@ -58,11 +58,11 @@ export function Header({ showNavigation, ...rest }: HeaderProps) {
               <h2 className='inline-block text-[18px] text-black font-semibold'>El peruanista</h2>
             </div>
           </Link>
-          <div className='flex gap-4 items-center relative'>
+          <div className='flex gap-4 items-center relative text-sm'>
             <Link className='cursor-pointer' href='/about'>
               <div className='hidden md:flex hover:text-[#C4320A]'>Quiénes somos</div>
             </Link>
-            <Link className='cursor-pointer' href='/'>
+            <Link className='cursor-pointer' href='/proyectos/crear'>
               <div className='hidden md:flex hover:text-[#C4320A]'>Crea un proyecto</div>
             </Link>
 

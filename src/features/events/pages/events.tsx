@@ -14,6 +14,9 @@ import { NoResults } from '@common/components/no_results';
 import type { DateRange } from 'react-day-picker';
 import type { EventPreview } from '@events/types';
 import { CalendarFilter } from '@events/components/calendar_filter';
+import { Button } from '@common/components/button';
+import { Plus } from 'lucide-react';
+import { useLocation } from 'wouter';
 
 const EVENTS_ORDER_OPTIONS = [
   { value: 'event_date_asc', label: 'Por fecha (cercanos)' },
@@ -27,6 +30,7 @@ export function EventsPage() {
   const [search, setSearch] = useState('');
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [orderBy, setOrderBy] = useState('event_date_asc');
+  const [, setLocation] = useLocation();
 
   const { data: events = [], isLoading, isError } = useQuery({
     queryKey: ['events_list', { department, district, search, dateRange, orderBy }],
@@ -49,7 +53,23 @@ export function EventsPage() {
               onChange={setSearch}
               value={search}
             />
-            <OrderByDropdown value={orderBy} orderOptions={EVENTS_ORDER_OPTIONS} onChange={setOrderBy} />
+            <div className='flex flex-wrap items-center gap-4'>
+              <OrderByDropdown value={orderBy} orderOptions={EVENTS_ORDER_OPTIONS} onChange={setOrderBy} />
+              <Button
+                variant='red'
+                trailing={<Plus size={20} />}
+                onClick={() => {
+                  setLocation('/proyectos/crear');
+                }}
+                style={{
+                  paddingLeft: 8,
+                  paddingRight: 12,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                <span>Crear evento</span>
+              </Button>
+            </div>
           </div>
           <div className='flex w-full py-1 gap-4 flex-col md:flex-row md:gap-6'>
             {/* Left side */}
