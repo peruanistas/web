@@ -54,6 +54,7 @@ export function PeruanistasRouter() {
 
 const queryClient = new QueryClient();
 
+// https://tanstack.com/query/v4/docs/framework/react/devtools
 const ReactQueryDevtoolsProduction = React.lazy(() =>
   import('@tanstack/react-query-devtools/build/modern/production.js').then(
     (d) => ({
