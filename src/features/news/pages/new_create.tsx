@@ -2,47 +2,61 @@ import { Header } from '@common/components/header';
 import { Layout } from '@common/components/layout';
 import { pushBlobToStorage } from '@common/utils';
 import { db } from '@db/client';
+import { useAuthStore } from '@auth/store/auth_store';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
-
-
 type NewsFormData = {
-  NewsTitle: string;
-  description: string;
+  title: string;
+  content: string;
   link?: string;
   coverImage: FileList;
-  department: string;
-  city: string;
-  district: string;
   acceptTerms: boolean;
 };
 
-
-export default function NewCreatePage(){
-
+export default function NewCreatePage() {
+  const { user } = useAuthStore();
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    watch,
-    reset
+    reset,
+    watch, // Agregado para observar los valores del formulario
   } = useForm<NewsFormData>();
 
+  const coverImage = watch('coverImage'); // Observa el campo coverImage
+
   const onSubmit = async (form_data: NewsFormData) => {
-    if (!form_data.coverImage[0]) throw new Error('No se subió ninguna imagen de portada');
+    try {
+      if (!user) throw new Error('Debes iniciar sesión para crear una noticia');
 
-    const bucket_path = await pushBlobToStorage(db, "multimedia", form_data.coverImage[0])
+      if (!form_data.coverImage[0]) {
+        throw new Error('No se subió ninguna imagen de portada');
+      }
 
-    // Simulamos el envío del formulario
-    console.log('Datos del proyecto:', {
-      ...form_data,
-      coverImage: bucket_path // Solo mostramos el nombre del archivo
-    });
+      const bucket_path = await pushBlobToStorage(db, 'multimedia', form_data.coverImage[0]);
 
-    // Aquí iría la llamada a tu API
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    reset();
+      const { error } = await db
+        .from('publications')
+        .insert({
+          title: form_data.title,
+          content: form_data.content,
+          image_url: bucket_path,
+          author_id: user.id,
+          published_at: new Date().toISOString(),
+          active: true,
+          visibility: 'public', // Puedes ajustar esto según tu lógica
+        });
+
+      if (error) throw error;
+
+      reset();
+      alert('Noticia creada exitosamente!');
+    } catch (error) {
+      console.error('Error al crear noticia:', error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      alert(`Error: ${errorMessage}`);
+    }
   };
 
   useEffect(() => {
@@ -59,172 +73,95 @@ export default function NewCreatePage(){
             Completa el formulario para registrar una nueva noticia
           </p>
 
+          {!user && (
+            <div className="mb-4 text-red-600 font-medium">
+              Debes iniciar sesión para crear noticias.
+            </div>
+          )}
+
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {/* Titulo de la Noticia */}
+            {/* Título */}
             <div>
-              <label htmlFor="NewsTitle" className="block font-medium text-gray-700 mb-1">
-                Titulo de la Noticia <span className="text-red-500">*</span>
+              <label htmlFor="title" className="block font-medium text-gray-700 mb-1">
+                Título <span className="text-red-500">*</span>
               </label>
               <input
-                id="NewsTitle"
+                id="title"
                 type="text"
-                {...register('NewsTitle', {
-                  required: 'El nombre de la noticia es obligatorio',
+                {...register('title', {
+                  required: 'El título es obligatorio',
                   maxLength: {
-                    value: 25,
-                    message: 'Máximo 25 caracteres'
+                    value: 100,
+                    message: 'Máximo 100 caracteres'
                   }
                 })}
-                className={`w-full px-3 py-2 border rounded-md ${errors.NewsTitle ? 'border-red-500' : 'border-gray-300'}`}
-                placeholder="Titulo de la noticia"
+                className={`w-full px-3 py-2 border rounded-md ${errors.title ? 'border-red-500' : 'border-gray-300'}`}
+                placeholder="Título de la noticia"
               />
-              {errors.NewsTitle && (
-                <p className="mt-1 text-sm text-red-600">{errors.NewsTitle.message}</p>
+              {errors.title && (
+                <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>
               )}
             </div>
 
-            {/* Descripción */}
+            {/* Contenido */}
             <div>
-              <label htmlFor="description" className="block font-medium text-gray-700 mb-1">
-                Descripción <span className="text-red-500">*</span>
+              <label htmlFor="content" className="block font-medium text-gray-700 mb-1">
+                Contenido <span className="text-red-500">*</span>
               </label>
               <textarea
-                id="description"
+                id="content"
                 rows={4}
-                {...register('description', {
-                  required: 'La descripción es obligatoria',
+                {...register('content', {
+                  required: 'El contenido es obligatorio',
                   maxLength: {
-                    value: 500,
-                    message: 'Máximo 500 caracteres'
+                    value: 1000,
+                    message: 'Máximo 1000 caracteres'
                   }
                 })}
-                className={`w-full px-3 py-2 border rounded-md ${errors.description ? 'border-red-500' : 'border-gray-300'}`}
-                placeholder="Describe detalladamente ..."
+                className={`w-full px-3 py-2 border rounded-md ${errors.content ? 'border-red-500' : 'border-gray-300'}`}
+                placeholder="Escribe el contenido de la noticia..."
               ></textarea>
-              {errors.description && (
-                <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>
-              )}
-            </div>
-
-            {/* Enlace */}
-            <div>
-              <label htmlFor="link" className="block font-medium text-gray-700 mb-1">
-                Enlace (opcional)
-              </label>
-              <input
-                id="link"
-                type="url"
-                {...register('link', {
-                  pattern: {
-                    value: /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/,
-                    message: 'Ingresa una URL válida'
-                  }
-                })}
-                className={`w-full px-3 py-2 border rounded-md ${errors.link ? 'border-red-500' : 'border-gray-300'}`}
-                placeholder="https://ejemplo.com"
-              />
-              {errors.link && (
-                <p className="mt-1 text-sm text-red-600">{errors.link.message}</p>
+              {errors.content && (
+                <p className="mt-1 text-sm text-red-600">{errors.content.message}</p>
               )}
             </div>
 
             {/* Imagen de portada */}
             <div>
-                <span className="block font-medium text-gray-700 mb-1">
-                    Imagen de portada <span className="text-red-500">*</span>
+              <span className="block font-medium text-gray-700 mb-1">
+                Imagen de portada <span className="text-red-500">*</span>
+              </span>
+              <div className="mt-1 flex items-center">
+                <button
+                  type="button"
+                  onClick={() => document.getElementById('coverImage')?.click()}
+                  className="px-4 py-2 border border-gray-300 rounded-md bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer"
+                >
+                  Seleccionar archivo
+                </button>
+                <span className="ml-2 text-sm text-gray-500 select-none">
+                  {coverImage?.[0]?.name || 'Ningún archivo seleccionado'}
                 </span>
-                <div className="mt-1 flex items-center">
-                    {/* Botón que activa el input file */}
-                    <button
-                    type="button"
-                    onClick={() => document.getElementById('coverImage')?.click()}
-                    className="px-4 py-2 border border-gray-300 rounded-md bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer"
-                    >
-                        Seleccionar archivo
-                    </button>
-                    {/* Texto del archivo seleccionado*/}
-                    <span className="ml-2 text-sm text-gray-500 select-none">
-                    {watch('coverImage')?.[0]?.name || 'Ningún archivo seleccionado'}
-                    </span>
-                    {/* Input file oculto */}
-                    <input
-                    id="coverImage"
-                    type="file"
-                    accept="image/*"
-                    {...register('coverImage', {
-                        required: 'La imagen de portada es obligatoria',
-                        validate: {
-                        fileType: (files) =>
-                            files[0]?.type.startsWith('image/') || 'Debe ser un archivo de imagen',
-                        fileSize: (files) =>
-                            files[0]?.size <= 5 * 1024 * 1024 || 'El tamaño máximo es 5MB'
-                        }
-                    })}
-                    className="hidden"
-                    />
-                </div>
-                {errors.coverImage && (
-                    <p className="mt-1 text-sm text-red-600">{errors.coverImage.message}</p>
-                )}
+                <input
+                  id="coverImage"
+                  type="file"
+                  accept="image/*"
+                  {...register('coverImage', {
+                    required: 'La imagen de portada es obligatoria',
+                    validate: {
+                      fileType: (files) =>
+                        files[0]?.type.startsWith('image/') || 'Debe ser un archivo de imagen',
+                      fileSize: (files) =>
+                        files[0]?.size <= 5 * 1024 * 1024 || 'El tamaño máximo es 5MB'
+                    }
+                  })}
+                  className="hidden"
+                />
+              </div>
+              {errors.coverImage && (
+                <p className="mt-1 text-sm text-red-600">{errors.coverImage.message}</p>
+              )}
             </div>
-
-            {/* Ubicación - Departamento, Ciudad, Distrito */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label htmlFor="department" className="block font-medium text-gray-700 mb-1">
-                  Departamento <span className="text-red-500">*</span>
-                </label>
-                <input
-                  id="department"
-                  type="text"
-                  {...register('department', {
-                    required: 'El departamento es obligatorio'
-                  })}
-                  className={`w-full px-3 py-2 border rounded-md ${errors.department ? 'border-red-500' : 'border-gray-300'}`}
-                  placeholder="Lima"
-                />
-                {errors.department && (
-                  <p className="mt-1 text-sm text-red-600">{errors.department.message}</p>
-                )}
-              </div>
-
-              <div>
-                <label htmlFor="city" className="block font-medium text-gray-700 mb-1">
-                  Ciudad <span className="text-red-500">*</span>
-                </label>
-                <input
-                  id="city"
-                  type="text"
-                  {...register('city', {
-                    required: 'La ciudad es obligatoria'
-                  })}
-                  className={`w-full px-3 py-2 border rounded-md ${errors.city ? 'border-red-500' : 'border-gray-300'}`}
-                  placeholder="Lima"
-                />
-                {errors.city && (
-                  <p className="mt-1 text-sm text-red-600">{errors.city.message}</p>
-                )}
-              </div>
-
-              <div>
-                <label htmlFor="district" className="block font-medium text-gray-700 mb-1">
-                  Distrito <span className="text-red-500">*</span>
-                </label>
-                <input
-                  id="district"
-                  type="text"
-                  {...register('district', {
-                    required: 'El distrito es obligatorio'
-                  })}
-                  className={`w-full px-3 py-2 border rounded-md ${errors.district ? 'border-red-500' : 'border-gray-300'}`}
-                  placeholder="Miraflores"
-                />
-                {errors.district && (
-                  <p className="mt-1 text-sm text-red-600">{errors.district.message}</p>
-                )}
-              </div>
-            </div>
-
 
             {/* Términos y condiciones */}
             <div className="flex items-start">
@@ -255,11 +192,12 @@ export default function NewCreatePage(){
                 disabled={isSubmitting}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {isSubmitting ? 'Creando proyecto...' : 'Crear Proyecto'}
+                {isSubmitting ? 'Creando noticia...' : 'Crear noticia'}
               </button>
             </div>
           </form>
         </div>
       </div>
-    </Layout>);
+    </Layout>
+  );
 }
