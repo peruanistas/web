@@ -21,7 +21,7 @@ export const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [, setLocation] = useLocation();
 
-  const onSubmit = async (data: Inputs) => {
+  const signInEmail = async (data: Inputs) => {
     const { email, password } = data;
 
     const { error } = await db.auth.signInWithPassword({
@@ -37,20 +37,48 @@ export const LoginForm = () => {
     }
   };
 
+  const signInGoogle = async () => {
+    const { error } = await db.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin + '/'
+      }
+    });
+    if (error) {
+      setErrorMessage(error.message);
+    }
+  };
+
   return (
     <div className="w-full max-w-md mx-auto">
       <div className="bg-white border border-[#D9D9D9] rounded-lg p-8">
-        <div className="flex flex-col items-center mb-8">
+        <div className="flex flex-col items-center mb-2">
           <h2 className="text-[30px] font-bold text-gray-900 mb-1">Iniciar sesión</h2>
-          <div className="text-[#757575] text-[14px] text-center w-full">
+          <div className="text-[#757575] text-[14px] text-center w-full mb-4">
             ¿Aún no tienes cuenta?{' '}
             <Link to="/signup" className="underline cursor-pointer">
               Regístrate
             </Link>
           </div>
+          <div className="flex flex-col w-full gap-2">
+            <button
+              type="button"
+              className="w-full flex items-center justify-center gap-2 border border-[#D9D9D9] rounded-lg p-2 text-[#404040] hover:bg-gray-50"
+              onClick={() => signInGoogle()}
+            >
+              <img
+                src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google"
+                className="h-[18px] w-[18px] "/>
+              Continuar con Google
+            </button>
+            <div className="flex items-center my-4">
+              <div className="flex-1 border-t border-[#D9D9D9]"></div>
+              <span className="px-4 text-[#757575] text-sm">o</span>
+              <div className="flex-1 border-t border-[#D9D9D9]"></div>
+            </div>
+          </div>
         </div>
-
-        <form className="flex flex-col" onSubmit={handleSubmit(onSubmit)}>
+        <form className="flex flex-col" onSubmit={handleSubmit(signInEmail)}>
           <label className="text-[#404040] mb-2">Correo electrónico</label>
           <input
             type="email"

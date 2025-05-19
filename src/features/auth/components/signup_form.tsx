@@ -30,7 +30,7 @@ export const SignUpForm = () => {
 
   const { setUser } = useAuthStore();
 
-  const onSubmit = async (formData: Inputs) => {
+  const signUpEmail = async (formData: Inputs) => {
     const { email, password } = formData;
 
     const { data, error } = await db.auth.signUp({ email, password });
@@ -41,6 +41,17 @@ export const SignUpForm = () => {
       console.log("Cuenta creada (verifica tu correo)");
       setUser(data.user);
       navigate('/completar-registro');
+    }
+  };
+  const signUpGoogle = async () => {
+    const { error } = await db.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin + '/completar-registro'
+      }
+    });
+    if (error) {
+      console.error(error.message);
     }
   };
 
@@ -58,8 +69,24 @@ export const SignUpForm = () => {
             ¡Sé parte de la comunidad más transformadora del Perú!
           </p>
         </div>
-
-        <form className="flex flex-col" onSubmit={handleSubmit(onSubmit)}>
+        <div className="flex flex-col w-full gap-2">
+          <button
+            type="button"
+            className="w-full flex items-center justify-center gap-2 border border-[#D9D9D9] rounded-lg p-2 text-[#404040] hover:bg-gray-50"
+            onClick={() => signUpGoogle()}
+          >
+            <img
+              src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google"
+              className="h-[18px] w-[18px] "/>
+            Continuar con Google
+          </button>
+          <div className="flex items-center my-4">
+            <div className="flex-1 border-t border-[#D9D9D9]"></div>
+            <span className="px-4 text-[#757575] text-sm">o</span>
+            <div className="flex-1 border-t border-[#D9D9D9]"></div>
+          </div>
+        </div>
+        <form className="flex flex-col" onSubmit={handleSubmit(signUpEmail)}>
           <label className="text-[#404040] mb-2">Correo electrónico</label>
           <input
             type="email"

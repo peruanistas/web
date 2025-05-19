@@ -88,10 +88,10 @@ export function PublicationDetail({ id }: Props) {
           </div>
         </div>
 
-        {publication.source_id?.website_url && (
+        {publication.source_id?.name && publication.external_sources_url && (
           <div className="mb-8">
             <a
-              href={publication.source_id.website_url}
+              href={publication.external_sources_url}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
