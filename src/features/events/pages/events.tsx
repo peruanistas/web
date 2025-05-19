@@ -59,7 +59,7 @@ export function EventsPage() {
                 variant='red'
                 trailing={<Plus size={20} />}
                 onClick={() => {
-                  setLocation('/proyectos/crear');
+                  setLocation('/eventos/crear');
                 }}
                 style={{
                   paddingLeft: 8,

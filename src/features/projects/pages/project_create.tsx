@@ -6,6 +6,9 @@ import { Header } from '@common/components/header';
 import { PageBanner } from '@common/components/page_banner';
 import { getDistrictsForDepartment } from '@common/utils';
 import { PE_DEPARTMENTS } from '@common/data/geo';
+import { Admonition } from '@common/components/admonition';
+import { Info } from 'lucide-react';
+import { useAuthStore } from '@auth/store/auth_store';
 
 type ProjectFormData = {
   projectName: string;
@@ -30,11 +33,11 @@ export default function ProjectsCreatePage() {
     watch,
     reset
   } = useForm<ProjectFormData>();
+  const { user } = useAuthStore();
 
   const onSubmit = async (form_data: ProjectFormData) => {
     try {
-      const { data: { user }, error: userError } = await db.auth.getUser();
-      if (userError || !user) throw new Error('Debes iniciar sesión para crear un proyecto');
+      if (!user) throw new Error('Debes iniciar sesión para crear un proyecto');
 
       let bucket_path: string;
 
@@ -100,6 +103,11 @@ export default function ProjectsCreatePage() {
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Nombre del Proyecto */}
+            {
+              !user && (
+                <Admonition title="Debes iniciar sesión para crear proyectos" icon={<Info />} />
+              )
+            }
             <div>
               <label htmlFor="projectName" className="block font-medium text-gray-700 mb-1">
                 Nombre del Proyecto <span className="text-red-500">*</span>

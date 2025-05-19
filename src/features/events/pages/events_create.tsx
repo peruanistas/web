@@ -6,6 +6,9 @@ import { Header } from "@common/components/header";
 import { PageBanner } from "@common/components/page_banner";
 import { getDistrictsForDepartment } from '@common/utils';
 import { PE_DEPARTMENTS } from '@common/data/geo';
+import { useAuthStore } from "@auth/store/auth_store";
+import { Admonition } from "@common/components/admonition";
+import { Info } from "lucide-react";
 
 type EventFormData = {
   eventName: string;
@@ -28,10 +31,11 @@ export default function EventsCreatePage() {
     reset
   } = useForm<EventFormData>();
 
+  const { user } = useAuthStore();
+
   const onSubmit = async (data: EventFormData) => {
   try {
-    const { data: { user }, error: userError } = await db.auth.getUser();
-    if (userError || !user) throw new Error('Debes iniciar sesión para crear un evento');
+    if (!user) throw new Error('Debes iniciar sesión para crear un evento');
 
     const eventData = {
       title: data.eventName,                
@@ -76,6 +80,11 @@ export default function EventsCreatePage() {
           
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Nombre del Evento */}
+            {
+              !user && (
+                <Admonition title="Debes iniciar sesión para crear eventos" icon={<Info />} />
+              )
+            }
             <div>
               <label htmlFor="eventName" className="block font-medium text-gray-700 mb-1">
                 Nombre del Evento <span className="text-red-500">*</span>
