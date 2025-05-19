@@ -6,6 +6,7 @@ import { ContentLayout } from './content_layout';
 import { useAuthStore } from '@auth/store/auth_store';
 import { db } from '@db/client';
 import { User } from 'lucide-react';
+import logo from '@assets/images/logo_with_text.webp';
 
 export const HEADER_NAV_HEIGHT = 46;
 export const HEADER_BAR_HEIGHT = 72;
@@ -54,8 +55,7 @@ export function Header({ showNavigation, ...rest }: HeaderProps) {
         }}>
           <Link href='/'>
             <div className='flex items-center gap-3'>
-              <img src='/favicon.ico' alt='logo' className='h-8' />
-              <h2 className='inline-block text-[18px] text-black font-semibold'>El peruanista</h2>
+              <img src={logo} alt='logo' className='h-9' />
             </div>
           </Link>
           <div className='flex gap-4 items-center relative text-sm'>
