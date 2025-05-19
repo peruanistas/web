@@ -46,9 +46,6 @@ export const SignUpForm = () => {
   const signUpGoogle = async () => {
     const { error } = await db.auth.signInWithOAuth({
       provider: 'google',
-      options: {
-        redirectTo: window.location.origin + '/completar-registro'
-      }
     });
     if (error) {
       console.error(error.message);

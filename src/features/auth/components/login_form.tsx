@@ -40,9 +40,6 @@ export const LoginForm = () => {
   const signInGoogle = async () => {
     const { error } = await db.auth.signInWithOAuth({
       provider: 'google',
-      options: {
-        redirectTo: window.location.origin + '/'
-      }
     });
     if (error) {
       setErrorMessage(error.message);
