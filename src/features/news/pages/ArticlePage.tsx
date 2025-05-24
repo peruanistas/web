@@ -6,6 +6,9 @@ import { Layout } from '@common/components/layout';
 import imagenn from '../../../assets/images/no_image.jpg';
 import ArticleActions from '@news/components/ArticleActions';
 
+// NOTE: este componente actualmente no está en uso y ha sido reemplazado
+//       se debe remover en futuras actualizaciones
+
 export const ArticlePage: React.FC = () => {
   const fakeData = {
     title: 'Perú termina contrato de red dorsal con Azteca: ¿cómo evitar el naufragio de una red subutilizada?',
