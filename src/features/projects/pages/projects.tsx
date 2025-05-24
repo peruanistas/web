@@ -10,13 +10,12 @@ import { SearchBar } from '@events/components/search_bar';
 import { OrderByDropdown } from '@events/components/order_by_dropdown';
 import { NoResults } from '@common/components/no_results';
 import type { DateRange } from 'react-day-picker';
-import { Button } from '@common/components/button';
-import { Plus } from 'lucide-react';
 import type { ProjectPreview } from '@projects/types';
 import { ProjectCard, ProjectCardSkeleton } from '@projects/components/project_card';
 import { useLocation } from 'wouter';
 import { ProjectFilters } from '@projects/components/projects_filters';
 import '@projects/styles/projects_list.scss';
+import { CreateButton } from '@common/components/create_button';
 
 const PROJECTS_ORDER_OPTIONS = [
   { value: 'event_date_asc', label: 'Por fecha (antiguos)' },
@@ -55,20 +54,9 @@ export function ProjectsPage() {
             />
             <div className='flex flex-wrap items-center gap-4'>
               <OrderByDropdown value={orderBy} orderOptions={PROJECTS_ORDER_OPTIONS} onChange={setOrderBy} />
-              <Button
-                variant='red'
-                trailing={<Plus size={20} />}
-                onClick={() => {
-                  setLocation('/proyectos/crear');
-                }}
-                style={{
-                  paddingLeft: 8,
-                  paddingRight: 12,
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                <span>Crear proyecto</span>
-              </Button>
+              <CreateButton onClick={() => setLocation('/proyectos/crear')}>
+                Crear proyecto
+              </CreateButton>
             </div>
           </div>
           <div className='w-full flex-col md:flex-row md:gap-6'>

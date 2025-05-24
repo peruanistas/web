@@ -17,6 +17,7 @@ import { CalendarFilter } from '@events/components/calendar_filter';
 import { Button } from '@common/components/button';
 import { Plus } from 'lucide-react';
 import { useLocation } from 'wouter';
+import { CreateButton } from '@common/components/create_button';
 
 const EVENTS_ORDER_OPTIONS = [
   { value: 'event_date_asc', label: 'Por fecha (cercanos)' },
@@ -55,6 +56,9 @@ export function EventsPage() {
             />
             <div className='flex flex-wrap items-center gap-4'>
               <OrderByDropdown value={orderBy} orderOptions={EVENTS_ORDER_OPTIONS} onChange={setOrderBy} />
+              <CreateButton onClick={() => setLocation('/eventos/crear')}>
+                Crear evento
+              </CreateButton>
               <Button
                 variant='red'
                 trailing={<Plus size={20} />}
