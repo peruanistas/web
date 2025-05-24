@@ -16,7 +16,6 @@ import { CompleteRegisterPage } from '@auth/pages/complete_register';
 import { AuthProvider } from '@auth/providers/auth_provider';
 import { ProjectsPage } from '@projects/pages/projects';
 import { useQueryFavicon } from '@hooks/query_favicon';
-import { ArticlePage } from '@news/pages/ArticlePage';
 import NewCreatePage from '@news/pages/new_create';
 import { AboutPage } from '@about/pages/about';
 import { PublicationDetail } from '@news/pages/news_detail';
@@ -48,9 +47,8 @@ export function PeruanistasRouter() {
       <Route path='/proyectos/:id'>
         {({ id }) => <ProjectsDetailsPage id={id} />}
       </Route>
-      <Route path='/noticias' component={ArticlePage} />
-      <Route path='/noticias/crear' component={NewCreatePage} />
-      <Route path='/noticias/:id'>
+      <Route path='/feed/crear' component={NewCreatePage} />
+      <Route path='/feed/:id'>
         {({ id }) => <PublicationDetail id={id} />}
       </Route>
       <Route>

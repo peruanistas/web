@@ -8,11 +8,15 @@ import type { ProjectPreview } from '@projects/types';
 import { ProjectCard } from '@projects/components/project_card';
 import '@home/styles/feed.scss';
 import SectionSubtitle from '@common/components/subtitle';
+import { useLocation } from 'wouter';
+import { CreateButton } from '@common/components/create_button';
 
 const NEWS_RESULTS_PER_PAGE = 8;
 const PROJECTS_RESULTS_PER_PAGE = 3;
 
 export function HomeFeed() {
+  const [, setLocation] = useLocation();
+
   const { data: publicationPages, fetchNextPage, isLoading, isFetchingNextPage } = useInfiniteQuery({
     queryKey: ['damero_paginated_list'],
     queryFn: ({ pageParam }) => {
@@ -61,6 +65,13 @@ export function HomeFeed() {
 
   return (
     <section>
+      <ContentLayout variant='wide'>
+        <div className='flex justify-end'>
+          <CreateButton onClick={() => setLocation('/feed/crear')}>
+            Crear publicación
+          </CreateButton>
+        </div>
+      </ContentLayout>
       {
         publicationPages?.pages.map((page, i) => (
           <React.Fragment key={i}>
