@@ -22,8 +22,6 @@ export default function ProjectsDetailsPage({id}: ProjectsDetailsPageProps) {
     const [shareOpen, setShareOpen] = useState(false);
     const [loading, setLoading] = useState(true);
     const [project, setProject] = useState<Tables<'projects'> | null>(null);
-    //const [departament, setDepartament] = useState<string>();
-
     const url =  window.location.href;
 
     useEffect(() => {
@@ -38,26 +36,6 @@ export default function ProjectsDetailsPage({id}: ProjectsDetailsPageProps) {
             } else {
                 setProject(response.data);
                 console.log('Proyecto obtenido', response.data);
-
-/* 
-                    // Si existe el código de departamento, buscar el departamento
-                    if (response.data?.geo_department) {
-                        db.from('geo_pe_departments')
-                            .select('name')
-                            .eq('code', response.data.geo_department)
-                            .single()
-                            .then((depResponse) => {
-                                if (depResponse.error) {
-                                    console.log('Error al obtener el departamento', depResponse.error);
-                                } else {
-                                    //setDepartament(depResponse.data);
-                                    setDepartament(depResponse.data.name);
-                                    console.log('Departamento obtenido', depResponse.data);
-                                }
-                            });
-                    }
- */
-
             }
             setLoading(false);
             });

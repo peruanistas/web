@@ -15,7 +15,7 @@ export function CommentItem({ author, timeAgo, content }: Props) {
           {author} <span className="text-gray-500 font-normal">• {timeAgo}</span>
         </p>
         <p className="text-sm text-gray-700">{content}</p>
-        <button className="mt-1 text-xs text-gray-500 hover:underline">Responder</button>
+        {/* <button className="mt-1 text-xs text-gray-500 hover:underline">Responder</button> */}
       </div>
     </div>
   );
