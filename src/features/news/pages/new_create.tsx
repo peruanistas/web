@@ -3,7 +3,6 @@ import { Header } from '@common/components/header';
 import { Layout } from '@common/components/layout';
 import { pushBlobToStorage } from '@common/utils';
 import { db } from '@db/client';
-import { useAuthStore } from '@auth/store/auth_store';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -24,7 +23,6 @@ export default function NewCreatePage() {
     reset,
     watch, // Agregado para observar los valores del formulario
   } = useForm<NewsFormData>();
-    const { user } = useAuthStore();
 
   const coverImage = watch('coverImage'); // Observa el campo coverImage
 
