@@ -10,31 +10,12 @@ import { db } from '@db/client';
 import { CommentsSection } from '@events/components/commentsSection';
 import { Footer } from '@common/components/footer';
 import { PE_DEPARTMENTS } from '@common/data/geo';
-import {FacebookIcon,XIcon , FacebookShareButton, TwitterShareButton, LinkedinShareButton, LinkedinIcon, EmailShareButton, EmailIcon, WhatsappShareButton, WhatsappIcon, RedditShareButton, RedditIcon, TelegramShareButton, TelegramIcon} from 'react-share';
+import { Modal } from '@common/components/modal';
+import { Share } from '@common/components/share';
 
 type ProjectsDetailsPageProps = {
   id: string;
 };
-function Modal({ open, onClose, children }: { open: boolean, onClose: () => void, children: React.ReactNode }) {
-  if (!open) return null;
-  return (
-    <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-      onClick={onClose}
-    >
-      <div
-        className="bg-white p-6 rounded shadow-lg relative"
-        style={{ maxWidth: 800, width: '100%' }}
-        onClick={e => e.stopPropagation()}
-      >
-        <button className="absolute top-2 right-2" onClick={onClose}>✕</button>
-        {children}
-      </div>
-    </div>
-  );
-}
-
-
 
 export default function ProjectsDetailsPage({id}: ProjectsDetailsPageProps) {
     const [modalOpen, setModalOpen] = useState(false);
@@ -197,53 +178,7 @@ export default function ProjectsDetailsPage({id}: ProjectsDetailsPageProps) {
             </Modal>
 
             <Modal open={shareOpen} onClose={() => setShareOpen(false)}>
-                <div className='text-2xl font-bold'>
-                    <h1 className='my-1'>Compartir una publicacion</h1>
-                    <div>
-                        <textarea className='w-full h-20 bg-gray-200 rounded-md p-2 font-normal text-lg overflow-auto resize-none' value={url} readOnly />
-                        <button
-                          className='bg-[var(--main-color-bt-bg)] text-white rounded-md p-2 font-normal text-lg my-2 hover:bg-pink-800 transition-colors duration-300'
-                          onClick={() => {
-                            navigator.clipboard.writeText(url);
-                            alert('URL copiada al portapapeles');
-                          }}
-                        >
-                            <p className='font-bold'>copiar</p>
-                        </button>
-                    </div>
-                    <p className='font-normal text-base' >Comparte la publicacion en tus redes sociales</p>
-                    <div className='flex flex-row gap-3 items-center my-3 overflow-x-auto py-0.5'>
-                        <FacebookShareButton url={url} hashtag={`peruanista #${project?.geo_department && PE_DEPARTMENTS[project.geo_department]?.name}`} >
-                            <FacebookIcon size={50} round />
-                        </FacebookShareButton>
-                        <TwitterShareButton url={url} 
-                        title={project?.title} >
-                            <XIcon size={50} round />
-                        </TwitterShareButton>
-                        <LinkedinShareButton url={url}
-                        title={project?.title} >
-                            <LinkedinIcon size={50} round />
-                        </LinkedinShareButton>
-                        <EmailShareButton url={url}
-                            subject={project?.title} body={project?.content} >
-                            <EmailIcon size={50} round />
-                        </EmailShareButton>
-                        <WhatsappShareButton url={url}
-                            title={project?.title} >
-                            <WhatsappIcon size={50} round />
-                        </WhatsappShareButton>
-                        <button onClick={() => {
-                            window.open(`https://www.reddit.com/submit?url=${url}&title=${project?.title}`, '_blank');}
-                        }>
-                            <RedditIcon size={50} round />
-                        </button>
-                        <TelegramShareButton url={url}
-                            title={project?.title} >
-                            <TelegramIcon size={50} round />
-                        </TelegramShareButton>
-                    </div>
-
-                </div>
+                <Share url={url} title={project?.title} location={project?.geo_department && PE_DEPARTMENTS[project.geo_department]?.name} content={project?.content}/>
             </Modal>
             <Footer />
         </Layout>
