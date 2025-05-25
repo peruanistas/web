@@ -1,3 +1,4 @@
+import { useAuthStore } from '@auth/store/auth_store';
 import { Header } from '@common/components/header';
 import { Layout } from '@common/components/layout';
 import { pushBlobToStorage } from '@common/utils';
@@ -23,6 +24,7 @@ export default function NewCreatePage() {
     reset,
     watch, // Agregado para observar los valores del formulario
   } = useForm<NewsFormData>();
+    const { user } = useAuthStore();
 
   const coverImage = watch('coverImage'); // Observa el campo coverImage
 
