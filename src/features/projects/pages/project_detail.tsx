@@ -115,7 +115,7 @@ export default function ProjectsDetailsPage({id}: ProjectsDetailsPageProps) {
                     </div>  
 
                 
-                    <div className="flex flex-col justify-center p-2 px-4 w-full max-w-xl
+                    <div className="flex flex-col justify-center p-2 px-4 w-full max-w-lg
                     lg:sticky lg:top-40 self-start ">
                         <h1 className="project_detail_layout__title">{project?.title}</h1>
                         <div style={{display:'flex', flexDirection:'row', gap:'8px', alignContent:'center'}} >
