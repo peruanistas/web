@@ -10,6 +10,7 @@ import { db } from '@db/client';
 import { CommentsSection } from '@events/components/commentsSection';
 import { Footer } from '@common/components/footer';
 import { PE_DEPARTMENTS } from '@common/data/geo';
+import {FacebookIcon,XIcon , FacebookShareButton, TwitterShareButton, LinkedinShareButton, LinkedinIcon, EmailShareButton, EmailIcon, WhatsappShareButton, WhatsappIcon, RedditShareButton, RedditIcon, TelegramShareButton, TelegramIcon} from 'react-share';
 
 type ProjectsDetailsPageProps = {
   id: string;
@@ -37,9 +38,12 @@ function Modal({ open, onClose, children }: { open: boolean, onClose: () => void
 
 export default function ProjectsDetailsPage({id}: ProjectsDetailsPageProps) {
     const [modalOpen, setModalOpen] = useState(false);
+    const [shareOpen, setShareOpen] = useState(false);
     const [loading, setLoading] = useState(true);
     const [project, setProject] = useState<Tables<'projects'> | null>(null);
     //const [departament, setDepartament] = useState<string>();
+
+    const url =  window.location.href;
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -130,8 +134,8 @@ export default function ProjectsDetailsPage({id}: ProjectsDetailsPageProps) {
                     </div>  
 
                 
-                    <div className="flex flex-col justify-center p-2 px-4 max-w-2xl w-full
- lg:sticky lg:top-40 self-start">
+                    <div className="flex flex-col justify-center p-2 px-4 w-full max-w-xl
+                    lg:sticky lg:top-40 self-start ">
                         <h1 className="project_detail_layout__title">{project?.title}</h1>
                         <div style={{display:'flex', flexDirection:'row', gap:'8px', alignContent:'center'}} >
                             <MapPin size={20} />
@@ -157,11 +161,9 @@ export default function ProjectsDetailsPage({id}: ProjectsDetailsPageProps) {
                         </div>
                         <p style={{color:'var(--main-color-bt-bg)'}}><strong>#12</strong> en reparaciones</p>
                         <ProjectDetailButton title='Vota por este proyecto' onClick={()=>{setModalOpen(true);}} />
-                        <ProjectDetailButton title='compartir' theme='secondary'/>
+                        <ProjectDetailButton title='compartir' theme='secondary' onClick={()=>{setShareOpen(true);}}/>
                         <ProjectUserCard />
-
-                </div>
-
+                    </div>
 
 {/* 
                     <div className='project_detail_subtitle'>
@@ -191,6 +193,56 @@ export default function ProjectsDetailsPage({id}: ProjectsDetailsPageProps) {
             <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
                 <div className='text-2xl font-bold my-1 '>
                     <h1>Lo Sentimos el sistema de votacion estara disponible proximamente</h1>
+                </div>
+            </Modal>
+
+            <Modal open={shareOpen} onClose={() => setShareOpen(false)}>
+                <div className='text-2xl font-bold'>
+                    <h1 className='my-1'>Compartir una publicacion</h1>
+                    <div>
+                        <textarea className='w-full h-20 bg-gray-200 rounded-md p-2 font-normal text-lg overflow-auto resize-none' value={url} readOnly />
+                        <button
+                          className='bg-[var(--main-color-bt-bg)] text-white rounded-md p-2 font-normal text-lg my-2 hover:bg-pink-800 transition-colors duration-300'
+                          onClick={() => {
+                            navigator.clipboard.writeText(url);
+                            alert('URL copiada al portapapeles');
+                          }}
+                        >
+                            <p className='font-bold'>copiar</p>
+                        </button>
+                    </div>
+                    <p className='font-normal text-base' >Comparte la publicacion en tus redes sociales</p>
+                    <div className='flex flex-row gap-3 items-center my-3 overflow-x-auto py-0.5'>
+                        <FacebookShareButton url={'https://youtu.be/Hav3hBfjnwU?si=y4rGj9O8_BDZwo--'} hashtag={`peruanista #${project?.geo_department && PE_DEPARTMENTS[project.geo_department]?.name}`} >
+                            <FacebookIcon size={50} round />
+                        </FacebookShareButton>
+                        <TwitterShareButton url={'https://youtu.be/Hav3hBfjnwU?si=y4rGj9O8_BDZwo--'} 
+                        title={project?.title} >
+                            <XIcon size={50} round />
+                        </TwitterShareButton>
+                        <LinkedinShareButton url={'https://youtu.be/Hav3hBfjnwU?si=y4rGj9O8_BDZwo--'}
+                        title={project?.title} >
+                            <LinkedinIcon size={50} round />
+                        </LinkedinShareButton>
+                        <EmailShareButton url={'https://youtu.be/Hav3hBfjnwU?si=y4rGj9O8_BDZwo--'}
+                            subject={project?.title} body={project?.content} >
+                            <EmailIcon size={50} round />
+                        </EmailShareButton>
+                        <WhatsappShareButton url={'https://youtu.be/Hav3hBfjnwU?si=y4rGj9O8_BDZwo--'}
+                            title={project?.title} >
+                            <WhatsappIcon size={50} round />
+                        </WhatsappShareButton>
+                        <button onClick={() => {
+                            window.open(`https://www.reddit.com/submit?url=${'https://youtu.be/Hav3hBfjnwU?si=y4rGj9O8_BDZwo--'}&title=${project?.title}`, '_blank');}
+                        }>
+                            <RedditIcon size={50} round />
+                        </button>
+                        <TelegramShareButton url={'https://youtu.be/Hav3hBfjnwU?si=y4rGj9O8_BDZwo--'}
+                            title={project?.title} >
+                            <TelegramIcon size={50} round />
+                        </TelegramShareButton>
+                    </div>
+
                 </div>
             </Modal>
             <Footer />
