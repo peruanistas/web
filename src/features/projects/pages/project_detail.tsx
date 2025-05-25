@@ -213,31 +213,31 @@ export default function ProjectsDetailsPage({id}: ProjectsDetailsPageProps) {
                     </div>
                     <p className='font-normal text-base' >Comparte la publicacion en tus redes sociales</p>
                     <div className='flex flex-row gap-3 items-center my-3 overflow-x-auto py-0.5'>
-                        <FacebookShareButton url={'https://youtu.be/Hav3hBfjnwU?si=y4rGj9O8_BDZwo--'} hashtag={`peruanista #${project?.geo_department && PE_DEPARTMENTS[project.geo_department]?.name}`} >
+                        <FacebookShareButton url={url} hashtag={`peruanista #${project?.geo_department && PE_DEPARTMENTS[project.geo_department]?.name}`} >
                             <FacebookIcon size={50} round />
                         </FacebookShareButton>
-                        <TwitterShareButton url={'https://youtu.be/Hav3hBfjnwU?si=y4rGj9O8_BDZwo--'} 
+                        <TwitterShareButton url={url} 
                         title={project?.title} >
                             <XIcon size={50} round />
                         </TwitterShareButton>
-                        <LinkedinShareButton url={'https://youtu.be/Hav3hBfjnwU?si=y4rGj9O8_BDZwo--'}
+                        <LinkedinShareButton url={url}
                         title={project?.title} >
                             <LinkedinIcon size={50} round />
                         </LinkedinShareButton>
-                        <EmailShareButton url={'https://youtu.be/Hav3hBfjnwU?si=y4rGj9O8_BDZwo--'}
+                        <EmailShareButton url={url}
                             subject={project?.title} body={project?.content} >
                             <EmailIcon size={50} round />
                         </EmailShareButton>
-                        <WhatsappShareButton url={'https://youtu.be/Hav3hBfjnwU?si=y4rGj9O8_BDZwo--'}
+                        <WhatsappShareButton url={url}
                             title={project?.title} >
                             <WhatsappIcon size={50} round />
                         </WhatsappShareButton>
                         <button onClick={() => {
-                            window.open(`https://www.reddit.com/submit?url=${'https://youtu.be/Hav3hBfjnwU?si=y4rGj9O8_BDZwo--'}&title=${project?.title}`, '_blank');}
+                            window.open(`https://www.reddit.com/submit?url=${url}&title=${project?.title}`, '_blank');}
                         }>
                             <RedditIcon size={50} round />
                         </button>
-                        <TelegramShareButton url={'https://youtu.be/Hav3hBfjnwU?si=y4rGj9O8_BDZwo--'}
+                        <TelegramShareButton url={url}
                             title={project?.title} >
                             <TelegramIcon size={50} round />
                         </TelegramShareButton>
