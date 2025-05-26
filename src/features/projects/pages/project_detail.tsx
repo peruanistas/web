@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import '@projects/styles/styles.css';
 import { type Tables } from '@db/schema';
 import { db } from '@db/client';
-import { CommentsSection } from '@events/components/commentsSection';
+import { CommentsSection } from '@common/components/commentsSection';
 import { Footer } from '@common/components/footer';
 import { PE_DEPARTMENTS } from '@common/data/geo';
 import { Modal } from '@common/components/modal';

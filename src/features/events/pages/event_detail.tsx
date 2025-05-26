@@ -2,7 +2,7 @@ import { Header } from '@common/components/header';
 import { Footer } from '@common/components/footer';
 import { Layout } from '@common/components/layout';
 
-import { CommentsSection } from '@events/components/commentsSection';
+import { CommentsSection } from '@common/components/commentsSection';
 
 import { EventStatusTag } from '@events/components/eventstatustag';
 import { YoutubeAuthorCard } from '@events/components/youtubeauthorcard';
@@ -101,7 +101,7 @@ export function EventDetailBasic({ id }: Props) {
           </InfoItem>
         </div>
 
-        <CommentsSection />
+        <CommentsSection handleRefresh={()=>{}} event_id={event.id} />
 
       </main>
 

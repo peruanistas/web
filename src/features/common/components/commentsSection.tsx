@@ -64,10 +64,6 @@ export function CommentsSection({project_id, event_id}: CommentType) {
 
   },[user, refresh]);
 
-
-
-
-
   return (
 
     <section className="mt-8">
@@ -75,7 +71,7 @@ export function CommentsSection({project_id, event_id}: CommentType) {
       Comentarios <span className="text-gray-500 font-normal">({comments.length})</span>
       </h2>
 
-      <CommentInput project_id={project_id} event_id={event_id} handleRefresh={handleRefresh}/>
+      <CommentInput project_id={project_id} event_id={event_id} handleRefresh={handleRefresh ?? (()=>{})}/>
       {comments.length === 0 && (
       <Admonition title="Se el primero en comentar!" icon={<Info />}/>
       )}
