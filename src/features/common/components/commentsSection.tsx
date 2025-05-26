@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { CommentInput } from './commentInput';
 import { useEffect, useState } from 'react';
 import { db } from '@db/client';

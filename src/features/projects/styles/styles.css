@@ -29,9 +29,13 @@
     width: 30%;
     height: fit-content;
     margin: 10px;
-    font-size: 20px;
     background-color: #ffffff;
 }
+
+.project_detail_layout__content p{
+    font-size: 16px;
+}
+
 .project_detail_layout__title{
     font-size: 26px;
     font-weight: 600;
@@ -70,6 +74,7 @@
 }
 .project_detail_layout__score_stars{
     font-weight: bold;
+    font-size: 20px;
 }
 
 .project_detail_layout__score_stars{

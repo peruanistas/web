@@ -66,7 +66,7 @@ export default function ProjectsDetailsPage({id}: ProjectsDetailsPageProps) {
 
 
                                                 
-                <div className='flex flex-row flex-wrap bg-red-100 justify-center items-center w-full p-4 gap-4 text-sm h-fit'>
+                <div className='flex flex-row flex-wrap bg-red-100 justify-center items-center w-full p-4 gap-4 text-sm h-fit my-10'>
                     <div className='flex flex-row gap-8 items-center' style={{ width: 320 }}>
                         <Users color='black' size={30} className='flex-shrink-0'/>
                         <span>Cualquier ciudadano puede votar. Tienes 10 votos por semana.</span>     
@@ -82,8 +82,8 @@ export default function ProjectsDetailsPage({id}: ProjectsDetailsPageProps) {
                 </div>
 
                 <div>
-                    <h1 className='project_detail_subtitle font-bold text-xl'>Descripción</h1>
-                    <p className='project_detail_description my-3' style={{ maxWidth: 1000 }}>
+                    <h1 className='text-lg font-semibold border-b-2 border-red-600 w-fit mb-4'>Descripción</h1>
+                    <p className='project_detail_description my-3' style={{ maxWidth: 1000, fontSize: '16px' }}>
                         {project?.content}
                     </p>
                     <CommentsSection project_id={project?.id} handleRefresh={()=>{}}/>
@@ -95,19 +95,19 @@ export default function ProjectsDetailsPage({id}: ProjectsDetailsPageProps) {
                 
                     <div className="flex flex-col justify-center p-2 px-4 w-full max-w-lg
                     lg:sticky lg:top-40 self-start ">
-                        <h1 className="project_detail_layout__title">{project?.title}</h1>
+                        <h1 className="project_detail_layout__title my-3">{project?.title}</h1>
                         <div style={{display:'flex', flexDirection:'row', gap:'8px', alignContent:'center'}} >
-                            <MapPin size={20} />
-                            <p style={{fontSize:'18px'}}>
+                            <MapPin size={15} />
+                            <p style={{fontSize:'14px'}}>
                                 {project?.geo_department && PE_DEPARTMENTS[project.geo_department]?.name}
                             </p>
                         </div>
-                        <div className='project_detail_layout__score_content'>
+                        <div className='project_detail_layout__score_content '>
                             <div className='project_detail_layout__score_title'>
                                 <p style={{fontSize:'42px'}}><strong>0</strong></p>
                                 <p>puntos</p>
                             </div>
-                            <div className='project_detail_layout__score_stars'>
+                            <div className='project_detail_layout__score_stars' >
                                 <div style={{display:'flex', flexDirection:'row', gap:'8px'}}>
                                     <p>0</p>
                                     <Star color='#f7865d' fill = {'#f7865d'}size={24} />
@@ -118,9 +118,12 @@ export default function ProjectsDetailsPage({id}: ProjectsDetailsPageProps) {
                                 </div>
                             </div>
                         </div>
-                        <p style={{color:'var(--main-color-bt-bg)'}}><strong>#12</strong> en reparaciones</p>
-                        <ProjectDetailButton title='Vota por este proyecto' onClick={()=>{setModalOpen(true);}} />
-                        <ProjectDetailButton title='Compartir' theme='secondary' onClick={()=>{setShareOpen(true);}}/>
+
+                        <p  className='my-2' style={{color:'var(--main-color-bt-bg)', fontSize: '20px'}}><strong>#12</strong> en reparaciones</p>
+                        <div className='mb-3'>
+                            <ProjectDetailButton title='Vota por este proyecto' onClick={()=>{setModalOpen(true);}} />
+                            <ProjectDetailButton title='Compartir' theme='secondary' onClick={()=>{setShareOpen(true);}}/>
+                        </div>
                         <ProjectUserCard />
                     </div>
 
