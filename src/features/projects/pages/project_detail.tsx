@@ -66,18 +66,26 @@ export default function ProjectsDetailsPage({id}: ProjectsDetailsPageProps) {
 
 
                                                 
-                <div className='flex flex-row flex-wrap bg-red-100 justify-center items-center w-full p-4 gap-4 text-sm h-fit my-10'>
-                    <div className='flex flex-row gap-8 items-center' style={{ width: 320 }}>
-                        <Users color='black' size={30} className='flex-shrink-0'/>
-                        <span>Cualquier ciudadano puede votar. Tienes 10 votos por semana.</span>     
+                <div className='flex flex-row flex-wrap bg-red-100 justify-center items-center w-full px-8 py-6 gap-6 text-sm h-fit my-10'>
+                    <div
+                        className='flex flex-row gap-4 items-center w-full'
+                    >
+                        <Users color='black' size={30} className='flex-shrink-0' />
+                        <span>Cualquier ciudadano puede votar. Tienes 10 votos por semana.</span>
                     </div>
-                    <div className='flex flex-row gap-4 items-center' style={{ width: 320 }}>
-                        <Trophy color='black' size={30} fill='black' className='flex-shrink-0'/>
-                        <span>El proyecto con mas votos de cada categoria sera el ganador</span>     
+                    <div
+                        className='flex flex-row gap-4 items-center w-full'
+                    >
+                        <Trophy color='black' size={30} fill='black' className='flex-shrink-0' />
+                        <span>El proyecto con mas votos de cada categoria sera el ganador</span>
                     </div>
-                    <div className='flex flex-row gap-4 items-center text' style={{ width: 320 }}>
-                        <CalendarDays color='black' size={30} className='flex-shrink-0'/>
-                        <span>Una vez culmine la fecha, el proyecto sera eliminado. Si se decide relanzar el proyecto los votos volveran a cero</span>     
+                    <div
+                        className='flex flex-row gap-4 items-center w-full'
+                    >
+                        <CalendarDays color='black' size={30} className='flex-shrink-0' />
+                        <span>
+                            Una vez culmine la fecha, el proyecto sera eliminado. Si se decide relanzar el proyecto los votos volveran a cero
+                        </span>
                     </div>
                 </div>
 
