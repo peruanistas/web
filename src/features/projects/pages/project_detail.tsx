@@ -12,6 +12,7 @@ import { Footer } from '@common/components/footer';
 import { PE_DEPARTMENTS } from '@common/data/geo';
 import { Modal } from '@common/components/modal';
 import { Share } from '@common/components/share';
+import { ContentLayout } from '@common/components/content_layout';
 
 type ProjectsDetailsPageProps = {
   id: string;
@@ -52,9 +53,8 @@ export default function ProjectsDetailsPage({id}: ProjectsDetailsPageProps) {
                 <div className="loader">
                 </div>
             </div>}
-            {!loading && 
-
-            <div className='gap-[16px] flex flex-col-reverse md:flex-row lg:flex-row justify-center h-fit px-4 py-2'>
+            {!loading && <ContentLayout>
+<div className='gap-[16px] flex flex-col-reverse md:flex-row lg:flex-row justify-center h-fit py-2'>
                 
                 <div>
 
@@ -145,7 +145,9 @@ export default function ProjectsDetailsPage({id}: ProjectsDetailsPageProps) {
                             style={{ maxWidth: 800, width: '100%' }}
                         />
                     </div> */}
-            </div>}
+            </div>
+            </ContentLayout>
+            }
 
 
             
