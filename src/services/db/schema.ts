@@ -112,6 +112,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: 'events_author_id_fkey'
+            columns: ['author_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
             foreignKeyName: 'events_geo_department_fkey'
             columns: ['geo_department']
             isOneToOne: false
@@ -264,6 +271,13 @@ export type Database = {
           visibility?: Database['public']['Enums']['visibility']
         }
         Relationships: [
+          {
+            foreignKeyName: 'projects_author_id_fkey'
+            columns: ['author_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
           {
             foreignKeyName: 'projects_geo_department_fkey'
             columns: ['geo_department']
