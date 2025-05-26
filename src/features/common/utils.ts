@@ -22,7 +22,6 @@ export function formatDate(rawDate: number | string | Date) {
   return `${weekday}, ${month} ${day} · ${timeFormat}`;
 }
 
-
 /**
  * Formats a date-like type to a human-readable format used and loved by Peruanistas.
  * Same as formatDate but with an alternative format
@@ -33,11 +32,6 @@ export function formatDate2(rawDate: number | string | Date) {
   const month = new Intl.DateTimeFormat(navigator.language, { month: 'short' }).format(date);
   const day = date.getDate();
   const year = date.getFullYear();
-  // const timeFormat = new Intl.DateTimeFormat(navigator.language, {
-  //   hour: 'numeric',
-  //   minute: '2-digit',
-  //   hour12: true
-  // }).format(date);
   return `${day} ${month} ${year}`;
 }
 
@@ -48,22 +42,22 @@ export function getDistrictsForDepartment(departmentCode: string) {
   });
 }
 
-/*
-  * This function throws on upload errors with a supabase StorageEror
-  * */
+/**
+ * This function throws on upload errors with a supabase StorageEror
+ */
 export async function pushBlobToStorage(client: SupabaseClient, bucketname: string, file: File) {
-  const filename = `public/${file.name}+${Date.now().toString()}`
+  const filename = `public/${file.name}+${Date.now().toString()}`;
 
   const bucket_ret = await client.storage
     .from(bucketname)
-    .upload(filename, file)
+    .upload(filename, file);
 
-  if (bucket_ret.error) throw bucket_ret.error
+  if (bucket_ret.error) throw bucket_ret.error;
 
   const { data } = client.storage
     .from(bucketname)
-    .getPublicUrl(filename)
+    .getPublicUrl(filename);
 
-  return data.publicUrl
+  return data.publicUrl;
 }
 
