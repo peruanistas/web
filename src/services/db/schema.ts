@@ -9,6 +9,55 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      comments: {
+        Row: {
+          author_id: string
+          content: string | null
+          created_at: string
+          event_id: string | null
+          id: number
+          project_id: string | null
+        }
+        Insert: {
+          author_id: string
+          content?: string | null
+          created_at?: string
+          event_id?: string | null
+          id?: number
+          project_id?: string | null
+        }
+        Update: {
+          author_id?: string
+          content?: string | null
+          created_at?: string
+          event_id?: string | null
+          id?: number
+          project_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           active: boolean

@@ -86,7 +86,7 @@ export default function ProjectsDetailsPage({id}: ProjectsDetailsPageProps) {
                     <p className='project_detail_description my-3' style={{ maxWidth: 1000 }}>
                         {project?.content}
                     </p>
-                    <CommentsSection />
+                    <CommentsSection project_id={project?.id} handleRefresh={()=>{}}/>
                 </div>
 
                 
