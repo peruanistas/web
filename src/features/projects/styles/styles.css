@@ -41,7 +41,7 @@
 
 .project_detail_button{
     margin: 0 auto;
-    color: #ffffff;
+    color: #fafafa;
     width: 100%;
     padding: 10px;
     border-radius: 5px;
@@ -55,9 +55,9 @@
 }
 
 .project_detail_button.secondary {
-    background-color: #ffffff;
+    background-color: #fafafa;
     color: black;
-    border: 1px solid ;
+    border: 1px solid #b5b5b5;
 }
 
 .project_detail_layout__score_title{

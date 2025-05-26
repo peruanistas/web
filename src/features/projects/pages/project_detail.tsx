@@ -120,7 +120,7 @@ export default function ProjectsDetailsPage({id}: ProjectsDetailsPageProps) {
                         </div>
                         <p style={{color:'var(--main-color-bt-bg)'}}><strong>#12</strong> en reparaciones</p>
                         <ProjectDetailButton title='Vota por este proyecto' onClick={()=>{setModalOpen(true);}} />
-                        <ProjectDetailButton title='compartir' theme='secondary' onClick={()=>{setShareOpen(true);}}/>
+                        <ProjectDetailButton title='Compartir' theme='secondary' onClick={()=>{setShareOpen(true);}}/>
                         <ProjectUserCard />
                     </div>
 

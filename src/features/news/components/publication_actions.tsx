@@ -1,17 +1,12 @@
-import React from 'react';
 import { LucideShare2, LucideHeart, LucideMessageSquare } from 'lucide-react';
 
-interface ArticleActionsProps {
+interface PublicationActionsProps {
   onShare?: () => void;
   onFavorite?: () => void;
   onComments?: () => void;
 }
 
-const ArticleActions: React.FC<ArticleActionsProps> = ({
-  onShare,
-  onFavorite,
-  onComments,
-}) => {
+export function PublicationActions({ onShare, onFavorite, onComments }: PublicationActionsProps) {
   return (
     <div className="flex flex-col space-y-4">
       <button
@@ -37,5 +32,3 @@ const ArticleActions: React.FC<ArticleActionsProps> = ({
     </div>
   );
 };
-
-export default ArticleActions;
