@@ -9,6 +9,7 @@ import { useQuery } from '@tanstack/react-query';
 import { db } from '@db/client';
 import type { Database } from '@db/schema';
 import { useScrollReset } from '@common/hooks/useScrollReset';
+import { CommentsSection } from '@common/components/commentsSection';
 
 type Props = {
   id: string;
@@ -44,7 +45,7 @@ export function PublicationDetail({ id }: Props) {
   return (
     <Layout>
       <Header />
-      <main className="max-w-4xl mx-auto px-10 py-10">
+      <main className="max-w-4xl mx-auto px-6 py-10">
         <h1 className="text-3xl font-bold mb-4">
           {publication.title}
         </h1>
@@ -94,7 +95,7 @@ export function PublicationDetail({ id }: Props) {
               href={publication.external_sources_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               <ExternalLink className="w-5 h-5" />
               Ver noticia completa en {publication.source_id.name}
@@ -126,6 +127,7 @@ export function PublicationDetail({ id }: Props) {
             <span className="text-gray-600 text-sm">Visualizaciones</span>
           </div>
         </div>
+        <CommentsSection handleRefresh={() => {}}></CommentsSection>
       </main>
       <Footer />
     </Layout>
