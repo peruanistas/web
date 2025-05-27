@@ -17,6 +17,8 @@ type CommentInputData = {
   created_at: string;
 }
 
+//const COMMENTS_PER_PAGE = 5; // Número de comentarios por página
+
 export function CommentInput({project_id, event_id, handleRefresh}: CommentType) {
   // Determina el tipo de comentario según los IDs proporcionados
   const {
@@ -28,6 +30,7 @@ export function CommentInput({project_id, event_id, handleRefresh}: CommentType)
 
   const {user} = useAuthStore();
   const [focused, setFocused] = useState(false);
+  //const [commentsPerPage, setCommentsPerPage] = useState(5);
 
   const onSubmit = async (form_data: CommentInputData) => {
     try{
@@ -60,7 +63,7 @@ export function CommentInput({project_id, event_id, handleRefresh}: CommentType)
 
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}  className="flex gap-3 py-3 border-b border-border">
+    <form onSubmit={handleSubmit(onSubmit)}  className="flex flex-col gap-3 py-3 border-b border-border">
       {
       !user && (
         <Admonition title="Debes iniciar sesión para poder comentar " icon={<Info />}/>
