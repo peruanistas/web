@@ -1,10 +1,13 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { CommentInput } from './commentInput';
-import { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { db } from '@db/client';
 import type { CommentType } from './commentInput';
-import { useAuthStore } from '@auth/store/auth_store';
 import { CommentItem } from './commentItem';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { CommentSkeletonItem } from './commentSkeletonItem';
+
+const COMMENTS_RESULTS_PER_PAGE = 4;
+
 
 type commentType ={
   id: number,
@@ -22,44 +25,121 @@ type commentType ={
 // TODO: implement dynamic comment retrieving and uploading
 //       refer to the Trello for details
 export function CommentsSection({project_id, event_id}: CommentType) {
-  const {user} = useAuthStore();
-  const [comments, setcomments]= useState<commentType[]>([]);
+  //const {user} = useAuthStore();
+  //const [comments, setcomments]= useState<commentType[]>([]);
 
   const [refresh, setRefresh] = useState(false);
+
 
   function handleRefresh() {
     setRefresh(!refresh);
   }
 
-  useEffect(()=>{
-  let query = db.from('comments').select('*, profiles(nombres, apellidos)');
-  if (project_id) {
-    query = query.eq('project_id', project_id);
-  }
-  if (event_id) {
-    query = query.eq('event_id', event_id);
-  }
+  const fetchComments = async ({ pageParam = 0 }) => {
+    const from = pageParam * COMMENTS_RESULTS_PER_PAGE;
+    const to = from + COMMENTS_RESULTS_PER_PAGE - 1;
 
-  query.then((response) => {
-    if (response.error) {
-      console.log('Error al obtener los comentarios', response.error);
-    } else {
-      setcomments(response.data);
-      console.log('Comentarios obtenidos:', response.data);
-    }
+    let query = db
+      .from('comments')
+      .select('*, profiles(nombres, apellidos)')
+      .order('created_at', { ascending: true })
+      .range(from, to);
+
+    if (project_id) query = query.eq('project_id', project_id);
+    if (event_id) query = query.eq('event_id', event_id);
+
+    const { data, error } = await query;
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  };
+
+
+
+  const {
+    data: commentsPages,
+    fetchNextPage,
+    isLoading,
+    isFetchingNextPage,
+    hasNextPage,
+  } = useInfiniteQuery({
+    queryKey: ['comments_paginated_list', project_id, event_id, refresh],
+    queryFn: fetchComments,
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.length === COMMENTS_RESULTS_PER_PAGE ? allPages.length : undefined,
   });
-    /* esto solo para que el usuario  */
 
-  },[user, refresh]);
 
+  /*  observer for infinite scrolling*/
+  const observerTarget = useRef<HTMLDivElement>(null);
+
+  const handleObserver = useCallback(
+      (entries: IntersectionObserverEntry[]) => {
+        const [entry] = entries;
+        if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      [fetchNextPage, hasNextPage, isFetchingNextPage]
+  );
+
+  useEffect(()=>{
+    const element = observerTarget.current;
+    if (!element) return;
+
+    const options = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.1,
+    };
+
+    const observer = new IntersectionObserver(handleObserver, options);
+    observer.observe(element);
+
+    return () => {
+      if (element) observer.unobserve(element);
+    };
+  }, [handleObserver]);//observerTarget
+
+  
   return (
 
     <section className="mt-8">
       <h2 className="text-lg font-semibold border-b-2 border-red-600 w-fit mb-4">
-      Comentarios <span className="text-gray-500 font-normal">({comments.length})</span>
+      Comentarios
       </h2>
       <CommentInput project_id={project_id} event_id={event_id} handleRefresh={handleRefresh ?? (()=>{})}/>
       {
+        isLoading && (
+          <div className="text-center text-gray-500">Cargando comentarios...</div>
+        )
+      }
+      {commentsPages?.pages.map((page, i) => (
+        <React.Fragment key={i}>
+          {page.map((comment: commentType) => (
+            <CommentItem
+              key={comment.id}
+              author={`${comment.profiles.nombres} ${comment.profiles.apellidos}`}
+              created_at={new Date(comment.created_at).toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+              content={comment.content || ''}
+            />
+          ))}
+        </React.Fragment>
+      ))}
+      {
+        isFetchingNextPage && (
+            <CommentSkeletonItem />
+        )
+      }
+      
+      {/* Target para Intersection Observer */}
+      <div ref={observerTarget} style={{ height: 1 }} />
+      
+      {/* {
         comments.map((comment) => (
           <CommentItem
             key={comment.id}
@@ -72,7 +152,10 @@ export function CommentsSection({project_id, event_id}: CommentType) {
             content={comment.content || ''}
           />
         ))
-      }
+      } */}
+
+
+
     </section>
   );
 }
