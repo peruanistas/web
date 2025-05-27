@@ -14,7 +14,11 @@ type commentType ={
   content: string | null,
   created_at: string,
   event_id: string | null,
-  project_id: string | null
+  project_id: string | null,
+  profiles: {
+    nombres: string;
+    apellidos: string;
+  };
 }
 
 // TODO: implement dynamic comment retrieving and uploading
@@ -22,7 +26,7 @@ type commentType ={
 export function CommentsSection({project_id, event_id}: CommentType) {
   const {user} = useAuthStore();
   const [comments, setcomments]= useState<commentType[]>([]);
-  const [author, setAuthor] = useState('');
+
   const [refresh, setRefresh] = useState(false);
 
   function handleRefresh() {
@@ -30,8 +34,7 @@ export function CommentsSection({project_id, event_id}: CommentType) {
   }
 
   useEffect(()=>{
-  let query = db.from('comments').select('*');
-
+  let query = db.from('comments').select('*, profiles(nombres, apellidos)');
   if (project_id) {
     query = query.eq('project_id', project_id);
   }
@@ -44,24 +47,10 @@ export function CommentsSection({project_id, event_id}: CommentType) {
       console.log('Error al obtener los comentarios', response.error);
     } else {
       setcomments(response.data);
+      console.log('Comentarios obtenidos:', response.data);
     }
   });
-
-    if (user) {
-      db.from('profiles')
-        .select('nombres, apellidos')
-        .eq('id', user.id)
-        .single()
-        .then((response) => {
-          if (response.error) {
-            console.log('Error al obtener el perfil', response.error);
-            alert('Error al obtener el perfil. Por favor, inténtalo de nuevo más tarde.');
-          } else {
-            console.log('Perfil obtenido', response.data);
-            setAuthor(`${response.data.nombres} ${response.data.apellidos}`);
-          }
-        });
-    }
+    /* esto solo para que el usuario  */
 
   },[user, refresh]);
 
@@ -71,25 +60,24 @@ export function CommentsSection({project_id, event_id}: CommentType) {
       <h2 className="text-lg font-semibold border-b-2 border-red-600 w-fit mb-4">
       Comentarios <span className="text-gray-500 font-normal">({comments.length})</span>
       </h2>
-
       <CommentInput project_id={project_id} event_id={event_id} handleRefresh={handleRefresh ?? (()=>{})}/>
       {comments.length === 0 && (
       <Admonition title="Se el primero en comentar!" icon={<Info />}/>
       )}
-      {comments.map((comment: commentType, index: number) => {
-      // Convert ISO string to local date string
-      const formattedDate = comment.created_at
-        ? new Date(comment.created_at).toLocaleString()
-        : new Date().toLocaleString();
-      return (
-        <CommentItem
-        key={index}
-        author={author}
-        created_at={formattedDate}
-        content={comment.content || ''}
-        />
-      );
-      })}
+      {
+        comments.map((comment) => (
+          <CommentItem
+            key={comment.id}
+            author={`${comment.profiles.nombres} ${comment.profiles.apellidos}`}
+            created_at={new Date(comment.created_at).toLocaleDateString('es-ES', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}
+            content={comment.content || ''}
+          />
+        ))
+      }
     </section>
   );
 }
