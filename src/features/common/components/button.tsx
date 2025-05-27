@@ -23,7 +23,7 @@ export function Button({
 
   switch (variant) {
     case 'hero':
-      color= 'text-white';
+      color = 'text-white';
       backgroundColor = 'bg-[#DD4141]';
       borderColor = 'border-[#A31818]';
       break;
@@ -52,7 +52,7 @@ export function Button({
       {
         trailing && (
           <>
-            <div className='flex items-center justify-between gap-1'>
+            <div className='flex items-center justify-between gap-2'>
               {trailing}
               {children}
             </div>
