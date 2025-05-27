@@ -48,6 +48,14 @@ const ERROR_MESSAGES = {
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
+function getCurrentDateTimeLocal() {
+  const now = new Date();
+  now.setSeconds(0, 0); // Quita los segundos y ms para compatibilidad con input
+  const offset = now.getTimezoneOffset();
+  const local = new Date(now.getTime() - offset * 60000);
+  return local.toISOString().slice(0, 16);
+}
+
 export default function EventsCreatePage() {
   const {
     register,
@@ -64,6 +72,7 @@ export default function EventsCreatePage() {
     validate: (value) => (value?.trim().length > 0) || ERROR_MESSAGES.REQUIRED
   });
 
+  const [defaultDateTime] = useState(getCurrentDateTimeLocal());
   const { user } = useAuthStore();
 
   const onSubmit = async (form_data: EventFormData) => {
@@ -250,8 +259,19 @@ export default function EventsCreatePage() {
               <input
                 id="dateTime"
                 type="datetime-local"
+                defaultValue={defaultDateTime}
                 {...register("dateTime", {
-                  required: "La fecha y hora son obligatorias"
+                  required: "La fecha y hora son obligatorias",
+                  validate: value => {
+                    if (!value) return "La fecha y hora son obligatorias";
+                    const now = new Date();
+                    now.setSeconds(0, 0);
+                    const selected = new Date(value);
+                    if (selected < now) {
+                      return "La fecha y hora no pueden ser anteriores a la actual";
+                    }
+                    return true;
+                  }
                 })}
                 className={`w-full px-3 py-2 border rounded-md ${errors.dateTime ? 'border-red-500' : 'border-gray-300'}`}
               />
