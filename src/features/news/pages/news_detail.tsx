@@ -188,7 +188,7 @@ export function PublicationDetail({ id }: Props) {
                       </a>
                     </div>
                   )}
-                  <CommentsSection handleRefresh={() => { }}></CommentsSection>
+                  <CommentsSection publication_id={publication.id} handleRefresh={() => {}} />
                   <div className='flex flex-col justify-start py-4 mt-6 bg-white border-t-1 border-border' />
                   <aside className="w-[36rem] lg:hidden block" style={{
                     top: HEADER_FULL_HEIGHT + 24

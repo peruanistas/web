@@ -16,6 +16,7 @@ type commentType ={
   created_at: string,
   event_id: string | null,
   project_id: string | null,
+  publication_id: string | null,
   profiles: {
     nombres: string;
     apellidos: string;
@@ -24,7 +25,7 @@ type commentType ={
 
 // TODO: implement dynamic comment retrieving and uploading
 //       refer to the Trello for details
-export function CommentsSection({project_id, event_id}: CommentType) {
+export function CommentsSection({project_id, event_id, publication_id}: CommentType) {
   //const {user} = useAuthStore();
   //const [comments, setcomments]= useState<commentType[]>([]);
 
@@ -47,6 +48,7 @@ export function CommentsSection({project_id, event_id}: CommentType) {
 
     if (project_id) query = query.eq('project_id', project_id);
     if (event_id) query = query.eq('event_id', event_id);
+    if (publication_id) query = query.eq('publication_id', publication_id);
 
     const { data, error } = await query;
     if (error) throw new Error(error.message);
@@ -84,6 +86,7 @@ export function CommentsSection({project_id, event_id}: CommentType) {
   );
 
   useEffect(()=>{
+    console.log('commentssection', publication_id);
     const element = observerTarget.current;
     if (!element) return;
 
@@ -99,6 +102,7 @@ export function CommentsSection({project_id, event_id}: CommentType) {
     return () => {
       if (element) observer.unobserve(element);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [handleObserver]);//observerTarget
 
   
@@ -108,7 +112,7 @@ export function CommentsSection({project_id, event_id}: CommentType) {
       <h2 className="text-lg font-semibold border-b-2 border-red-600 w-fit mb-4">
       Comentarios
       </h2>
-      <CommentInput project_id={project_id} event_id={event_id} handleRefresh={handleRefresh ?? (()=>{})}/>
+      <CommentInput project_id={project_id} event_id={event_id} publication_id={publication_id} handleRefresh={handleRefresh ?? (()=>{})}/>
       {
         isLoading && (
           <div className="text-center text-gray-500">Cargando comentarios...</div>

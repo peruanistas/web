@@ -9,6 +9,7 @@ import { Info } from 'lucide-react';
 export type CommentType ={
   project_id?: string | null;
   event_id?: string | null;
+  publication_id?: string | null;
   handleRefresh: () => void;
 }
 
@@ -19,7 +20,7 @@ type CommentInputData = {
 
 //const COMMENTS_PER_PAGE = 5; // Número de comentarios por página
 
-export function CommentInput({project_id, event_id, handleRefresh}: CommentType) {
+export function CommentInput({project_id, event_id, publication_id, handleRefresh}: CommentType) {
   // Determina el tipo de comentario según los IDs proporcionados
   const {
     register,
@@ -33,6 +34,7 @@ export function CommentInput({project_id, event_id, handleRefresh}: CommentType)
   //const [commentsPerPage, setCommentsPerPage] = useState(5);
 
   const onSubmit = async (form_data: CommentInputData) => {
+    console.log(publication_id);
     try{
       if(!user) throw new Error('Debes iniciar sesión para comentar');
 
@@ -44,6 +46,7 @@ export function CommentInput({project_id, event_id, handleRefresh}: CommentType)
           created_at: new Date().toISOString(),
           event_id: event_id || null,
           project_id: project_id || null,
+          publication_id: publication_id || null,
         }]);
 
       if (error) throw error;
@@ -54,6 +57,7 @@ export function CommentInput({project_id, event_id, handleRefresh}: CommentType)
     }catch (error) {
       console.error('Error al enviar el comentario:', error);
       alert('Error al enviar el comentario. Por favor, inténtalo de nuevo más tarde.');
+      reset();
       return;
     }
     setFocused(false);
