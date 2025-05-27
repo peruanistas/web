@@ -14,8 +14,6 @@ import { NoResults } from '@common/components/no_results';
 import type { DateRange } from 'react-day-picker';
 import type { EventPreview } from '@events/types';
 import { CalendarFilter } from '@events/components/calendar_filter';
-import { Button } from '@common/components/button';
-import { Plus } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { CreateButton } from '@common/components/create_button';
 
@@ -59,20 +57,6 @@ export function EventsPage() {
               <CreateButton onClick={() => setLocation('/eventos/crear')}>
                 Crear evento
               </CreateButton>
-              <Button
-                variant='red'
-                trailing={<Plus size={20} />}
-                onClick={() => {
-                  setLocation('/eventos/crear');
-                }}
-                style={{
-                  paddingLeft: 8,
-                  paddingRight: 12,
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                <span>Crear evento</span>
-              </Button>
             </div>
           </div>
           <div className='flex w-full py-1 gap-4 flex-col md:flex-row md:gap-6'>
