@@ -94,7 +94,7 @@ export default function NewCreatePage() {
   const [createdNewsId, setCreatedNewsId] = useState<string | null>(null);
   const onSubmit = async (form_data: NewsFormData) => {
     try {
-      if (!user) throw new Error('Debes iniciar sesión para crear una noticia');
+      if (!user) throw new Error('Debes iniciar sesión para crear una publicacion');
 
       if (!form_data.coverImage[0]) {
         throw new Error('No se subió ninguna imagen de portada');
@@ -129,7 +129,7 @@ export default function NewCreatePage() {
   };
 
   useEffect(() => {
-    document.title = 'Crear Noticia';
+    document.title = 'Crear Publicacion';
   }, []);
 
   return (
@@ -137,8 +137,8 @@ export default function NewCreatePage() {
       <Header />
       <div className="flex flex-col items-center justify-baseline min-h-screen pb-12">
         <PageBanner
-          title="Crear Noticia"
-          description="Registra una nueva noticia para compartir con la comunidad"
+          title="Crear publicacion"
+          description="Registra una nueva publicacion para compartir con la comunidad"
         />
         <div className="w-full max-w-4xl bg-white p-8 rounded-lg">
         {!user && (
@@ -164,7 +164,7 @@ export default function NewCreatePage() {
                   }
                 })}
                 className={`w-full px-3 py-2 border rounded-md ${errors.title ? 'border-red-500' : 'border-gray-300'}`}
-                placeholder="Título de la noticia"
+                placeholder="Título de la publicación"
               />
               {errors.title && (
                 <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>
@@ -288,7 +288,7 @@ export default function NewCreatePage() {
                 disabled={isSubmitting}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {isSubmitting ? 'Creando noticia...' : 'Crear noticia'}
+                {isSubmitting ? 'Creando publicacion...' : 'Crear publicacion'}
               </button>
             </div>
           </form>
@@ -297,7 +297,7 @@ export default function NewCreatePage() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        message="Pubicacion creada exitosamente!"
+        message="Publicacion creada exitosamente!"
         type='publicacion'
         routeType='feed'
         projectId={createdNewsId}
