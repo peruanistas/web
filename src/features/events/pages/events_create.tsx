@@ -1,5 +1,5 @@
 import { db } from "@db/client";
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { Layout } from "@common/components/layout";
 import { Header } from "@common/components/header";
@@ -9,18 +9,44 @@ import { PE_DEPARTMENTS } from '@common/data/geo';
 import { useAuthStore } from "@auth/store/auth_store";
 import { Admonition } from "@common/components/admonition";
 import { Info } from "lucide-react";
+import { type MDXEditorMethods } from '@mdxeditor/editor'; // Importación type-only
+import { 
+  MDXEditor, 
+  toolbarPlugin,
+  UndoRedo,
+  BoldItalicUnderlineToggles,
+  ListsToggle,
+  Separator,
+  CreateLink,
+  headingsPlugin, //Mejora proxima
+  listsPlugin,
+  linkPlugin,
+  quotePlugin,
+} from '@mdxeditor/editor'
+import '@mdxeditor/editor/style.css'
 
 type EventFormData = {
   eventName: string;
   description: string;
-  link?: string;
+  // link?: string;
   dateTime: string;
   coverImage: FileList;
   department: string;
   city: string;
   district: string;
-  acceptTerms: boolean;
+  // acceptTerms: boolean;
 };
+
+const ERROR_MESSAGES = {
+  REQUIRED: 'Este campo es obligatorio',
+  IMAGE_REQUIRED: 'La imagen de portada es obligatoria',
+  IMAGE_TYPE: 'Debe ser un archivo de imagen válido',
+  IMAGE_SIZE: 'El tamaño máximo permitido es 5MB',
+  MAX_LENGTH: 'Máximo 255 caracteres',
+  LOGIN_REQUIRED: 'Debes iniciar sesión para crear un proyecto'
+};
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 export default function EventsCreatePage() {
   const {
@@ -28,8 +54,15 @@ export default function EventsCreatePage() {
     handleSubmit,
     formState: { errors, isSubmitting },
     watch,
-    reset
+    reset,
+    setValue,
+    trigger
   } = useForm<EventFormData>();
+
+    register('description', {
+    required: ERROR_MESSAGES.REQUIRED,
+    validate: (value) => (value?.trim().length > 0) || ERROR_MESSAGES.REQUIRED
+  });
 
   const { user } = useAuthStore();
 
@@ -66,6 +99,36 @@ export default function EventsCreatePage() {
     }
   };
 
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  
+  // Extraemos las propiedades del register para el input file
+  const { ref: fileRef, onChange: hookFormOnChange, ...fileRegisterProps } = 
+    register('coverImage', {
+      required: ERROR_MESSAGES.IMAGE_REQUIRED,
+      validate: {
+        fileType: (files) => 
+          files[0]?.type?.startsWith('image/') || ERROR_MESSAGES.IMAGE_TYPE,
+        fileSize: (files) => 
+          files[0]?.size <= MAX_FILE_SIZE || ERROR_MESSAGES.IMAGE_SIZE
+      }
+    });
+  
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // 1. Manejar previsualización
+    const file = e.target.files?.[0];
+    if (file) {
+      setPreviewImage(URL.createObjectURL(file));
+    }
+    
+    // 2. Propagamos el evento al hook form
+    hookFormOnChange(e);
+    trigger('coverImage');
+  };
+  const editorRef = useRef<MDXEditorMethods>(null);
+  const handleDescriptionChange = (markdown: string) => {
+    setValue('description', markdown, { shouldValidate: true });
+    trigger('description');
+  };
   useEffect(() => {
     document.title = "Crear Evento";
   }, []);
@@ -95,10 +158,10 @@ export default function EventsCreatePage() {
                 id="eventName"
                 type="text"
                 {...register("eventName", {
-                  required: "El nombre del evento es obligatorio",
+                  required: ERROR_MESSAGES.REQUIRED,
                   maxLength: {
-                    value: 25,
-                    message: "Máximo 25 caracteres"
+                    value: 255,
+                    message: ERROR_MESSAGES.MAX_LENGTH
                   }
                 })}
                 className={`w-full px-3 py-2 border rounded-md ${errors.eventName ? 'border-red-500' : 'border-gray-300'}`}
@@ -114,26 +177,51 @@ export default function EventsCreatePage() {
               <label htmlFor="description" className="block font-medium text-gray-700 mb-1">
                 Descripción <span className="text-red-500">*</span>
               </label>
-              <textarea
-                id="description"
-                rows={4}
-                {...register("description", {
-                  required: "La descripción es obligatoria",
-                  maxLength: {
-                    value: 500,
-                    message: "Máximo 500 caracteres"
-                  }
-                })}
-                className={`w-full px-3 py-2 border rounded-md ${errors.description ? 'border-red-500' : 'border-gray-300'}`}
-                placeholder="Describe detalladamente tu evento..."
-              ></textarea>
+              <div id="description" aria-describedby="description-error">
+                <MDXEditor
+                  ref={editorRef}
+                  markdown={watch('description') || ''}
+                  onChange={handleDescriptionChange}
+                  plugins={[
+                    toolbarPlugin({
+                      toolbarContents: () => (
+                        <>
+                          <UndoRedo />
+                          <BoldItalicUnderlineToggles />
+                          <Separator />
+                          <ListsToggle />
+                          {/* <Separator />
+                          <CreateLink /> */}
+                          
+                        </>
+                      )
+                    }),
+                    listsPlugin(),
+                    linkPlugin(),
+                    quotePlugin(),
+                   
+                  ]}
+                  contentEditableClassName={`
+                    [&_ul]:list-disc 
+                    [&_ul]:pl-6 
+                    [&_ol]:list-decimal 
+                    [&_ol]:pl-6
+                    [&_li]:my-1
+                    [&_em]:italic
+                    [&_i]:italic
+                    font-[Inter] text-gray-900 border 
+                    ${errors.description ? 'border-red-500' : 'border-gray-200'} min-h-[200px] rounded-md p-2`}
+                />
+              </div>
               {errors.description && (
-                <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>
+                <p className="mt-1 text-sm text-red-600">
+                  {errors.description.message || ERROR_MESSAGES.REQUIRED}
+                </p>
               )}
             </div>
 
             {/* Enlace */}
-            <div>
+            {/* <div>
               <label htmlFor="link" className="block font-medium text-gray-700 mb-1">
                 Enlace (opcional)
               </label>
@@ -152,7 +240,7 @@ export default function EventsCreatePage() {
               {errors.link && (
                 <p className="mt-1 text-sm text-red-600">{errors.link.message}</p>
               )}
-            </div>
+            </div> */}
 
             {/* Fecha y Hora */}
             <div>
@@ -174,42 +262,44 @@ export default function EventsCreatePage() {
 
             {/* Imagen de portada */}
             <div>
-                <span className="block font-medium text-gray-700 mb-1">
-                    Imagen de portada <span className="text-red-500">*</span>
-                </span>
-                <div className="mt-1 flex items-center">
-                    {/* Botón que activa el input file */}
-                    <button
-                    type="button"
-                    onClick={() => document.getElementById('coverImage')?.click()}
-                    className="px-4 py-2 border border-gray-300 rounded-md bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer"
-                    >
-                        Seleccionar archivo
-                    </button>
-                    {/* Texto del archivo seleccionado*/}
-                    <span className="ml-2 text-sm text-gray-500 select-none">
-                    {watch('coverImage')?.[0]?.name || 'Ningún archivo seleccionado'}
-                    </span>
-                    {/* Input file oculto */}
-                    <input
-                    id="coverImage"
-                    type="file"
-                    accept="image/*"
-                    {...register("coverImage", {
-                        required: "La imagen de portada es obligatoria",
-                        validate: {
-                        fileType: (files) =>
-                            files[0]?.type.startsWith("image/") || "Debe ser un archivo de imagen",
-                        fileSize: (files) =>
-                            files[0]?.size <= 5 * 1024 * 1024 || "El tamaño máximo es 5MB"
-                        }
-                    })}
-                    className="hidden"
-                    />
+              <span className="block font-medium text-gray-700 mb-1">
+                Imagen de portada <span className="text-red-500">*</span>
+              </span>
+              
+              {previewImage && (
+                <div className="mb-4">
+                  <img 
+                    src={previewImage} 
+                    alt="Previsualización" 
+                    className="max-h-60 w-auto rounded-md object-contain border border-gray-200"
+                  />
                 </div>
-                {errors.coverImage && (
-                    <p className="mt-1 text-sm text-red-600">{errors.coverImage.message}</p>
-                )}
+              )}
+              
+              <div className="mt-1 flex items-center">
+                <button
+                  type="button"
+                  onClick={() => document.getElementById('coverImage')?.click()}
+                  className="px-4 py-2 border border-gray-300 rounded-md bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer"
+                >
+                  {previewImage ? 'Cambiar imagen' : 'Seleccionar archivo'}
+                </button>
+                <span className="ml-2 text-sm text-gray-500 select-none">
+                  {watch('coverImage')?.[0]?.name || 'Ningún archivo seleccionado'}
+                </span>
+                <input
+                  id="coverImage"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  ref={fileRef}
+                  {...fileRegisterProps}
+                  className="hidden"
+                />
+              </div>
+              {errors.coverImage && (
+                <p className="mt-1 text-sm text-red-600">{errors.coverImage.message}</p>
+              )}
             </div>
 
             {/* Ubicación - Departamento, Ciudad, Distrito */}
@@ -224,9 +314,8 @@ export default function EventsCreatePage() {
                   {...register('department', {
                     required: 'El departamento es obligatorio'
                   })}
-                  className={`w-full px-3 py-2 border rounded-md ${
-                    errors.department ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full px-3 py-2 border rounded-md ${errors.department ? 'border-red-500' : 'border-gray-300'
+                    }`}
                 >
                   <option value="">Seleccione un departamento</option>
                   {Object.values(PE_DEPARTMENTS).map((dept) => (
@@ -241,41 +330,40 @@ export default function EventsCreatePage() {
               </div>
 
               {/* Select para Distrito (dependiente del Departamento seleccionado) */}
-                <div>
-                  <label htmlFor="district" className="block font-medium text-gray-700 mb-1">
-                    Distrito <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    id="district"
-                    disabled={!watch('department')}
-                    {...register('district', {
-                      required: 'Debe seleccionar un distrito'
-                    })}
-                    className={`w-full px-3 py-2 border rounded-md ${
-                      errors.district ? 'border-red-500' : 'border-gray-300'
+              <div>
+                <label htmlFor="district" className="block font-medium text-gray-700 mb-1">
+                  Distrito <span className="text-red-500">*</span>
+                </label>
+                <select
+                  id="district"
+                  disabled={!watch('department')}
+                  {...register('district', {
+                    required: 'Debe seleccionar un distrito'
+                  })}
+                  className={`w-full px-3 py-2 border rounded-md ${errors.district ? 'border-red-500' : 'border-gray-300'
                     } ${!watch('department') ? 'bg-gray-100' : ''}`}
-                  >
-                    <option value="">
-                      {watch('department')
-                        ? 'Seleccione un distrito'
-                        : ''}
-                    </option>
-                    {watch('department') &&
-                      getDistrictsForDepartment(watch('department')).map(([code, district]) => (
-                        <option key={code} value={code}>
-                          {district.name}
-                        </option>
-                      ))
-                    }
-                  </select>
-                  {errors.district && (
-                    <p className="mt-1 text-sm text-red-600">{errors.district.message}</p>
-                  )}
+                >
+                  <option value="">
+                    {watch('department')
+                      ? 'Seleccione un distrito'
+                      : ''}
+                  </option>
+                  {watch('department') &&
+                    getDistrictsForDepartment(watch('department')).map(([code, district]) => (
+                      <option key={code} value={code}>
+                        {district.name}
+                      </option>
+                    ))
+                  }
+                </select>
+                {errors.district && (
+                  <p className="mt-1 text-sm text-red-600">{errors.district.message}</p>
+                )}
               </div>
             </div>
 
             {/* Términos y condiciones */}
-            <div className="flex items-start">
+            {/* <div className="flex items-start">
               <div className="flex items-center h-5">
                 <input
                   id="acceptTerms"
@@ -294,14 +382,14 @@ export default function EventsCreatePage() {
                   <p className="mt-1 text-sm text-red-600">{errors.acceptTerms.message}</p>
                 )}
               </div>
-            </div>
+            </div> */}
 
             {/* Botón de envío */}
             <div>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="w-full bg-[var(--color-primary)] text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {isSubmitting ? "Publicando..." : "Publicar"}
               </button>
