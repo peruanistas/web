@@ -8,9 +8,11 @@ import { PageBanner } from '@common/components/page_banner';
 import { getDistrictsForDepartment, pushBlobToStorage } from '@common/utils';
 import { PE_DEPARTMENTS } from '@common/data/geo';
 import { Admonition } from '@common/components/admonition';
+import { Modal } from '@common/components/modal_create';
 import { Info } from 'lucide-react';
 import { useAuthStore } from '@auth/store/auth_store';
 import { type MDXEditorMethods } from '@mdxeditor/editor'; // Importación type-only
+
 import { 
   MDXEditor, 
   toolbarPlugin,
@@ -73,6 +75,8 @@ export default function ProjectsCreatePage() {
   });
 
   const { user } = useAuthStore();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [createdProjectId, setCreatedProjectId] = useState<string | null>(null);
 
   const onSubmit = async (form_data: ProjectFormData) => {
     try {
@@ -84,7 +88,7 @@ export default function ProjectsCreatePage() {
 
       const bucket_path = await pushBlobToStorage(db, "multimedia", form_data.coverImage[0])
 
-      const { error } = await db
+      const { data, error } = await db
         .from('projects')
         .insert({
           title: form_data.projectName,
@@ -95,12 +99,15 @@ export default function ProjectsCreatePage() {
           author_id: user.id,
           ioarr_type: form_data.projectCategory,
           published_at: new Date().toISOString(),
-        });
+        })
+        .select('id')
+        .single();
 
       if (error) throw error;
-
+      if (!data?.id) throw new Error('No se obtuvo ID del proyecto');
+      setCreatedProjectId(data.id);
+      setIsModalOpen(true);
       reset();
-      alert('Proyecto creado exitosamente!');
     } catch (error) {
       console.error('Error al crear proyecto:', error);
       const errorMessage = error instanceof Error ? error.message : String(error);
@@ -504,6 +511,14 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
           </form>
         </div>
       </div>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        message="¡Proyecto creado exitosamente!"
+        type='proyecto'
+        routeType='proyectos'
+        projectId={createdProjectId}
+      />
     </Layout>
   );
 }

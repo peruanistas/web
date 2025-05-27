@@ -6,6 +6,7 @@ import { db } from '@db/client';
 import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { PageBanner } from '@common/components/page_banner';
+import { Modal } from '@common/components/modal_create';
 import { type MDXEditorMethods } from '@mdxeditor/editor'; // Importación type-only
 import { 
   MDXEditor, 
@@ -21,6 +22,7 @@ import {
   quotePlugin,
 } from '@mdxeditor/editor'
 import '@mdxeditor/editor/style.css'
+import { create } from 'domain';
 
 type NewsFormData = {
   title: string;
@@ -39,7 +41,6 @@ const ERROR_MESSAGES = {
   LOGIN_REQUIRED: 'Debes iniciar sesión para crear un proyecto'
 };
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-
 
 export default function NewCreatePage() {
   const { user } = useAuthStore();
@@ -89,6 +90,8 @@ export default function NewCreatePage() {
     trigger('coverImage');
   };
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [createdNewsId, setCreatedNewsId] = useState<string | null>(null);
   const onSubmit = async (form_data: NewsFormData) => {
     try {
       if (!user) throw new Error('Debes iniciar sesión para crear una noticia');
@@ -99,7 +102,7 @@ export default function NewCreatePage() {
 
       const bucket_path = await pushBlobToStorage(db, 'multimedia', form_data.coverImage[0]);
 
-      const { error } = await db
+      const { data, error } = await db
         .from('publications')
         .insert({
           title: form_data.title,
@@ -109,12 +112,15 @@ export default function NewCreatePage() {
           published_at: new Date().toISOString(),
           active: true,
           visibility: 'public', 
-        });
+        })
+        .select('id')
+        .single();
 
       if (error) throw error;
-
+      if (!data?.id) throw new Error('No se obtuvo ID del proyecto');
+      setCreatedNewsId(data.id);
+      setIsModalOpen(true);
       reset();
-      alert('Noticia creada exitosamente!');
     } catch (error) {
       console.error('Error al crear noticia:', error);
       const errorMessage = error instanceof Error ? error.message : String(error);
@@ -288,6 +294,14 @@ export default function NewCreatePage() {
           </form>
         </div>
       </div>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        message="Pubicacion creada exitosamente!"
+        type='publicacion'
+        routeType='feed'
+        projectId={createdNewsId}
+      />
     </Layout>
   );
 }

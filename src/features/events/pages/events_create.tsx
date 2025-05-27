@@ -8,6 +8,7 @@ import { getDistrictsForDepartment, pushBlobToStorage } from '@common/utils';
 import { PE_DEPARTMENTS } from '@common/data/geo';
 import { useAuthStore } from "@auth/store/auth_store";
 import { Admonition } from "@common/components/admonition";
+import { Modal } from '@common/components/modal_create';
 import { Info } from "lucide-react";
 import { type MDXEditorMethods } from '@mdxeditor/editor'; // Importación type-only
 import { 
@@ -74,6 +75,8 @@ export default function EventsCreatePage() {
 
   const [defaultDateTime] = useState(getCurrentDateTimeLocal());
   const { user } = useAuthStore();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [createdEventId, setCreatedEventId] = useState<string | null>(null);
 
   const onSubmit = async (form_data: EventFormData) => {
     try {
@@ -93,14 +96,17 @@ export default function EventsCreatePage() {
           published_at: new Date().toISOString(),
       };
 
-      const { error } = await db
+      const { data, error } = await db
       .from('events')
-      .insert(eventData);
+      .insert(eventData)
+      .select('id')
+      .single();;
 
       if (error) throw error;
-
+      if (!data?.id) throw new Error('No se obtuvo ID del proyecto');
+      setCreatedEventId(data.id);
+      setIsModalOpen(true);
       reset();
-      alert('Evento creado exitosamente!');
     } catch (error) {
       console.error('Error al crear evento:', error);
       const errorMessage = error instanceof Error ? error.message : 'Ocurrió un error desconocido';
@@ -417,6 +423,14 @@ export default function EventsCreatePage() {
           </form>
         </div>
       </div>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        message="¡Evento creado exitosamente!"
+        type='evento'
+        routeType='eventos'
+        projectId={createdEventId}
+      />
     </Layout>
   );
 }
