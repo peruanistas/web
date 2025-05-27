@@ -5,7 +5,7 @@ import { Link, useLocation } from 'wouter';
 import { ContentLayout } from './content_layout';
 import { useAuthStore } from '@auth/store/auth_store';
 import { db } from '@db/client';
-import { User } from 'lucide-react';
+import { User, ChevronDown, Plus } from 'lucide-react';
 import logo from '@assets/images/logo_with_text.webp';
 
 export const HEADER_NAV_HEIGHT = 46;
@@ -50,9 +50,7 @@ export function Header({ showNavigation, ...rest }: HeaderProps) {
       }}
     >
       <ContentLayout>
-        <div className='flex justify-between items-center py-4' style={{
-          height: HEADER_BAR_HEIGHT,
-        }}>
+        <div className='flex justify-between items-center py-4' style={{ height: HEADER_BAR_HEIGHT }}>
           <Link href='/'>
             <div className='flex items-center gap-3'>
               <img src={logo} alt='logo' className='h-9' />
@@ -62,9 +60,31 @@ export function Header({ showNavigation, ...rest }: HeaderProps) {
             <Link className='cursor-pointer' href='/about'>
               <div className='hidden md:flex hover:text-[#C4320A]'>Quiénes somos</div>
             </Link>
-            <Link className='cursor-pointer' href='/proyectos/crear'>
-              <div className='hidden md:flex hover:text-[#C4320A]'>Crea un proyecto</div>
-            </Link>
+
+            {/* Nuevo botón con menú desplegable */}
+            <div className='relative' ref={menuRef}>
+              <button
+                onClick={() => setOpenMenu(!openMenu)}
+                className='hidden md:flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer'
+              >
+                <Plus size={16} />
+                Crear
+                <ChevronDown size={16} />
+              </button>
+              {openMenu && (
+                <div className='absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded shadow-md z-50'>
+                  <Link href='/proyectos/crear'>
+                    <div className='px-4 py-2 hover:bg-gray-100 cursor-pointer'>Crear proyecto</div>
+                  </Link>
+                  <Link href='/feed/crear'>
+                    <div className='px-4 py-2 hover:bg-gray-100 cursor-pointer'>Crear noticia</div>
+                  </Link>
+                  <Link href='/eventos/crear'>
+                    <div className='px-4 py-2 hover:bg-gray-100 cursor-pointer'>Crear evento</div>
+                  </Link>
+                </div>
+              )}
+            </div>
 
             {!user ? (
               <>
@@ -102,18 +122,22 @@ export function Header({ showNavigation, ...rest }: HeaderProps) {
       </ContentLayout>
 
       {showNavigation !== false && (
-        <nav style={{
-          height: 46,
-          backgroundColor: 'var(--color-on-primary)',
-          borderTop: '1px solid var(--color-border)',
-        }}>
+        <nav
+          style={{
+            height: 46,
+            backgroundColor: 'var(--color-on-primary)',
+            borderTop: '1px solid var(--color-border)',
+          }}
+        >
           <ContentLayout style={{ height: 46, paddingBottom: '3px', paddingTop: '2px' }}>
             <div className='flex items-center gap-6 h-full'>
               {TABS.map((tab) => (
                 <Link
                   key={tab.name}
                   href={tab.href}
-                  className={`flex items-center h-full ${tab.regex.test(pathname) ? 'border-b-3 border-primary' : ''}`}
+                  className={`flex items-center h-full ${
+                    tab.regex.test(pathname) ? 'border-b-3 border-primary' : ''
+                  }`}
                 >
                   {tab.name}
                 </Link>
