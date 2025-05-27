@@ -15,6 +15,13 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: 'Inter';
+  src: url('../src/assets/fonts/Inter-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+}
+
 /* See tailwind variables here https://tailwindcss.com/docs/theme */
 @theme {
   /* The peruanistas red color */

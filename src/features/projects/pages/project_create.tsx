@@ -1,5 +1,6 @@
 import { db } from '@db/client';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { Layout } from '@common/components/layout';
 import { Header } from '@common/components/header';
@@ -9,21 +10,47 @@ import { PE_DEPARTMENTS } from '@common/data/geo';
 import { Admonition } from '@common/components/admonition';
 import { Info } from 'lucide-react';
 import { useAuthStore } from '@auth/store/auth_store';
+import { type MDXEditorMethods } from '@mdxeditor/editor'; // Importación type-only
+import { 
+  MDXEditor, 
+  toolbarPlugin,
+  UndoRedo,
+  BoldItalicUnderlineToggles,
+  ListsToggle,
+  Separator,
+  CreateLink,
+  headingsPlugin, //Mejora proxima
+  listsPlugin,
+  linkPlugin,
+  quotePlugin,
+} from '@mdxeditor/editor'
+import '@mdxeditor/editor/style.css'
 
 type ProjectFormData = {
   projectName: string;
   description: string;
-  link?: string;
+  // link?: string;
   coverImage: FileList;
   department: string;
   district: string;
   acceptTerms: boolean;
   projectType: 'improve' | 'create';
   projectCategory: 'investment' | 'optimization' | 'extension' | 'repair' | 'replacement';
-  productiveUnit: 'Opcion 1' | 'Opcion 2';
-  improvementChoice: 'Opcion 1' | 'Opcion 2';
-  creditStatus: 'Aprobado' | 'Desaprobado';
+  // productiveUnit: 'Opcion 1' | 'Opcion 2';
+  // improvementChoice: 'Opcion 1' | 'Opcion 2';
+  // creditStatus: 'Aprobado' | 'Desaprobado';
 };
+
+const ERROR_MESSAGES = {
+  REQUIRED: 'Este campo es obligatorio',
+  IMAGE_REQUIRED: 'La imagen de portada es obligatoria',
+  IMAGE_TYPE: 'Debe ser un archivo de imagen válido',
+  IMAGE_SIZE: 'El tamaño máximo permitido es 5MB',
+  MAX_LENGTH: 'Máximo 255 caracteres',
+  LOGIN_REQUIRED: 'Debes iniciar sesión para crear un proyecto'
+};
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 export default function ProjectsCreatePage() {
   const {
@@ -31,16 +58,28 @@ export default function ProjectsCreatePage() {
     handleSubmit,
     formState: { errors, isSubmitting },
     watch,
-    reset
-  } = useForm<ProjectFormData>();
+    reset,
+    setValue,
+    trigger
+  } = useForm<ProjectFormData>({
+    defaultValues: {
+      projectType: 'create' // Valor por defecto
+    }
+  });
+
+  register('description', {
+    required: ERROR_MESSAGES.REQUIRED,
+    validate: (value) => (value?.trim().length > 0) || ERROR_MESSAGES.REQUIRED
+  });
+
   const { user } = useAuthStore();
 
   const onSubmit = async (form_data: ProjectFormData) => {
     try {
-      if (!user) throw new Error('Debes iniciar sesión para crear un proyecto');
+      if (!user) throw new Error(ERROR_MESSAGES.LOGIN_REQUIRED);
 
       if (!form_data.coverImage[0]) {
-          throw new Error('No se subió ninguna imagen de portada');
+        throw new Error(ERROR_MESSAGES.IMAGE_REQUIRED);
       }
 
       const bucket_path = await pushBlobToStorage(db, "multimedia", form_data.coverImage[0])
@@ -68,10 +107,42 @@ export default function ProjectsCreatePage() {
       alert(`Error: ${errorMessage}`);
     }
   };
+const [previewImage, setPreviewImage] = useState<string | null>(null);
 
+// Extraemos las propiedades del register para el input file
+const { ref: fileRef, onChange: hookFormOnChange, ...fileRegisterProps } = 
+  register('coverImage', {
+    required: ERROR_MESSAGES.IMAGE_REQUIRED,
+    validate: {
+      fileType: (files) => 
+        files[0]?.type?.startsWith('image/') || ERROR_MESSAGES.IMAGE_TYPE,
+      fileSize: (files) => 
+        files[0]?.size <= MAX_FILE_SIZE || ERROR_MESSAGES.IMAGE_SIZE
+    }
+  });
+
+const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // 1. Manejar previsualización
+  const file = e.target.files?.[0];
+  if (file) {
+    setPreviewImage(URL.createObjectURL(file));
+  }
+  
+  // 2. Propagamos el evento al hook form
+  hookFormOnChange(e);
+  
+  // 3. Opcional: disparar validación inmediata
+  trigger('coverImage');
+};
+  
   useEffect(() => {
     document.title = 'Crear Proyecto';
   }, []);
+  const editorRef = useRef<MDXEditorMethods>(null);
+  const handleDescriptionChange = (markdown: string) => {
+    setValue('description', markdown, { shouldValidate: true });
+    trigger('description');
+  };
 
   return (
     <Layout>
@@ -82,14 +153,14 @@ export default function ProjectsCreatePage() {
           description="Completa el formulario para crear un nuevo proyecto"
         />
         <div className="w-full max-w-4xl bg-white p-8 rounded-lg">
+          {!user && (
+              <Admonition 
+                title="Debes iniciar sesión para crear proyectos" 
+                icon={<Info />} />
+          )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Nombre del Proyecto */}
-            {
-              !user && (
-                <Admonition title="Debes iniciar sesión para crear proyectos" icon={<Info />} />
-              )
-            }
             <div>
               <label htmlFor="projectName" className="block font-medium text-gray-700 mb-1">
                 Nombre del Proyecto <span className="text-red-500">*</span>
@@ -98,13 +169,15 @@ export default function ProjectsCreatePage() {
                 id="projectName"
                 type="text"
                 {...register('projectName', {
-                  required: 'El nombre del proyecto es obligatorio',
+                  required: ERROR_MESSAGES.REQUIRED,
                   maxLength: {
-                    value: 25,
-                    message: 'Máximo 25 caracteres'
+                    value: 255,
+                    message: ERROR_MESSAGES.MAX_LENGTH
                   }
                 })}
-                className={`w-full px-3 py-2 border rounded-md ${errors.projectName ? 'border-red-500' : 'border-gray-300'}`}
+                className={`w-full px-3 py-2 border rounded-md ${
+                  errors.projectName ? 'border-red-500' : 'border-gray-300'
+                }`}
                 placeholder="Mi proyecto innovador"
               />
               {errors.projectName && (
@@ -117,26 +190,51 @@ export default function ProjectsCreatePage() {
               <label htmlFor="description" className="block font-medium text-gray-700 mb-1">
                 Descripción <span className="text-red-500">*</span>
               </label>
-              <textarea
-                id="description"
-                rows={4}
-                {...register('description', {
-                  required: 'La descripción es obligatoria',
-                  maxLength: {
-                    value: 500,
-                    message: 'Máximo 500 caracteres'
-                  }
-                })}
-                className={`w-full px-3 py-2 border rounded-md ${errors.description ? 'border-red-500' : 'border-gray-300'}`}
-                placeholder="Describe detalladamente tu proyecto..."
-              ></textarea>
+              <div id="description" aria-describedby="description-error">
+                <MDXEditor
+                  ref={editorRef}
+                  markdown={watch('description') || ''}
+                  onChange={handleDescriptionChange}
+                  plugins={[
+                    toolbarPlugin({
+                      toolbarContents: () => (
+                        <>
+                          <UndoRedo />
+                          <BoldItalicUnderlineToggles />
+                          <Separator />
+                          <ListsToggle />
+                          {/* <Separator />
+                          <CreateLink /> */}
+                          
+                        </>
+                      )
+                    }),
+                    listsPlugin(),
+                    linkPlugin(),
+                    quotePlugin(),
+                   
+                  ]}
+                  contentEditableClassName={`
+                    [&_ul]:list-disc 
+                    [&_ul]:pl-6 
+                    [&_ol]:list-decimal 
+                    [&_ol]:pl-6
+                    [&_li]:my-1
+                    [&_em]:italic
+                    [&_i]:italic
+                    font-[Inter] text-gray-900 border 
+                    ${errors.description ? 'border-red-500' : 'border-gray-200'} min-h-[200px] rounded-md p-2`}
+                />
+              </div>
               {errors.description && (
-                <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>
+                <p className="mt-1 text-sm text-red-600">
+                  {errors.description.message || ERROR_MESSAGES.REQUIRED}
+                </p>
               )}
             </div>
 
-            {/* Enlace */}
-            <div>
+            {/* Enlace - Oculto*/}
+            {/* <div>
               <label htmlFor="link" className="block font-medium text-gray-700 mb-1">
                 Enlace (opcional)
               </label>
@@ -155,40 +253,42 @@ export default function ProjectsCreatePage() {
               {errors.link && (
                 <p className="mt-1 text-sm text-red-600">{errors.link.message}</p>
               )}
-            </div>
+            </div> */}
 
             {/* Imagen de portada */}
             <div>
               <span className="block font-medium text-gray-700 mb-1">
                 Imagen de portada <span className="text-red-500">*</span>
               </span>
+              
+              {previewImage && (
+                <div className="mb-4">
+                  <img 
+                    src={previewImage} 
+                    alt="Previsualización" 
+                    className="max-h-60 w-auto rounded-md object-contain border border-gray-200"
+                  />
+                </div>
+              )}
+              
               <div className="mt-1 flex items-center">
-                {/* Botón que activa el input file */}
                 <button
                   type="button"
                   onClick={() => document.getElementById('coverImage')?.click()}
                   className="px-4 py-2 border border-gray-300 rounded-md bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer"
                 >
-                  Seleccionar archivo
+                  {previewImage ? 'Cambiar imagen' : 'Seleccionar archivo'}
                 </button>
-                {/* Texto del archivo seleccionado*/}
                 <span className="ml-2 text-sm text-gray-500 select-none">
                   {watch('coverImage')?.[0]?.name || 'Ningún archivo seleccionado'}
                 </span>
-                {/* Input file oculto */}
                 <input
                   id="coverImage"
                   type="file"
                   accept="image/*"
-                  {...register('coverImage', {
-                    required: 'La imagen de portada es obligatoria',
-                    validate: {
-                      fileType: (files) =>
-                        files[0]?.type.startsWith('image/') || 'Debe ser un archivo de imagen',
-                      fileSize: (files) =>
-                        files[0]?.size <= 8 * 1024 * 1024 || 'El tamaño máximo es 5MB'
-                    }
-                  })}
+                  onChange={handleFileChange}
+                  ref={fileRef}
+                  {...fileRegisterProps}
                   className="hidden"
                 />
               </div>
@@ -290,7 +390,7 @@ export default function ProjectsCreatePage() {
                 )}
               </div>
 
-              {/* Tipo de proyecto y Unidad productiva en misma fila */}
+              {/* Tipo de proyecto y Unidad productiva*/}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label htmlFor="projectCategory" className="block font-medium text-gray-700 mb-1">
@@ -313,7 +413,7 @@ export default function ProjectsCreatePage() {
                   )}
                 </div>
 
-                <div>
+                {/* <div>
                   <label htmlFor="productiveUnit" className="block font-medium text-gray-700 mb-1">
                     Unidad productiva <span className="text-red-500">*</span>
                   </label>
@@ -329,11 +429,11 @@ export default function ProjectsCreatePage() {
                   {errors.productiveUnit && (
                     <p className="mt-1 text-sm text-red-600">{errors.productiveUnit.message}</p>
                   )}
-                </div>
+                </div> */}
               </div>
 
-              {/* Escoge tu mejora y Crédito en misma fila */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              {/* Escoge tu mejora y Crédito */}
+              {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
                   <label htmlFor="improvementChoice" className="block font-medium text-gray-700 mb-1">
                     Escoge tu mejora <span className="text-red-500">*</span>
@@ -369,10 +469,10 @@ export default function ProjectsCreatePage() {
                     <p className="mt-1 text-sm text-red-600">{errors.creditStatus.message}</p>
                   )}
                 </div>
-              </div>
+              </div> */}
             </div>
             {/* Términos y condiciones */}
-            <div className="flex items-start">
+            {/* <div className="flex items-start">
               <div>
                 <input
                   id="acceptTerms"
@@ -391,7 +491,7 @@ export default function ProjectsCreatePage() {
                   <p className="mt-1 text-sm text-red-600">{errors.acceptTerms.message}</p>
                 )}
               </div>
-            </div>
+            </div> */}
 
             {/* Botón de envío */}
             <div>
