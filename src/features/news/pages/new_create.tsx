@@ -3,16 +3,43 @@ import { Header } from '@common/components/header';
 import { Layout } from '@common/components/layout';
 import { pushBlobToStorage } from '@common/utils';
 import { db } from '@db/client';
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { PageBanner } from '@common/components/page_banner';
+import { type MDXEditorMethods } from '@mdxeditor/editor'; // Importación type-only
+import { 
+  MDXEditor, 
+  toolbarPlugin,
+  UndoRedo,
+  BoldItalicUnderlineToggles,
+  ListsToggle,
+  Separator,
+  CreateLink,
+  headingsPlugin, //Mejora proxima
+  listsPlugin,
+  linkPlugin,
+  quotePlugin,
+} from '@mdxeditor/editor'
+import '@mdxeditor/editor/style.css'
 
 type NewsFormData = {
   title: string;
-  content: string;
+  description: string;
   link?: string;
   coverImage: FileList;
   acceptTerms: boolean;
 };
+
+const ERROR_MESSAGES = {
+  REQUIRED: 'Este campo es obligatorio',
+  IMAGE_REQUIRED: 'La imagen de portada es obligatoria',
+  IMAGE_TYPE: 'Debe ser un archivo de imagen válido',
+  IMAGE_SIZE: 'El tamaño máximo permitido es 5MB',
+  MAX_LENGTH: 'Máximo 255 caracteres',
+  LOGIN_REQUIRED: 'Debes iniciar sesión para crear un proyecto'
+};
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
 
 export default function NewCreatePage() {
   const { user } = useAuthStore();
@@ -21,10 +48,46 @@ export default function NewCreatePage() {
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-    watch, // Agregado para observar los valores del formulario
+    watch,
+    setValue,
+    trigger // Agregado para observar los valores del formulario
   } = useForm<NewsFormData>();
 
-  const coverImage = watch('coverImage'); // Observa el campo coverImage
+  register('description', {
+  required: ERROR_MESSAGES.REQUIRED,
+  validate: (value) => (value?.trim().length > 0) || ERROR_MESSAGES.REQUIRED
+  });
+  const editorRef = useRef<MDXEditorMethods>(null);
+    const handleDescriptionChange = (markdown: string) => {
+      setValue('description', markdown, { shouldValidate: true });
+      trigger('description');
+    };
+
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  
+  // Extraemos las propiedades del register para el input file
+  const { ref: fileRef, onChange: hookFormOnChange, ...fileRegisterProps } = 
+    register('coverImage', {
+      required: ERROR_MESSAGES.IMAGE_REQUIRED,
+      validate: {
+        fileType: (files) => 
+          files[0]?.type?.startsWith('image/') || ERROR_MESSAGES.IMAGE_TYPE,
+        fileSize: (files) => 
+          files[0]?.size <= MAX_FILE_SIZE || ERROR_MESSAGES.IMAGE_SIZE
+      }
+    });
+  
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // 1. Manejar previsualización
+    const file = e.target.files?.[0];
+    if (file) {
+      setPreviewImage(URL.createObjectURL(file));
+    }
+    
+    // 2. Propagamos el evento al hook form
+    hookFormOnChange(e);
+    trigger('coverImage');
+  };
 
   const onSubmit = async (form_data: NewsFormData) => {
     try {
@@ -40,12 +103,12 @@ export default function NewCreatePage() {
         .from('publications')
         .insert({
           title: form_data.title,
-          content: form_data.content,
+          content: form_data.description,
           image_url: bucket_path,
           author_id: user.id,
           published_at: new Date().toISOString(),
           active: true,
-          visibility: 'public', // Puedes ajustar esto según tu lógica
+          visibility: 'public', 
         });
 
       if (error) throw error;
@@ -66,14 +129,13 @@ export default function NewCreatePage() {
   return (
     <Layout>
       <Header />
-      <div className="flex flex-col items-center justify-center min-h-screen py-12 px-4">
+      <div className="flex flex-col items-center justify-baseline min-h-screen pb-12">
+        <PageBanner
+          title="Crear Noticia"
+          description="Registra una nueva noticia para compartir con la comunidad"
+        />
         <div className="w-full max-w-4xl bg-white p-8 rounded-lg">
-          <h1 className="text-3xl font-bold text-center mb-4">Crear Noticia</h1>
-          <p className="text-center text-gray-600 mb-8">
-            Completa el formulario para registrar una nueva noticia
-          </p>
-
-          {!user && (
+        {!user && (
             <div className="mb-4 text-red-600 font-medium">
               Debes iniciar sesión para crear noticias.
             </div>
@@ -91,8 +153,8 @@ export default function NewCreatePage() {
                 {...register('title', {
                   required: 'El título es obligatorio',
                   maxLength: {
-                    value: 100,
-                    message: 'Máximo 100 caracteres'
+                    value: 255,
+                    message: 'Máximo 255 caracteres'
                   }
                 })}
                 className={`w-full px-3 py-2 border rounded-md ${errors.title ? 'border-red-500' : 'border-gray-300'}`}
@@ -108,21 +170,44 @@ export default function NewCreatePage() {
               <label htmlFor="content" className="block font-medium text-gray-700 mb-1">
                 Contenido <span className="text-red-500">*</span>
               </label>
-              <textarea
-                id="content"
-                rows={4}
-                {...register('content', {
-                  required: 'El contenido es obligatorio',
-                  maxLength: {
-                    value: 1000,
-                    message: 'Máximo 1000 caracteres'
-                  }
-                })}
-                className={`w-full px-3 py-2 border rounded-md ${errors.content ? 'border-red-500' : 'border-gray-300'}`}
-                placeholder="Escribe el contenido de la noticia..."
-              ></textarea>
-              {errors.content && (
-                <p className="mt-1 text-sm text-red-600">{errors.content.message}</p>
+              <div id="description" aria-describedby="description-error">
+                <MDXEditor
+                  ref={editorRef}
+                  markdown={watch('description') || ''}
+                  onChange={handleDescriptionChange}
+                  plugins={[
+                    toolbarPlugin({
+                      toolbarContents: () => (
+                        <>
+                          <UndoRedo />
+                          <BoldItalicUnderlineToggles />
+                          <Separator />
+                          <ListsToggle />
+                          {/* <Separator />
+                          <CreateLink /> */}
+                          
+                        </>
+                      )
+                    }),
+                    listsPlugin(),
+                    linkPlugin(),
+                    quotePlugin(),
+                   
+                  ]}
+                  contentEditableClassName={`
+                    [&_ul]:list-disc 
+                    [&_ul]:pl-6 
+                    [&_ol]:list-decimal 
+                    [&_ol]:pl-6
+                    [&_li]:my-1
+                    [&_em]:italic
+                    [&_i]:italic
+                    font-[Inter] text-gray-900 border 
+                    ${errors.description ? 'border-red-500' : 'border-gray-200'} min-h-[200px] rounded-md p-2`}
+                />
+              </div>
+              {errors.description && (
+                <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>
               )}
             </div>
 
@@ -131,40 +216,45 @@ export default function NewCreatePage() {
               <span className="block font-medium text-gray-700 mb-1">
                 Imagen de portada <span className="text-red-500">*</span>
               </span>
+              
+              {previewImage && (
+                <div className="mb-4">
+                  <img 
+                    src={previewImage} 
+                    alt="Previsualización" 
+                    className="max-h-60 w-auto rounded-md object-contain border border-gray-200"
+                  />
+                </div>
+              )}
+              
               <div className="mt-1 flex items-center">
                 <button
                   type="button"
                   onClick={() => document.getElementById('coverImage')?.click()}
                   className="px-4 py-2 border border-gray-300 rounded-md bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer"
                 >
-                  Seleccionar archivo
+                  {previewImage ? 'Cambiar imagen' : 'Seleccionar archivo'}
                 </button>
                 <span className="ml-2 text-sm text-gray-500 select-none">
-                  {coverImage?.[0]?.name || 'Ningún archivo seleccionado'}
+                  {watch('coverImage')?.[0]?.name || 'Ningún archivo seleccionado'}
                 </span>
                 <input
                   id="coverImage"
                   type="file"
                   accept="image/*"
-                  {...register('coverImage', {
-                    required: 'La imagen de portada es obligatoria',
-                    validate: {
-                      fileType: (files) =>
-                        files[0]?.type.startsWith('image/') || 'Debe ser un archivo de imagen',
-                      fileSize: (files) =>
-                        files[0]?.size <= 5 * 1024 * 1024 || 'El tamaño máximo es 5MB'
-                    }
-                  })}
+                  onChange={handleFileChange}
+                  ref={fileRef}
+                  {...fileRegisterProps}
                   className="hidden"
                 />
               </div>
               {errors.coverImage && (
                 <p className="mt-1 text-sm text-red-600">{errors.coverImage.message}</p>
               )}
-            </div>
+            </div>        
 
             {/* Términos y condiciones */}
-            <div className="flex items-start">
+            {/* <div className="flex items-start">
               <div>
                 <input
                   id="acceptTerms"
@@ -183,7 +273,7 @@ export default function NewCreatePage() {
                   <p className="mt-1 text-sm text-red-600">{errors.acceptTerms.message}</p>
                 )}
               </div>
-            </div>
+            </div> */}
 
             {/* Botón de envío */}
             <div>

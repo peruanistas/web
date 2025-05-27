@@ -293,7 +293,7 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
               {errors.coverImage && (
                 <p className="mt-1 text-sm text-red-600">{errors.coverImage.message}</p>
               )}
-            </div>
+            </div>        
 
             {/* Ubicación - Departamento, Ciudad, Distrito */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -311,10 +311,10 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                     }`}
                 >
                   <option value="">Seleccione un departamento</option>
-                  {Object.values(PE_DEPARTMENTS).map((dept) => (
-                    <option key={dept.code} value={dept.code}>
+                  {Object.entries(PE_DEPARTMENTS).map(([code, dept]) => (
+                    <option key={code} value={code}>
                       {dept.name}
-                    </option>
+                  </option>
                   ))}
                 </select>
                 {errors.department && (
