@@ -1,16 +1,16 @@
 import { NO_IMAGE_URL } from '@common/constants';
 import { PE_DEPARTMENTS, PE_DISTRICTS } from '@common/data/geo';
-import { Star } from 'lucide-react';
 import ContentLoader from 'react-content-loader';
 import { FaLocationDot } from 'react-icons/fa6';
 import { Link } from 'wouter';
 import type { GroupPreview } from '../types';
+import { Button } from '@common/components/button';
 
 type GroupCardProps = GroupPreview & {};
 
 export function GroupCard(group: GroupCardProps) {
   return (
-    <Link href={`/grupos/${group.id}`}>
+    <Link href={'#'}>
       <article className='flex flex-col border border-border rounded-sm bg-white'>
         {/* Group image */}
         <img
@@ -35,15 +35,9 @@ export function GroupCard(group: GroupCardProps) {
             <span className='text-sm'>{PE_DEPARTMENTS[group.geo_department].name}, {PE_DISTRICTS[group.geo_district].name}</span>
           </div>
           <div className='flex text-sm items-center justify-center gap-2'>
-            <div className='flex items-center gap-1'>
-              <p>0</p>
-              <Star color='#f7865d' fill={'#f7865d'} size={20} />
-            </div>
-            <div className='flex items-center gap-1'>
-              <p>0</p>
-              <Star color='#b2b2b2' fill={'#b2b2b2'} size={20} />
-            </div>
-
+            <Button variant='red'>
+              Unirse
+            </Button>
           </div>
         </div>
       </article>
