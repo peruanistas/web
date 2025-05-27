@@ -19,8 +19,10 @@ type HeaderProps = React.HTMLAttributes<HTMLDivElement> & {
 export function Header({ showNavigation, ...rest }: HeaderProps) {
   const [pathname] = useLocation();
   const { user, clearUser } = useAuthStore();
-  const [openMenu, setOpenMenu] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
+  const [openCreateMenu, setOpenCreateMenu] = useState(false); // Estado para el menú "Crear"
+  const [openProfileMenu, setOpenProfileMenu] = useState(false); // Estado para el menú "Perfil"
+  const createMenuRef = useRef<HTMLDivElement>(null);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
 
   const handleLogout = async () => {
     await db.auth.signOut();
@@ -29,8 +31,11 @@ export function Header({ showNavigation, ...rest }: HeaderProps) {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setOpenMenu(false);
+      if (createMenuRef.current && !createMenuRef.current.contains(event.target as Node)) {
+        setOpenCreateMenu(false);
+      }
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+        setOpenProfileMenu(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -61,17 +66,17 @@ export function Header({ showNavigation, ...rest }: HeaderProps) {
               <div className='hidden md:flex hover:text-[#C4320A]'>Quiénes somos</div>
             </Link>
 
-            {/* Nuevo botón con menú desplegable */}
-            <div className='relative' ref={menuRef}>
+            {/* Menú "Crear" */}
+            <div className='relative' ref={createMenuRef}>
               <button
-                onClick={() => setOpenMenu(!openMenu)}
+                onClick={() => setOpenCreateMenu(!openCreateMenu)}
                 className='hidden md:flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer'
               >
                 <Plus size={16} />
                 Crear
                 <ChevronDown size={16} />
               </button>
-              {openMenu && (
+              {openCreateMenu && (
                 <div className='absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded shadow-md z-50'>
                   <Link href='/proyectos/crear'>
                     <div className='px-4 py-2 hover:bg-gray-100 cursor-pointer'>Crear proyecto</div>
@@ -98,11 +103,15 @@ export function Header({ showNavigation, ...rest }: HeaderProps) {
                 </Link>
               </>
             ) : (
-              <div className='relative' ref={menuRef}>
-                <button onClick={() => setOpenMenu(!openMenu)} className='p-1.5 rounded-full border hover:bg-gray-100'>
+              /* Menú "Perfil" */
+              <div className='relative' ref={profileMenuRef}>
+                <button
+                  onClick={() => setOpenProfileMenu(!openProfileMenu)}
+                  className='p-1.5 rounded-full border hover:bg-gray-100'
+                >
                   <User size={22} className='text-gray-700' />
                 </button>
-                {openMenu && (
+                {openProfileMenu && (
                   <div className='absolute right-0 mt-2 w-40 bg-white border rounded shadow-md z-50'>
                     <Link href='/perfil'>
                       <div className='px-4 py-2 hover:bg-gray-100 cursor-pointer'>Mi perfil</div>
