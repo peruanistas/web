@@ -70,7 +70,7 @@ export function Header({ showNavigation, ...rest }: HeaderProps) {
             <div className='relative' ref={createMenuRef}>
               <button
                 onClick={() => setOpenCreateMenu(!openCreateMenu)}
-                className='hidden md:flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer'
+                className='hidden md:flex items-center gap-1 px-4 py-2 border border-gray-300 rounded-md bg-white text-sm font-medium text-gray-950 hover:bg-gray-50 cursor-pointer'
               >
                 <Plus size={16} />
                 Crear
@@ -78,16 +78,16 @@ export function Header({ showNavigation, ...rest }: HeaderProps) {
               </button>
               {openCreateMenu && (
                 <div className='absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded shadow-md z-50'>
+                  <Link href='/feed/crear'>
+                    <div className='flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer'>
+                      <FileText size={16} />
+                      Crear publicación
+                    </div>
+                  </Link>
                   <Link href='/proyectos/crear'>
                     <div className='flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer'>
                       <Briefcase size={16} />
                       Crear proyecto
-                    </div>
-                  </Link>
-                  <Link href='/feed/crear'>
-                    <div className='flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer'>
-                      <FileText size={16} />
-                      Crear noticia
                     </div>
                   </Link>
                   <Link href='/eventos/crear'>
@@ -121,7 +121,7 @@ export function Header({ showNavigation, ...rest }: HeaderProps) {
                   <User size={22} className='text-gray-700' />
                 </button>
                 {openProfileMenu && (
-                  <div className='absolute right-0 mt-2 w-40 bg-white border rounded shadow-md z-50'>
+                  <div className='absolute right-0 mt-2 w-40 bg-white border border-gray-300 rounded z-50'>
                     <Link href='/perfil'>
                       <div className='px-4 py-2 hover:bg-gray-100 cursor-pointer'>Mi perfil</div>
                     </Link>
@@ -153,9 +153,8 @@ export function Header({ showNavigation, ...rest }: HeaderProps) {
                 <Link
                   key={tab.name}
                   href={tab.href}
-                  className={`flex items-center h-full ${
-                    tab.regex.test(pathname) ? 'border-b-3 border-primary' : ''
-                  }`}
+                  className={`flex items-center h-full ${tab.regex.test(pathname) ? 'border-b-3 border-primary' : ''
+                    }`}
                 >
                   {tab.name}
                 </Link>
