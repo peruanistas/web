@@ -60,10 +60,16 @@ export function PublicationDetail({ id }: Props) {
   useEffect(() => {
     // We fetch 3 projects and 3 publications
     fetchRandomNews(3, seed.current, [id]).then((news) => {
-      setRandomContent((prev) => mergeAndShuffle(prev, news));
+      setRandomContent((prev) => {
+        if (prev.length + news.length > 6) return prev;
+        return mergeAndShuffle(prev, news);
+      });
     });
     fetchRandomProjects(3, seed.current).then((projects) => {
-      setRandomContent((prev) => mergeAndShuffle(prev, projects));
+      setRandomContent((prev) => {
+        if (prev.length + projects.length > 6) return prev;
+        return mergeAndShuffle(prev, projects);
+      });
     });
   }, [id, seed]);
 
