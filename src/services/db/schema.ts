@@ -398,7 +398,78 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      random_publications: {
+        Row: {
+          active: boolean | null
+          author_id: string | null
+          content: string | null
+          created_at: string | null
+          downvotes: number | null
+          external_sources_url: string | null
+          feed_post_hash: string | null
+          id: string | null
+          image_url: string | null
+          impression_count: number | null
+          published_at: string | null
+          source_id: string | null
+          title: string | null
+          updated_at: string | null
+          upvotes: number | null
+          visibility: Database['public']['Enums']['visibility'] | null
+        }
+        Insert: {
+          active?: boolean | null
+          author_id?: string | null
+          content?: string | null
+          created_at?: string | null
+          downvotes?: number | null
+          external_sources_url?: string | null
+          feed_post_hash?: string | null
+          id?: string | null
+          image_url?: string | null
+          impression_count?: number | null
+          published_at?: string | null
+          source_id?: string | null
+          title?: string | null
+          updated_at?: string | null
+          upvotes?: number | null
+          visibility?: Database['public']['Enums']['visibility'] | null
+        }
+        Update: {
+          active?: boolean | null
+          author_id?: string | null
+          content?: string | null
+          created_at?: string | null
+          downvotes?: number | null
+          external_sources_url?: string | null
+          feed_post_hash?: string | null
+          id?: string | null
+          image_url?: string | null
+          impression_count?: number | null
+          published_at?: string | null
+          source_id?: string | null
+          title?: string | null
+          updated_at?: string | null
+          upvotes?: number | null
+          visibility?: Database['public']['Enums']['visibility'] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'publications_author_id_fkey'
+            columns: ['author_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'publications_source_id_fkey'
+            columns: ['source_id']
+            isOneToOne: false
+            referencedRelation: 'publication_sources'
+            referencedColumns: ['id']
+          },
+        ]
+      }
     }
     Functions: {
       [_ in never]: never

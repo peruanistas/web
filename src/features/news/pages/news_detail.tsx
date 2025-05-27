@@ -1,9 +1,7 @@
-import { Header } from '@common/components/header';
+import { Header, HEADER_FULL_HEIGHT } from '@common/components/header';
 import { Footer } from '@common/components/footer';
 import { Layout } from '@common/components/layout';
 import { formatDate2 } from '@common/utils';
-import parse from 'html-react-parser';
-import DOMPurify from 'dompurify';
 import { Calendar, ExternalLink, Share2, User } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@db/client';
@@ -12,8 +10,11 @@ import { useScrollReset } from '@common/hooks/useScrollReset';
 import { CommentsSection } from '@common/components/commentsSection';
 import { Modal } from '@common/components/modal';
 import { Share } from '@common/components/share';
-import { useState } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Button } from '@common/components/button';
+import ContentLoader from 'react-content-loader';
+import { ContentLayout } from '@common/components/content_layout';
+import Markdown from 'react-markdown';
 
 type Props = {
   id: string;
@@ -23,6 +24,8 @@ type Publication = Tables<'publications'> & {
   source_id: Tables<'publication_sources'> | null;
   author_id: Tables<'profiles'> | null;
 };
+
+type NewsSidebarPreview = Pick<Publication, 'id' | 'title' | 'image_url' | 'published_at'>;
 
 async function fetchPublication(id: string): Promise<Publication | null> {
   const { data, error } = await db
@@ -37,7 +40,6 @@ async function fetchPublication(id: string): Promise<Publication | null> {
 
 export function PublicationDetail({ id }: Props) {
   useScrollReset();
-
   const [shareOpen, setShareOpen] = useState(false);
 
   const { data: publication, isLoading, isError } = useQuery({
@@ -46,116 +48,217 @@ export function PublicationDetail({ id }: Props) {
     enabled: !!id,
   });
 
-  if (isLoading) return <div className="text-center py-10">Cargando...</div>;
-  if (isError || !publication) return <div className="text-center py-10 text-red-600">Error al cargar la noticia.</div>;
+  const seed = useRef(Math.floor(Math.random() * 1000000));
+  const [randomNews, setRandomNews] = useState<NewsSidebarPreview[]>([]);
+
+  useEffect(() => {
+    fetchRandomNews(seed.current, [id]).then(setRandomNews);
+  }, [id, seed]);
+
+  const randomNewsElement = useMemo(() => {
+    return <RandomNews news={randomNews} />;
+  }, [randomNews]);
+
+  if (isError) return <div className="text-center py-10 text-red-600">Error al cargar la noticia.</div>;
 
   return (
     <Layout>
       <Header />
-      <div className="max-w-4xl mx-auto px-6 py-10 flex gap-4">
-        <main className='flex-1'>
-          <h1 className="text-3xl font-bold mb-4">
-            {publication.title}
-          </h1>
-          <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
-            <div className="flex items-center gap-2">
-              {publication.source_id && (
-                <>
-                  <img
-                    src={publication.source_id.image_icon_url}
-                    alt={publication.source_id.name}
-                    width={24}
-                    height={24}
-                    className="rounded-full"
-                  />
-                  <span className="font-medium text-gray-700">
-                    {publication.source_id.name}
-                  </span>
-                </>
-              )}
-              {publication.author_id && (
-                <>
-                  <User strokeWidth={1} />
-                  <span className="font-medium text-gray-700">
-                    {publication.author_id.nombres} {publication.author_id.apellidos}
-                  </span>
-                </>
-              )}
-            </div>
-            <div className="flex items-center gap-1 text-gray-600">
-              <Calendar className="w-4 h-4" />
-              <span>{formatDate2(publication.published_at)}</span>
-            </div>
-          </div>
-
-          {publication.image_url && (
-            <div className="mb-5">
-              <img
-                src={publication.image_url}
-                alt={publication.title}
-                className="w-full h-auto rounded-lg object-cover shadow-sm"
-                style={{ maxHeight: '500px' }}
-              />
-            </div>
-          )}
-
-          <div className={'flex space-y-4 justify-between'}>
-            <div>
-              {/* TODO: Handle upvote, downvote, impressions logic */}
-              {/* <div className="flex gap-6">
-                <div className="flex items-center gap-2">
-                  <ThumbsUp className="w-5 h-5 text-green-600" />
-                  <span className="font-medium">{0}</span>
-                  <span className="text-gray-600 text-sm">Me gusta</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <ThumbsDown className="w-5 h-5 text-red-600" />
-                  <span className="font-medium">{0}</span>
-                  <span className="text-gray-600 text-sm">No me gusta</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Eye className="w-5 h-5 text-gray-600" />
-                  <span className="font-medium">{0}</span>
-                  <span className="text-gray-600 text-sm">Visualizaciones</span>
-                </div>
-              </div> */}
-            </div>
-            <div>
-              <Button
-                trailing={<Share2 size={18} />}
-                onClick={() => setShareOpen(true)}
+      <ContentLayout>
+        <div className="mx-auto py-10 flex gap-8">
+          <main className='flex-1'>
+            {isLoading ? (
+              <ContentLoader
+                speed={2}
+                width="100%"
+                height={420}
+                viewBox="0 0 700 420"
+                backgroundColor="#ededed"
+                foregroundColor="#ecebeb"
+                style={{ width: '100%', height: 'auto', maxWidth: 700 }}
               >
-                Compartir
-              </Button>
-            </div>
-          </div>
+                {/* Title */}
+                <rect x="0" y="0" rx="6" ry="6" width="66%" height="40" />
+                {/* Author and meta */}
+                <rect x="0" y="60" rx="8" ry="8" width="40" height="40" />
+                <rect x="50" y="70" rx="4" ry="4" width="120" height="16" />
+                {/* Main image */}
+                <rect x="0" y="120" rx="12" ry="12" width="100%" height="200" />
+                {/* Content lines */}
+                <rect x="0" y="340" rx="4" ry="4" width="80%" height="20" />
+                <rect x="0" y="370" rx="4" ry="4" width="95%" height="16" />
+                <rect x="0" y="395" rx="4" ry="4" width="60%" height="16" />
+              </ContentLoader>
+            ) : (
+              publication && (
+                <>
+                  <h1 className="text-3xl font-bold mb-4">
+                    {publication.title}
+                  </h1>
+                  <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-200">
+                    <div className="flex items-center gap-2">
+                      {publication.source_id && (
+                        <>
+                          <img
+                            src={publication.source_id.image_icon_url}
+                            alt={publication.source_id.name}
+                            width={24}
+                            height={24}
+                            className="rounded-full"
+                          />
+                          <span className="font-medium text-gray-700">
+                            {publication.source_id.name}
+                          </span>
+                        </>
+                      )}
+                      {publication.author_id && (
+                        <>
+                          <User strokeWidth={1} />
+                          <span className="font-medium text-gray-700">
+                            {publication.author_id.nombres} {publication.author_id.apellidos}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1 text-gray-600">
+                      <Calendar className="w-4 h-4" />
+                      <span>{formatDate2(publication.published_at)}</span>
+                    </div>
+                  </div>
 
-          <div className="prose max-w-none mt-1 mb-8">
-            <div className="text-gray-800 text-md leading-relaxed whitespace-pre-wrap">
-              {parse(DOMPurify.sanitize(publication.content))}
-            </div>
-          </div>
+                  {publication.image_url && (
+                    <div className="mb-3">
+                      <img
+                        src={publication.image_url}
+                        alt={publication.title}
+                        className="w-full h-auto rounded-lg object-cover shadow-sm"
+                        style={{ maxHeight: '500px' }}
+                      />
+                    </div>
+                  )}
 
-          {publication.source_id?.name && publication.external_sources_url && (
-            <div className="mb-8">
-              <a
-                href={publication.external_sources_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                <ExternalLink className="w-5 h-5" />
-                Ver noticia completa en {publication.source_id.name}
-              </a>
-            </div>
-          )}
-          <CommentsSection handleRefresh={() => { }}></CommentsSection>
-        </main>
-      </div>
+                  <div className={'flex space-y-4 justify-between'}>
+                    <div>{/* TODO: Handle upvote, downvote, impressions logic */}</div>
+                    <div>
+                      <Button
+                        trailing={<Share2 size={18} />}
+                        onClick={() => setShareOpen(true)}
+                      >
+                        Compartir
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="prose max-w-none mt-3 mb-8">
+                    <div className="text-gray-800 text-md leading-relaxed whitespace-pre-wrap">
+                      <Markdown>
+                        {publication.content}
+                      </Markdown>
+                    </div>
+                  </div>
+
+                  {publication.source_id?.name && publication.external_sources_url && (
+                    <div className="mb-8">
+                      <a
+                        href={publication.external_sources_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-border transition-colors"
+                      >
+                        <ExternalLink className="w-5 h-5" />
+                        Ver noticia completa en {publication.source_id.name}
+                      </a>
+                    </div>
+                  )}
+                  <CommentsSection handleRefresh={() => { }}></CommentsSection>
+                  <div className='flex flex-col justify-start py-4 mt-6 bg-white border-t-1 border-border' />
+                  <aside className="w-[36rem] lg:hidden block" style={{
+                    top: HEADER_FULL_HEIGHT + 24
+                  }}>
+                    {randomNewsElement}
+                  </aside>
+                </>
+              )
+            )}
+          </main>
+          <aside className="w-96 hidden lg:block sticky self-start" style={{
+            top: HEADER_FULL_HEIGHT + 24
+          }}>
+            {randomNewsElement}
+          </aside>
+        </div>
+      </ContentLayout>
       <Modal open={shareOpen} onClose={() => setShareOpen(false)}>
         <Share url={window.location.href} title={publication?.title} content={publication?.content} />
       </Modal>
       <Footer />
     </Layout>
+  );
+}
+
+function RandomNews({ news }: { news: NewsSidebarPreview[] }) {
+  return (
+    <>
+      <h3 className="font-semibold mb-4 text-lg">Otras publicaciones</h3>
+      <ul className="flex flex-col gap-3">
+        {news.length === 0 && Array.from({ length: 5 }).map((_, i) => (
+          <li key={i} className="border-b border-border pb-2">
+            <ContentLoader
+              speed={2}
+              width={320}
+              height={64}
+              viewBox="0 0 320 64"
+              backgroundColor="#dedede"
+              foregroundColor="#ecebeb"
+              className="w-16 h-16"
+              style={{ width: 'auto', height: 'auto' }}
+            >
+              <rect x="0" y="0" rx="8" ry="8" width="64" height="64" />
+              <rect x="76" y="8" rx="4" ry="4" width="200" height="16" />
+              <rect x="76" y="32" rx="3" ry="3" width="120" height="12" />
+            </ContentLoader>
+          </li>
+        ))}
+        {news.length > 0 && news.map(news => (
+          <li key={news.id} className="border-b border-border pb-2">
+            <a href={`/feed/${news.id}`} className="flex gap-3 items-center group">
+              {news.image_url && (
+                <img src={news.image_url} alt={news.title} className="w-16 h-16 object-cover rounded flex-shrink-0" style={{ width: '64px', height: '64px' }} />
+              )}
+              {!news.image_url && (
+                <div className="w-16 h-16 bg-gray-200 rounded flex-shrink-0"></div>
+              )}
+              <div>
+                <div className="font-medium text-sm group-hover:text-primary transition line-clamp-2">{news.title}</div>
+                <div className="text-sm text-gray-500 mt-1">{formatDate2(news.published_at)}</div>
+              </div>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </>
+  );
+}
+
+async function fetchRandomNews(seed: number, exclude: string[]): Promise<NewsSidebarPreview[]> {
+  function seededRandom(seed: number) {
+    const x = Math.sin(seed++) * 10000;
+    return x - Math.floor(x);
+  }
+
+  const { data, error } = await db
+    .from('random_publications')
+    .select('id, title, image_url, published_at')
+    .not('id', 'in', `(${exclude.join(',')})`)
+    .limit(5);
+
+  if (error || !data) return [];
+
+  // workaround: views contains nullable columns
+  // see: <https://github.com/orgs/supabase/discussions/13279>
+  const cleanedData = data as NewsSidebarPreview[];
+
+  return [...cleanedData].sort((a, b) =>
+    seededRandom(seed + a.id.charCodeAt(0)) - seededRandom(seed + b.id.charCodeAt(0))
   );
 }
