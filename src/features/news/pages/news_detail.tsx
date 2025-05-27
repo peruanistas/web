@@ -1,7 +1,7 @@
 import { Header, HEADER_FULL_HEIGHT } from '@common/components/header';
 import { Footer } from '@common/components/footer';
 import { Layout } from '@common/components/layout';
-import { formatDate2 } from '@common/utils';
+import { formatDate2, mergeAndShuffle } from '@common/utils';
 import { Calendar, ExternalLink, Share2, User } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@db/client';
@@ -25,7 +25,13 @@ type Publication = Tables<'publications'> & {
   author_id: Tables<'profiles'> | null;
 };
 
-type NewsSidebarPreview = Pick<Publication, 'id' | 'title' | 'image_url' | 'published_at'>;
+type ContentSidebarPreview = {
+  id: string;
+  title: string;
+  image_url: string | null;
+  published_at: string;
+  tag: string | null;
+};
 
 async function fetchPublication(id: string): Promise<Publication | null> {
   const { data, error } = await db
@@ -49,15 +55,21 @@ export function PublicationDetail({ id }: Props) {
   });
 
   const seed = useRef(Math.floor(Math.random() * 1000000));
-  const [randomNews, setRandomNews] = useState<NewsSidebarPreview[]>([]);
+  const [randomContent, setRandomContent] = useState<ContentSidebarPreview[]>([]);
 
   useEffect(() => {
-    fetchRandomNews(seed.current, [id]).then(setRandomNews);
+    // We fetch 3 projects and 3 publications
+    fetchRandomNews(3, seed.current, [id]).then((news) => {
+      setRandomContent((prev) => mergeAndShuffle(prev, news));
+    });
+    fetchRandomProjects(3, seed.current).then((projects) => {
+      setRandomContent((prev) => mergeAndShuffle(prev, projects));
+    });
   }, [id, seed]);
 
-  const randomNewsElement = useMemo(() => {
-    return <RandomNews news={randomNews} />;
-  }, [randomNews]);
+  const randomContentElements = useMemo(() => {
+    return <RandomPublications publications={randomContent} />;
+  }, [randomContent]);
 
   if (isError) return <div className="text-center py-10 text-red-600">Error al cargar la noticia.</div>;
 
@@ -175,7 +187,7 @@ export function PublicationDetail({ id }: Props) {
                   <aside className="w-[36rem] lg:hidden block" style={{
                     top: HEADER_FULL_HEIGHT + 24
                   }}>
-                    {randomNewsElement}
+                    {randomContentElements}
                   </aside>
                 </>
               )
@@ -184,7 +196,7 @@ export function PublicationDetail({ id }: Props) {
           <aside className="w-96 hidden lg:block sticky self-start" style={{
             top: HEADER_FULL_HEIGHT + 24
           }}>
-            {randomNewsElement}
+            {randomContentElements}
           </aside>
         </div>
       </ContentLayout>
@@ -196,12 +208,12 @@ export function PublicationDetail({ id }: Props) {
   );
 }
 
-function RandomNews({ news }: { news: NewsSidebarPreview[] }) {
+function RandomPublications({ publications }: { publications: ContentSidebarPreview[] }) {
   return (
     <>
       <h3 className="font-semibold mb-4 text-lg">Otras publicaciones</h3>
       <ul className="flex flex-col gap-3">
-        {news.length === 0 && Array.from({ length: 5 }).map((_, i) => (
+        {publications.length === 0 && Array.from({ length: 5 }).map((_, i) => (
           <li key={i} className="border-b border-border pb-2">
             <ContentLoader
               speed={2}
@@ -219,18 +231,36 @@ function RandomNews({ news }: { news: NewsSidebarPreview[] }) {
             </ContentLoader>
           </li>
         ))}
-        {news.length > 0 && news.map(news => (
-          <li key={news.id} className="border-b border-border pb-2">
-            <a href={`/feed/${news.id}`} className="flex gap-3 items-center group">
-              {news.image_url && (
-                <img src={news.image_url} alt={news.title} className="w-16 h-16 object-cover rounded flex-shrink-0" style={{ width: '64px', height: '64px' }} />
+        {publications.length > 0 && publications.map((pub, i) => (
+          <li key={i} className="border-b border-border pb-2">
+            <a href={`/feed/${pub.id}`} className="flex gap-3 items-center group">
+              {pub.image_url && (
+                <img src={pub.image_url} alt={pub.title} className="w-16 h-16 object-cover rounded flex-shrink-0" style={{ width: '64px', height: '64px' }} />
               )}
-              {!news.image_url && (
+              {!pub.image_url && (
                 <div className="w-16 h-16 bg-gray-200 rounded flex-shrink-0"></div>
               )}
               <div>
-                <div className="font-medium text-sm group-hover:text-primary transition line-clamp-2">{news.title}</div>
-                <div className="text-sm text-gray-500 mt-1">{formatDate2(news.published_at)}</div>
+                <div className="font-medium text-sm group-hover:text-primary transition line-clamp-2">
+                  {
+                    pub.tag && (
+                      <span className='font-bold'>Proyecto:&nbsp;</span>
+                    )
+                  }
+                  <span>{pub.title}</span>
+                </div>
+                {/* {
+                  pub.tag && (
+                    <div>
+                      <span className="px-2 py-0.5 bg-primary rounded text-xs text-white">
+                        {formatIoaarType(pub.tag as 'repair')}
+                      </span>
+                    </div>
+                  )
+                } */}
+                <div className="text-xs text-gray-500 mt-1">
+                  {formatDate2(pub.published_at)}
+                </div>
               </div>
             </a>
           </li>
@@ -240,7 +270,7 @@ function RandomNews({ news }: { news: NewsSidebarPreview[] }) {
   );
 }
 
-async function fetchRandomNews(seed: number, exclude: string[]): Promise<NewsSidebarPreview[]> {
+async function fetchRandomNews(amount: number, seed: number, exclude: string[]): Promise<ContentSidebarPreview[]> {
   function seededRandom(seed: number) {
     const x = Math.sin(seed++) * 10000;
     return x - Math.floor(x);
@@ -250,13 +280,35 @@ async function fetchRandomNews(seed: number, exclude: string[]): Promise<NewsSid
     .from('random_publications')
     .select('id, title, image_url, published_at')
     .not('id', 'in', `(${exclude.join(',')})`)
-    .limit(5);
+    .limit(amount);
 
   if (error || !data) return [];
 
   // workaround: views contains nullable columns
   // see: <https://github.com/orgs/supabase/discussions/13279>
-  const cleanedData = data as NewsSidebarPreview[];
+  const cleanedData = data as ContentSidebarPreview[];
+
+  return [...cleanedData].sort((a, b) =>
+    seededRandom(seed + a.id.charCodeAt(0)) - seededRandom(seed + b.id.charCodeAt(0))
+  );
+}
+
+async function fetchRandomProjects(amount: number, seed: number): Promise<ContentSidebarPreview[]> {
+  function seededRandom(seed: number) {
+    const x = Math.sin(seed++) * 10000;
+    return x - Math.floor(x);
+  }
+
+  const { data, error } = await db
+    .from('random_projects')
+    .select('id, title, image_url, published_at, tag:ioarr_type')
+    .limit(amount);
+
+  if (error || !data) return [];
+
+  // workaround: views contains nullable columns
+  // see: <https://github.com/orgs/supabase/discussions/13279>
+  const cleanedData = data as ContentSidebarPreview[];
 
   return [...cleanedData].sort((a, b) =>
     seededRandom(seed + a.id.charCodeAt(0)) - seededRandom(seed + b.id.charCodeAt(0))

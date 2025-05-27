@@ -78,8 +78,8 @@ export function HomeFeed() {
             <ContentLayout variant='wide'>
               <section className='w-full publications-grid'>
                 {
-                  page[0].map((publication) => (
-                    <PublicationCard {...publication} />
+                  page[0].map((publication, i) => (
+                    <PublicationCard key={i} {...publication} />
                   ))
                 }
               </section>
@@ -93,8 +93,8 @@ export function HomeFeed() {
                     </div>
                     <div className='flex projects-grid'>
                       {
-                        page[1].map((project) => (
-                          <ProjectCard {...project} />
+                        page[1].map((project, i) => (
+                          <ProjectCard key={i} {...project} />
                         ))
                       }
                     </div>

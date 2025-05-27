@@ -56,6 +56,13 @@ export type Database = {
             referencedRelation: 'projects'
             referencedColumns: ['id']
           },
+          {
+            foreignKeyName: 'comments_project_id_fkey'
+            columns: ['project_id']
+            isOneToOne: false
+            referencedRelation: 'random_projects'
+            referencedColumns: ['id']
+          },
         ]
       }
       events: {
@@ -398,6 +405,79 @@ export type Database = {
       }
     }
     Views: {
+      random_projects: {
+        Row: {
+          active: boolean | null
+          author_id: string | null
+          content: string | null
+          created_at: string | null
+          geo_department: string | null
+          geo_district: string | null
+          id: string | null
+          image_url: string | null
+          impression_count: number | null
+          ioarr_type: Database['public']['Enums']['ioarr_type'] | null
+          published_at: string | null
+          title: string | null
+          updated_at: string | null
+          visibility: Database['public']['Enums']['visibility'] | null
+        }
+        Insert: {
+          active?: boolean | null
+          author_id?: string | null
+          content?: string | null
+          created_at?: string | null
+          geo_department?: string | null
+          geo_district?: string | null
+          id?: string | null
+          image_url?: string | null
+          impression_count?: number | null
+          ioarr_type?: Database['public']['Enums']['ioarr_type'] | null
+          published_at?: string | null
+          title?: string | null
+          updated_at?: string | null
+          visibility?: Database['public']['Enums']['visibility'] | null
+        }
+        Update: {
+          active?: boolean | null
+          author_id?: string | null
+          content?: string | null
+          created_at?: string | null
+          geo_department?: string | null
+          geo_district?: string | null
+          id?: string | null
+          image_url?: string | null
+          impression_count?: number | null
+          ioarr_type?: Database['public']['Enums']['ioarr_type'] | null
+          published_at?: string | null
+          title?: string | null
+          updated_at?: string | null
+          visibility?: Database['public']['Enums']['visibility'] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'projects_author_id_fkey'
+            columns: ['author_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'projects_geo_department_fkey'
+            columns: ['geo_department']
+            isOneToOne: false
+            referencedRelation: 'geo_pe_departments'
+            referencedColumns: ['code']
+          },
+          {
+            foreignKeyName: 'projects_geo_district_fkey'
+            columns: ['geo_district']
+            isOneToOne: false
+            referencedRelation: 'geo_pe_districts'
+            referencedColumns: ['code']
+          },
+        ]
+      }
       random_publications: {
         Row: {
           active: boolean | null

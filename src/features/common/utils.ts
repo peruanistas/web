@@ -61,3 +61,11 @@ export async function pushBlobToStorage(client: SupabaseClient, bucketname: stri
   return data.publicUrl;
 }
 
+export function mergeAndShuffle<T>(a: T[], b: T[]): T[] {
+  const merged = [...a, ...b];
+  for (let i = merged.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [merged[i], merged[j]] = [merged[j], merged[i]];
+  }
+  return merged;
+}
