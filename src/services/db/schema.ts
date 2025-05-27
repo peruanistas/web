@@ -171,6 +171,67 @@ export type Database = {
         }
         Relationships: []
       }
+      groups: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string
+          geo_department: string
+          geo_district: string
+          id: string
+          image_url: string | null
+          name: string
+          owner_id: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description: string
+          geo_department: string
+          geo_district: string
+          id?: string
+          image_url?: string | null
+          name: string
+          owner_id: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string
+          geo_department?: string
+          geo_district?: string
+          id?: string
+          image_url?: string | null
+          name?: string
+          owner_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'groups_geo_department_fkey'
+            columns: ['geo_department']
+            isOneToOne: false
+            referencedRelation: 'geo_pe_departments'
+            referencedColumns: ['code']
+          },
+          {
+            foreignKeyName: 'groups_geo_district_fkey'
+            columns: ['geo_district']
+            isOneToOne: false
+            referencedRelation: 'geo_pe_districts'
+            referencedColumns: ['code']
+          },
+          {
+            foreignKeyName: 'groups_owner_id_fkey'
+            columns: ['owner_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       profiles: {
         Row: {
           apellidos: string
@@ -405,6 +466,67 @@ export type Database = {
       }
     }
     Views: {
+      random_groups: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          description: string | null
+          geo_department: string | null
+          geo_district: string | null
+          id: string | null
+          image_url: string | null
+          name: string | null
+          owner_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          geo_department?: string | null
+          geo_district?: string | null
+          id?: string | null
+          image_url?: string | null
+          name?: string | null
+          owner_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          geo_department?: string | null
+          geo_district?: string | null
+          id?: string | null
+          image_url?: string | null
+          name?: string | null
+          owner_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'groups_geo_department_fkey'
+            columns: ['geo_department']
+            isOneToOne: false
+            referencedRelation: 'geo_pe_departments'
+            referencedColumns: ['code']
+          },
+          {
+            foreignKeyName: 'groups_geo_district_fkey'
+            columns: ['geo_district']
+            isOneToOne: false
+            referencedRelation: 'geo_pe_districts'
+            referencedColumns: ['code']
+          },
+          {
+            foreignKeyName: 'groups_owner_id_fkey'
+            columns: ['owner_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       random_projects: {
         Row: {
           active: boolean | null
