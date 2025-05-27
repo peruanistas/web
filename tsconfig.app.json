@@ -32,6 +32,7 @@
       "@events/*": ["./src/features/events/*"],
       "@news/*": ["./src/features/news/*"],
       "@projects/*": ["./src/features/projects/*"],
+      "@groups/*": ["./src/features/groups/*"],
       "@auth/*": ["./src/features/auth/*"],
       "@about/*": ["./src/features/about/*"],
       "@db/*": ["./src/services/db/*"],
