@@ -5,7 +5,7 @@ import { Link, useLocation } from 'wouter';
 import { ContentLayout } from './content_layout';
 import { useAuthStore } from '@auth/store/auth_store';
 import { db } from '@db/client';
-import { User, ChevronDown, Plus } from 'lucide-react';
+import { User, ChevronDown, Plus, FileText, Briefcase, Calendar } from 'lucide-react'; // Importamos íconos adicionales
 import logo from '@assets/images/logo_with_text.webp';
 
 export const HEADER_NAV_HEIGHT = 46;
@@ -79,13 +79,22 @@ export function Header({ showNavigation, ...rest }: HeaderProps) {
               {openCreateMenu && (
                 <div className='absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded shadow-md z-50'>
                   <Link href='/proyectos/crear'>
-                    <div className='px-4 py-2 hover:bg-gray-100 cursor-pointer'>Crear proyecto</div>
+                    <div className='flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer'>
+                      <Briefcase size={16} />
+                      Crear proyecto
+                    </div>
                   </Link>
                   <Link href='/feed/crear'>
-                    <div className='px-4 py-2 hover:bg-gray-100 cursor-pointer'>Crear noticia</div>
+                    <div className='flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer'>
+                      <FileText size={16} />
+                      Crear noticia
+                    </div>
                   </Link>
                   <Link href='/eventos/crear'>
-                    <div className='px-4 py-2 hover:bg-gray-100 cursor-pointer'>Crear evento</div>
+                    <div className='flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer'>
+                      <Calendar size={16} />
+                      Crear evento
+                    </div>
                   </Link>
                 </div>
               )}
