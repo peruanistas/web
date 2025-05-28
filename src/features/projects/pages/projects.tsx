@@ -1,6 +1,6 @@
 import { db } from '@db/client';
-import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Header } from '@common/components/header';
 import { Layout } from '@common/components/layout';
 import { PageBanner } from '@common/components/page_banner';
@@ -9,7 +9,6 @@ import { Footer } from '@common/components/footer';
 import { SearchBar } from '@events/components/search_bar';
 import { OrderByDropdown } from '@events/components/order_by_dropdown';
 import { NoResults } from '@common/components/no_results';
-import type { DateRange } from 'react-day-picker';
 import type { ProjectPreview } from '@projects/types';
 import { ProjectCard, ProjectCardSkeleton } from '@projects/components/project_card';
 import { useLocation } from 'wouter';
@@ -20,21 +19,64 @@ import { CreateButton } from '@common/components/create_button';
 const PROJECTS_ORDER_OPTIONS = [
   { value: 'event_date_asc', label: 'Por fecha (antiguos)' },
   { value: 'event_date_desc', label: 'Por fecha (nuevos)' },
-  // We can add more filters but I don't find them useful for now
 ] as const;
+
+const PROJECTS_RESULTS_PER_PAGE = 6;
 
 export function ProjectsPage() {
   const [department, setDepartment] = useState('');
   const [district, setDistrict] = useState('');
   const [search, setSearch] = useState('');
   const [orderBy, setOrderBy] = useState('created_at_asc');
-
   const [, setLocation] = useLocation();
 
-  const { data: projects = [], isLoading, isError } = useQuery({
+  // Infinite Query
+  const {
+    data: projectsPages,
+    fetchNextPage,
+    isLoading,
+    isFetchingNextPage,
+    hasNextPage,
+    isError,
+  } = useInfiniteQuery({
     queryKey: ['projects_list', { department, district, search, orderBy }],
-    queryFn: () => fetchProjects({ department, district, search, orderBy }),
+    queryFn: ({ pageParam = 0 }) =>
+      fetchProjectsPaginated({ department, district, search, orderBy, page: pageParam }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.length === PROJECTS_RESULTS_PER_PAGE ? allPages.length : undefined,
   });
+
+  // Intersection Observer
+  const observerTarget = useRef<HTMLDivElement>(null);
+
+  const handleObserver = useCallback(
+    (entries: IntersectionObserverEntry[]) => {
+      const [entry] = entries;
+      if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+        fetchNextPage();
+      }
+    },
+    [fetchNextPage, hasNextPage, isFetchingNextPage]
+  );
+
+  useEffect(() => {
+    const element = observerTarget.current;
+    if (!element) return;
+
+    const options = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.1,
+    };
+
+    const observer = new IntersectionObserver(handleObserver, options);
+    observer.observe(element);
+
+    return () => {
+      if (element) observer.unobserve(element);
+    };
+  }, [handleObserver]);
 
   return (
     <Layout>
@@ -76,34 +118,35 @@ export function ProjectsPage() {
             <section id='projects-grid' className='w-full'>
               {isLoading && (
                 <>
-                  {Array
-                    // TODO: we may be able to integrate this skeleton result into tanstack query
-                    .from({ length: 9 })
-                    .map(() => (
-                      <ProjectCardSkeleton />
-                    ))
-                  }
+                  {Array.from({ length: PROJECTS_RESULTS_PER_PAGE }).map((_, i) => (
+                    <ProjectCardSkeleton key={i} />
+                  ))}
                 </>
               )}
 
               {isError && (
-                // TODO: make this error more memorable
                 <p>Ups! Hubo un error</p>
               )}
 
               {!isLoading && !isError && (
                 <>
-                  {
-                    projects
-                      .map((project) => (
-                        <ProjectCard {...project} />
-                      ))
-                  }
-                  {
-                    projects.length === 0 && <NoResults title='No se encontraron proyectos' />
-                  }
+                  {projectsPages?.pages.flat().map((project) => (
+                    <ProjectCard key={project.id} {...project} />
+                  ))}
+                  {projectsPages && projectsPages.pages.flat().length === 0 && <NoResults title='No se encontraron proyectos' />}
                 </>
               )}
+
+              {(isFetchingNextPage) && (
+                <>
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <ProjectCardSkeleton key={`skeleton-next-${i}`} />
+                  ))}
+                </>
+              )}
+
+              {/* Intersection observer target */}
+              <div ref={observerTarget} style={{ height: 1 }} />
             </section>
           </div>
         </main>
@@ -113,20 +156,23 @@ export function ProjectsPage() {
   );
 }
 
-type FetchProjectsParams = {
+type FetchProjectsPaginatedParams = {
   department?: string,
   district?: string,
   search?: string,
-  dateRange?: DateRange,
   orderBy?: string,
+  page: number,
 };
 
-async function fetchProjects({
+async function fetchProjectsPaginated({
   department = '',
   district = '',
   search = '',
   orderBy = 'created_at_desc',
-}: FetchProjectsParams = {}): Promise<ProjectPreview[]> {
+  page = 0,
+}: FetchProjectsPaginatedParams): Promise<ProjectPreview[]> {
+  const offset = page * PROJECTS_RESULTS_PER_PAGE;
+
   let query = db
     .from('projects')
     .select('id, title, image_url, created_at, geo_department, geo_district, impression_count, ioarr_type');
@@ -157,6 +203,8 @@ async function fetchProjects({
     default:
       query = query.order('created_at', { ascending: false });
   }
+
+  query = query.range(offset, offset + PROJECTS_RESULTS_PER_PAGE - 1);
 
   const response = await query;
 
