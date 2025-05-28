@@ -12,7 +12,12 @@ export const RouteGuard = ({ children }: { children: React.ReactNode }) => {
     const authPages = ['/login', '/signup', '/completar-registro', '/confirmar-correo'];
     const isOnAuthPage = authPages.includes(location);
 
-    if (!user && location === '/confirmar-correo') {
+    if (!user && location === '/completar-registro' ) {
+      setLocation('/login');
+      return;
+    }
+
+    if (!user && location === '/confirmar-correo' ) {
       setLocation('/login');
       return;
     }

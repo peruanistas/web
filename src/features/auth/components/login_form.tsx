@@ -111,7 +111,7 @@ export const LoginForm = () => {
 
           <Button
             variant="red"
-            className="font-semibold w-full mt-2"
+            className="font-semibold w-full mt-4"
             type="submit"
             disabled={isSubmitting}
           >
