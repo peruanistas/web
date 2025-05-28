@@ -12,6 +12,8 @@ import type { Tables } from '@db/schema'; // Paolito si lo puedes cambiar (o alg
 import { useScrollReset } from '@common/hooks/useScrollReset';
 import { formatDate, formatDate2 } from '@common/utils';
 import { PE_DEPARTMENTS, PE_DISTRICTS } from '@common/data/geo';
+import { MarkdownViewer } from '@common/components/md_viewer';
+import ContentLoader from 'react-content-loader';
 
 type Props = {
   id: string;
@@ -40,7 +42,8 @@ export function EventDetailBasic({ id }: Props) {
     enabled: !!id,
   });
 
-  if (isLoading) return <div className="text-center py-10">Cargando...</div>;
+  if (isLoading) return <Skeleton />;
+
   if (isError || !event) return <div className="text-center py-10 text-red-600">Error al cargar el evento.</div>;
 
   return (
@@ -59,7 +62,7 @@ export function EventDetailBasic({ id }: Props) {
         </h1>
         <AuthorInfo author={event.author_id} />
         {event.image_url && (
-          <div className="mb-6">
+          <div className="mb-1">
             <img
               src={event.image_url}
               alt="Imagen del evento"
@@ -68,9 +71,7 @@ export function EventDetailBasic({ id }: Props) {
           </div>
         )}
 
-        <p className="mb-6">
-          {event.content}
-        </p>
+        <MarkdownViewer content={event.content}></MarkdownViewer>
 
         <div className="space-y-4">
           <InfoItem title="Día y hora" icon={<Calendar className="w-5 h-5 text-neutral-700" />}>
@@ -90,6 +91,39 @@ export function EventDetailBasic({ id }: Props) {
 
       </main>
 
+      <Footer />
+    </Layout>
+  );
+}
+
+function Skeleton() {
+  return (
+    <Layout>
+      <Header />
+      <main className="max-w-4xl mx-auto px-10 py-10">
+        <ContentLoader
+          speed={2}
+          width="100%"
+          height={320}
+          viewBox="0 0 700 320"
+          backgroundColor="#ededed"
+          foregroundColor="#ecebeb"
+          style={{ width: '100%', height: 'auto', maxWidth: 700 }}
+        >
+          {/* Date */}
+          <rect x="0" y="0" rx="4" ry="4" width="120" height="18" />
+          {/* Title */}
+          <rect x="0" y="30" rx="6" ry="6" width="70%" height="32" />
+          {/* Author */}
+          <rect x="0" y="75" rx="8" ry="8" width="180" height="20" />
+          {/* Image */}
+          <rect x="0" y="110" rx="12" ry="12" width="100%" height="120" />
+          {/* Content lines */}
+          <rect x="0" y="240" rx="4" ry="4" width="90%" height="16" />
+          <rect x="0" y="260" rx="4" ry="4" width="80%" height="16" />
+          <rect x="0" y="280" rx="4" ry="4" width="60%" height="16" />
+        </ContentLoader>
+      </main>
       <Footer />
     </Layout>
   );

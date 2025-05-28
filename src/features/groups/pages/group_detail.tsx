@@ -9,6 +9,8 @@ import { useScrollReset } from '@common/hooks/useScrollReset';
 import { PE_DEPARTMENTS, PE_DISTRICTS } from '@common/data/geo';
 import ContentLoader from 'react-content-loader';
 import { ContentLayout } from '@common/components/content_layout';
+import { Button } from '@common/components/button';
+import { IoEnter } from 'react-icons/io5';
 
 type GroupDetailProps = {
   id: string;
@@ -93,10 +95,17 @@ export function GroupDetail({ id }: GroupDetailProps) {
           {/* Group Info Row */}
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
             <div>
-              <h1 className="text-3xl font-bold mb-3">{group.name}</h1>
-              <div className="flex items-center gap-2 text-gray-600 mb-3">
-                <MapPin className="w-5 h-5 text-neutral-700" />
-                <span>{PE_DEPARTMENTS[group.geo_department].name}, {PE_DISTRICTS[group.geo_district].name}</span>
+              <div className='flex justify-between gap-4'>
+                <div>
+                  <h1 className="text-3xl font-bold mb-3">{group.name}</h1>
+                  <div className="flex items-center gap-2 text-gray-600 mb-3">
+                    <MapPin className="w-5 h-5 text-neutral-700" />
+                    <span>{PE_DEPARTMENTS[group.geo_department].name}, {PE_DISTRICTS[group.geo_district].name}</span>
+                  </div>
+                </div>
+                <div>
+                  <Button leading={<IoEnter />} variant='red'>Unirse</Button>
+                </div>
               </div>
               <div className="text-gray-800 mb-2">{group.description}</div>
             </div>

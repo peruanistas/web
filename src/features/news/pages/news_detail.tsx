@@ -14,7 +14,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { Button } from '@common/components/button';
 import ContentLoader from 'react-content-loader';
 import { ContentLayout } from '@common/components/content_layout';
-import Markdown from 'react-markdown';
+import { MarkdownViewer } from '@common/components/md_viewer';
 
 type Props = {
   id: string;
@@ -169,9 +169,7 @@ export function PublicationDetail({ id }: Props) {
 
                   <div className="prose max-w-none mt-3 mb-8">
                     <div className="text-gray-800 text-md leading-relaxed whitespace-pre-wrap">
-                      <Markdown>
-                        {publication.content}
-                      </Markdown>
+                      <MarkdownViewer content={publication.content} />
                     </div>
                   </div>
 
