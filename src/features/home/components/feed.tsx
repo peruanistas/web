@@ -17,6 +17,7 @@ import { MdHomeWork } from 'react-icons/md';
 
 const NEWS_RESULTS_PER_PAGE = 8;
 const PROJECTS_RESULTS_PER_PAGE = 3;
+const GROUPS_RESULTS_PER_PAGE = 6;
 
 export function HomeFeed() {
   const [, setLocation] = useLocation();
@@ -190,8 +191,6 @@ async function fetchMoreNews({ page }: FetchPaginationParams): Promise<Publicati
 async function fetchMoreProjects({ page }: FetchPaginationParams): Promise<ProjectPreview[]> {
   const offset = page * PROJECTS_RESULTS_PER_PAGE;
 
-  console.log({ page, PROJECTS_RESULTS_PER_PAGE });
-
   const { data: nextPageData, error } = await db
     .from('projects')
     .select('id, title, image_url, created_at, geo_department, geo_district, impression_count, ioarr_type')
@@ -206,9 +205,7 @@ async function fetchMoreProjects({ page }: FetchPaginationParams): Promise<Proje
 }
 
 async function fetchMoreGroups({ page }: FetchPaginationParams): Promise<GroupPreview[]> {
-  const offset = page * PROJECTS_RESULTS_PER_PAGE;
-
-  console.log({ page, PROJECTS_RESULTS_PER_PAGE });
+  const offset = page * GROUPS_RESULTS_PER_PAGE;
 
   const { data: nextPageData, error } = await db
     .from('groups')
