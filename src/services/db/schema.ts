@@ -251,17 +251,17 @@ export type Database = {
       }
       profiles: {
         Row: {
-          apellido_materno: string | null
-          apellido_paterno: string | null
-          celular: string | null
+          apellido_materno: string
+          apellido_paterno: string
+          celular: string
           created_at: string
-          geo_department: string | null
-          geo_district: string | null
+          geo_department: string
+          geo_district: string
           id: string
-          nombres: string | null
-          numero_documento: string | null
+          nombres: string
+          numero_documento: string
           profile_completed: boolean
-          tipo_documento: string | null
+          tipo_documento: string
           updated_at: string
         }
         Insert: {

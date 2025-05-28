@@ -19,7 +19,8 @@ type commentType ={
   publication_id: string | null,
   profiles: {
     nombres: string;
-    apellidos: string;
+    apellido_materno: string;
+    apellido_paterno: string;
   };
 }
 
@@ -123,7 +124,7 @@ export function CommentsSection({project_id, event_id, publication_id}: CommentT
           {page.map((comment: commentType) => (
             <CommentItem
               key={comment.id}
-              author={`${comment.profiles.nombres} ${comment.profiles.apellidos}`}
+              author={`${comment.profiles.nombres} ${comment.profiles.apellido_paterno} ${comment.profiles.apellido_materno}`}
               created_at={new Date(comment.created_at).toLocaleDateString('es-ES', {
                 year: 'numeric',
                 month: 'long',

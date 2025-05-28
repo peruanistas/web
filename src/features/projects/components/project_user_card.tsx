@@ -23,7 +23,7 @@ export default function ProjectUserCard({author_id='cad9e6aa-a592-4f37-80b8-6008
                     console.log('Error al obtener el autor', response.error);
                 } else {
                     setNombres(response.data?.nombres);
-                    setApellidos(response.data?.apellidos);
+                    setApellidos(`${response.data?.apellido_paterno} ${response.data?.apellido_materno}`);
                     setDepartament(response.data?.geo_department);
                     setDistrict(response.data?.geo_district);
 

@@ -133,7 +133,7 @@ export function PublicationDetail({ id }: Props) {
                         <>
                           <User strokeWidth={1} />
                           <span className="font-medium text-gray-700">
-                            {publication.author_id.nombres} {publication.author_id.apellidos}
+                            {publication.author_id.nombres} {publication.author_id.apellido_paterno} {publication.author_id.apellido_materno}
                           </span>
                         </>
                       )}
