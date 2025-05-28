@@ -7,7 +7,7 @@ type AuthProviderProps = {
 };
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const { setUser, setProfileCompleted, clearUser } = useAuthStore();
+  const { setUser, setProfileCompleted, setAuthChecked } = useAuthStore();
 
   useEffect(() => {
     const getSession = async () => {
@@ -29,6 +29,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           setProfileCompleted(data.profile_completed);
         }
       }
+      setAuthChecked(true);
     };
 
     const { data: listener } = db.auth.onAuthStateChange((_event, session) => {
@@ -44,7 +45,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             if (!error && data) {
               setProfileCompleted(data.profile_completed);
             }
+            setAuthChecked(true);
           });
+      } else {
+        setAuthChecked(true);
       }
     });
 

@@ -4,22 +4,25 @@ import { useAuthStore } from '@auth/store/auth_store';
 
 export const RouteGuard = ({ children }: { children: React.ReactNode }) => {
   const [location, setLocation] = useLocation();
-  const { user, profileCompleted } = useAuthStore();
+  const { user, profileCompleted, authChecked } = useAuthStore();
 
   useEffect(() => {
-    const authRoutes = ['/login', '/signup', '/completar-registro'];
+    if (!authChecked) return;
 
+    const authRoutes = ['/login', '/signup', '/completar-registro'];
     const isOnAuthPage = authRoutes.includes(location);
     const isOnCompleteRegister = location === '/completar-registro';
 
     if (!user && isOnCompleteRegister) {
-      setLocation('/login'); // visitante no accede a /completar-registro
+      setLocation('/login');
     } else if (user && !profileCompleted && !isOnCompleteRegister) {
-      setLocation('/completar-registro'); // forzamos completar registro
+      setLocation('/completar-registro');
     } else if (user && profileCompleted && isOnAuthPage) {
-      setLocation('/'); // ya tiene perfil completo, no accede a auth pages
+      setLocation('/');
     }
-  }, [user, profileCompleted, location, setLocation]);
+  }, [user, profileCompleted, authChecked, location, setLocation]);
+
+  if (!authChecked) return null;
 
   return <>{children}</>;
 };

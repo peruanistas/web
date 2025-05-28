@@ -108,7 +108,7 @@ export function Header({ showNavigation, ...rest }: HeaderProps) {
                   </Button>
                 </Link>
                 <Link to='/signup'>
-                  <Button variant='red' className='font-semibold'>Sé peruanista</Button>
+                  <Button variant='red' className='font-semibold'>Crear cuenta</Button>
                 </Link>
               </>
             ) : (
