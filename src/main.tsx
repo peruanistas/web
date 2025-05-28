@@ -24,6 +24,7 @@ import 'react-day-picker/style.css';
 import 'leaflet/dist/leaflet.css';
 import './index.css';
 import { RouteGuard } from '@auth/guards/route-guards';
+import { ConfirmEmailPage } from '@auth/pages/confirm_email';
 import { GroupsPage } from '@groups/pages/groups';
 import { GroupDetail } from '@groups/pages/group_detail';
 
@@ -38,6 +39,7 @@ export function PeruanistasRouter() {
 
       <Route path='/signup' component={SignUpPage} />
       <Route path='/login' component={LoginPage} />
+      <Route path='/confirmar-correo' component={ConfirmEmailPage} />
       <Route path='/completar-registro' component={CompleteRegisterPage} />
 
       <Route path='/eventos' component={EventsPage} />

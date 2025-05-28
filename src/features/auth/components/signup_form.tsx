@@ -39,13 +39,19 @@ export const SignUpForm = () => {
     if (error) {
       console.error(error.message);
     } else {
-      console.log('Cuenta creada (verifica tu correo)');
-      setUser(data.user);
-      navigate('/completar-registro');
+      console.log('Cuenta creada');
+      const user = data.user;
+      setUser(user);
+
+      if (!user?.confirmed_at) {
+        navigate('/confirmar-correo');
+      } else {
+        navigate('/completar-registro');
+      }
     }
   };
 
-    const signUpGoogle = async () => {
+  const signUpGoogle = async () => {
     const { error } = await db.auth.signInWithOAuth({
       provider: 'google',
       options: {

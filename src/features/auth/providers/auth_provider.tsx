@@ -19,6 +19,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setUser(user);
 
       if (user) {
+        setUser(user); // Esto actualiza también `isConfirmed`
+
         const { data, error } = await db
           .from('profiles')
           .select('profile_completed')
@@ -34,7 +36,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     const { data: listener } = db.auth.onAuthStateChange((_event, session) => {
       const user = session?.user ?? null;
-      setUser(user);
+      setUser(user); // Esto actualiza también `isConfirmed`
 
       if (user) {
         db.from('profiles')

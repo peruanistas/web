@@ -4,23 +4,33 @@ import { useAuthStore } from '@auth/store/auth_store';
 
 export const RouteGuard = ({ children }: { children: React.ReactNode }) => {
   const [location, setLocation] = useLocation();
-  const { user, profileCompleted, authChecked } = useAuthStore();
+  const { user, profileCompleted, authChecked, isConfirmed } = useAuthStore();
 
   useEffect(() => {
     if (!authChecked) return;
 
-    const authRoutes = ['/login', '/signup', '/completar-registro'];
-    const isOnAuthPage = authRoutes.includes(location);
-    const isOnCompleteRegister = location === '/completar-registro';
+    const authPages = ['/login', '/signup', '/completar-registro', '/confirmar-correo'];
+    const isOnAuthPage = authPages.includes(location);
 
-    if (!user && isOnCompleteRegister) {
+    if (!user && location === '/confirmar-correo') {
       setLocation('/login');
-    } else if (user && !profileCompleted && !isOnCompleteRegister) {
+      return;
+    }
+
+    if (user && !isConfirmed && location !== '/confirmar-correo') {
+      setLocation('/confirmar-correo');
+      return;
+    }
+
+    if (user && isConfirmed && !profileCompleted && location !== '/completar-registro') {
       setLocation('/completar-registro');
-    } else if (user && profileCompleted && isOnAuthPage) {
+      return;
+    }
+
+    if (user && isConfirmed && profileCompleted && isOnAuthPage) {
       setLocation('/');
     }
-  }, [user, profileCompleted, authChecked, location, setLocation]);
+  }, [user, profileCompleted, isConfirmed, authChecked, location, setLocation]);
 
   if (!authChecked) return null;
 
