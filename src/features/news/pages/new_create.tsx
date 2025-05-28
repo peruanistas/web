@@ -20,8 +20,8 @@ import {
   listsPlugin,
   linkPlugin,
   quotePlugin,
-} from '@mdxeditor/editor'
-import '@mdxeditor/editor/style.css'
+} from '@mdxeditor/editor';
+import '@mdxeditor/editor/style.css';
 import { create } from 'domain';
 
 type NewsFormData = {
@@ -207,6 +207,7 @@ export default function NewCreatePage() {
                     [&_ol]:pl-6
                     [&_li]:my-1
                     [&_em]:italic
+                    [&_p]:pt-2
                     [&_i]:italic
                     font-[Inter] text-gray-900 border 
                     ${errors.description ? 'border-red-500' : 'border-gray-200'} min-h-[200px] rounded-md p-2`}

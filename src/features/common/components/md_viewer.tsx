@@ -21,6 +21,7 @@ export function MarkdownViewer({ content }: MarkdownViewerProps) {
 [&_ol]:pl-7
 [&_li]:my-1
 [&_em]:italic
+[&_p]:pt-4
 [&_i]:italic
 font-[Inter] text-black pl-0!`}
     />

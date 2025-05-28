@@ -1,15 +1,15 @@
-import { db } from "@db/client";
-import { useEffect, useState, useRef } from "react";
-import { useForm } from "react-hook-form";
-import { Layout } from "@common/components/layout";
-import { Header } from "@common/components/header";
-import { PageBanner } from "@common/components/page_banner";
+import { db } from '@db/client';
+import { useEffect, useState, useRef } from 'react';
+import { useForm } from 'react-hook-form';
+import { Layout } from '@common/components/layout';
+import { Header } from '@common/components/header';
+import { PageBanner } from '@common/components/page_banner';
 import { getDistrictsForDepartment, pushBlobToStorage } from '@common/utils';
 import { PE_DEPARTMENTS } from '@common/data/geo';
-import { useAuthStore } from "@auth/store/auth_store";
-import { Admonition } from "@common/components/admonition";
+import { useAuthStore } from '@auth/store/auth_store';
+import { Admonition } from '@common/components/admonition';
 import { Modal } from '@common/components/modal_create';
-import { Info } from "lucide-react";
+import { Info } from 'lucide-react';
 import { type MDXEditorMethods } from '@mdxeditor/editor'; // Importación type-only
 import { 
   MDXEditor, 
@@ -23,8 +23,8 @@ import {
   listsPlugin,
   linkPlugin,
   quotePlugin,
-} from '@mdxeditor/editor'
-import '@mdxeditor/editor/style.css'
+} from '@mdxeditor/editor';
+import '@mdxeditor/editor/style.css';
 
 type EventFormData = {
   eventName: string;
@@ -83,7 +83,7 @@ export default function EventsCreatePage() {
       if (!user) throw new Error('Debes iniciar sesión para crear un evento');
       if (!form_data.coverImage[0]) throw new Error('No se subió ninguna imagen de portada');
 
-      const bucket_path = await pushBlobToStorage(db, "multimedia", form_data.coverImage[0])
+      const bucket_path = await pushBlobToStorage(db, 'multimedia', form_data.coverImage[0]);
 
       const eventData = {
           title: form_data.eventName,
@@ -145,7 +145,7 @@ export default function EventsCreatePage() {
     trigger('description');
   };
   useEffect(() => {
-    document.title = "Crear Evento";
+    document.title = 'Crear Evento';
   }, []);
 
   return (
@@ -172,7 +172,7 @@ export default function EventsCreatePage() {
               <input
                 id="eventName"
                 type="text"
-                {...register("eventName", {
+                {...register('eventName', {
                   required: ERROR_MESSAGES.REQUIRED,
                   maxLength: {
                     value: 255,
@@ -223,6 +223,7 @@ export default function EventsCreatePage() {
                     [&_ol]:pl-6
                     [&_li]:my-1
                     [&_em]:italic
+                    [&_p]:pt-2
                     [&_i]:italic
                     font-[Inter] text-gray-900 border 
                     ${errors.description ? 'border-red-500' : 'border-gray-200'} min-h-[200px] rounded-md p-2`}
@@ -266,15 +267,15 @@ export default function EventsCreatePage() {
                 id="dateTime"
                 type="datetime-local"
                 defaultValue={defaultDateTime}
-                {...register("dateTime", {
-                  required: "La fecha y hora son obligatorias",
+                {...register('dateTime', {
+                  required: 'La fecha y hora son obligatorias',
                   validate: value => {
-                    if (!value) return "La fecha y hora son obligatorias";
+                    if (!value) return 'La fecha y hora son obligatorias';
                     const now = new Date();
                     now.setSeconds(0, 0);
                     const selected = new Date(value);
                     if (selected < now) {
-                      return "La fecha y hora no pueden ser anteriores a la actual";
+                      return 'La fecha y hora no pueden ser anteriores a la actual';
                     }
                     return true;
                   }
@@ -417,7 +418,7 @@ export default function EventsCreatePage() {
                 disabled={isSubmitting}
                 className="w-full bg-[var(--color-primary)] text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {isSubmitting ? "Publicando..." : "Publicar"}
+                {isSubmitting ? 'Publicando...' : 'Publicar'}
               </button>
             </div>
           </form>
