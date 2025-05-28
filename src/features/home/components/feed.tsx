@@ -211,7 +211,7 @@ async function fetchMoreGroups({ page }: FetchPaginationParams): Promise<GroupPr
     .from('groups')
     .select('id, name, description, image_url, created_at, geo_department, geo_district, owner_id(*)')
     .order('id', { ascending: true })
-    .range(offset, offset + PROJECTS_RESULTS_PER_PAGE - 1);
+    .range(offset, offset + GROUPS_RESULTS_PER_PAGE - 1);
 
   if (error) {
     throw new Error(error.message);
