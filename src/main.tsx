@@ -25,6 +25,7 @@ import 'leaflet/dist/leaflet.css';
 import './index.css';
 import { RouteGuard } from '@auth/guards/route-guards';
 import { GroupsPage } from '@groups/pages/groups';
+import { GroupDetail } from '@groups/pages/group_detail';
 
 export function PeruanistasRouter() {
   useQueryFavicon();
@@ -46,6 +47,9 @@ export function PeruanistasRouter() {
       </Route>
 
       <Route path='/grupos' component={GroupsPage} />
+      <Route path='/grupos/:id'>
+        {({ id }) => <GroupDetail id={id} />}
+      </Route>
 
       <Route path='/proyectos' component={ProjectsPage} />
       <Route path='/proyectos/crear' component={ProjectsCreatePage} />

@@ -125,7 +125,7 @@ export default function ProjectsDetailsPage({ id }: ProjectsDetailsPageProps) {
                 </div>
               </div>
             </div>
-            <p className='my-2' style={{ color: 'var(--main-color-bt-bg)', fontSize: '20px' }}><strong>#12</strong> en {formatIoaarType(project?.ioarr_type)}</p>
+            <p className='my-2' style={{ color: 'var(--main-color-bt-bg)', fontSize: '20px' }}><strong>#12</strong> en {formatIoaarType(project!.ioarr_type)}</p>
             <div className='mb-3'>
               <ProjectDetailButton title='Vota por este proyecto' onClick={() => { setModalOpen(true); }} />
               <ProjectDetailButton title='Compartir' theme='secondary' onClick={() => { setShareOpen(true); }} />
