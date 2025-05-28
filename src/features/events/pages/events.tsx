@@ -1,6 +1,6 @@
 import { db } from '@db/client';
-import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { EventLocationFilters } from '@events/components/event_filters';
 import { Header } from '@common/components/header';
 import { Layout } from '@common/components/layout';
@@ -20,8 +20,9 @@ import { CreateButton } from '@common/components/create_button';
 const EVENTS_ORDER_OPTIONS = [
   { value: 'event_date_asc', label: 'Por fecha (cercanos)' },
   { value: 'event_date_desc', label: 'Por fecha (lejanos)' },
-  // We can add more filters but I don't find them useful for now
 ] as const;
+
+const EVENTS_RESULTS_PER_PAGE = 6;
 
 export function EventsPage() {
   const [department, setDepartment] = useState('');
@@ -31,10 +32,53 @@ export function EventsPage() {
   const [orderBy, setOrderBy] = useState('event_date_asc');
   const [, setLocation] = useLocation();
 
-  const { data: events = [], isLoading, isError } = useQuery({
+  // Infinite Query
+  const {
+    data: eventsPages,
+    fetchNextPage,
+    isLoading,
+    isFetchingNextPage,
+    hasNextPage,
+    isError,
+  } = useInfiniteQuery({
     queryKey: ['events_list', { department, district, search, dateRange, orderBy }],
-    queryFn: () => fetchEvents({ department, district, search, dateRange, orderBy }),
+    queryFn: ({ pageParam = 0 }) =>
+      fetchEventsPaginated({ department, district, search, dateRange, orderBy, page: pageParam }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.length === EVENTS_RESULTS_PER_PAGE ? allPages.length : undefined,
   });
+
+  // Intersection Observer
+  const observerTarget = useRef<HTMLDivElement>(null);
+
+  const handleObserver = useCallback(
+    (entries: IntersectionObserverEntry[]) => {
+      const [entry] = entries;
+      if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+        fetchNextPage();
+      }
+    },
+    [fetchNextPage, hasNextPage, isFetchingNextPage]
+  );
+
+  useEffect(() => {
+    const element = observerTarget.current;
+    if (!element) return;
+
+    const options = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.1,
+    };
+
+    const observer = new IntersectionObserver(handleObserver, options);
+    observer.observe(element);
+
+    return () => {
+      if (element) observer.unobserve(element);
+    };
+  }, [handleObserver]);
 
   return (
     <Layout>
@@ -77,38 +121,41 @@ export function EventsPage() {
             <section className='w-full'>
               {isLoading && (
                 <>
-                  {Array
-                    // TODO: we may be able to integrate this skeleton result into tanstack query
-                    .from({ length: 10 })
-                    .map((_, i) => (
-                      <div className='mb-4 border-b border-border' key={i}>
-                        <EventCardSkeleton />
-                      </div>
-                    ))
-                  }
+                  {Array.from({ length: EVENTS_RESULTS_PER_PAGE }).map((_, i) => (
+                    <div className='mb-4 border-b border-border' key={i}>
+                      <EventCardSkeleton />
+                    </div>
+                  ))}
                 </>
               )}
 
               {isError && (
-                // TODO: make this error more memorable
                 <p>Ups! Hubo un error</p>
               )}
 
               {!isLoading && !isError && (
                 <>
-                  {
-                    events
-                      .map((event) => (
-                        <div className='mb-4 border-b border-border' key={event.id}>
-                          <EventCard {...event} />
-                        </div>
-                      ))
-                  }
-                  {
-                    events.length === 0 && <NoResults title='No se encontraron eventos' />
-                  }
+                  {eventsPages?.pages.flat().map((event) => (
+                    <div className='mb-4 border-b border-border' key={event.id}>
+                      <EventCard {...event} />
+                    </div>
+                  ))}
+                  {eventsPages && eventsPages.pages.flat().length === 0 && <NoResults title='No se encontraron eventos' />}
                 </>
               )}
+
+              {(isFetchingNextPage) && (
+                <>
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div className='mb-4 border-b border-border' key={`skeleton-next-${i}`}>
+                      <EventCardSkeleton />
+                    </div>
+                  ))}
+                </>
+              )}
+
+              {/* Intersection observer target */}
+              <div ref={observerTarget} style={{ height: 1 }} />
             </section>
           </div>
         </main>
@@ -117,22 +164,25 @@ export function EventsPage() {
     </Layout>
   );
 }
-
-type FetchEventsParams = {
+type FetchEventsPaginatedParams = {
   department?: string,
   district?: string,
   search?: string,
   dateRange?: DateRange,
   orderBy?: string,
+  page: number,
 };
 
-async function fetchEvents({
+async function fetchEventsPaginated({
   department = '',
   district = '',
   search = '',
   dateRange,
   orderBy = 'event_date_desc',
-}: FetchEventsParams = {}): Promise<EventPreview[]> {
+  page = 0,
+}: FetchEventsPaginatedParams): Promise<EventPreview[]> {
+  const offset = page * EVENTS_RESULTS_PER_PAGE;
+
   let query = db
     .from('events')
     .select('id, title, image_url, created_at, geo_department, geo_district, attendees, event_date');
@@ -180,6 +230,8 @@ async function fetchEvents({
       query = query.order('event_date', { ascending: false });
   }
 
+  query = query.range(offset, offset + EVENTS_RESULTS_PER_PAGE - 1);
+
   const response = await query;
 
   if (response.error) {
@@ -187,28 +239,3 @@ async function fetchEvents({
   }
   return response.data;
 }
-
-/*
-TODO: will uncomment this when event details are ready
-
-const position: [number, number] = [-12.052373, -77.060381];
-
-<section style={{ width: '100%', height: 400 }}>
-  <MapContainer
-    style={{ width: '100%', height: '100%' }}
-    zoom={11}
-    scrollWheelZoom={true}
-    center={position}
-  >
-    <TileLayer
-      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-    />
-    <Marker position={position}>
-      <Popup>
-        A pretty CSS3 popup. <br /> Easily customizable.
-      </Popup>
-    </Marker>
-  </MapContainer>
-</section>
-*/
