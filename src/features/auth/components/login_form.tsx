@@ -37,7 +37,6 @@ export const LoginForm = () => {
     }
   };
 
-  /*
   const signInGoogle = async () => {
     const { error } = await db.auth.signInWithOAuth({
       provider: 'google',
@@ -45,7 +44,7 @@ export const LoginForm = () => {
     if (error) {
       setErrorMessage(error.message);
     }
-  }; */
+  };
 
   return (
     <div className="w-full max-w-md mx-auto">
@@ -58,7 +57,6 @@ export const LoginForm = () => {
               Regístrate
             </Link>
           </div>
-          {/* temporarily disabled
           <div className="flex flex-col w-full gap-2">
             <button
               type="button"
@@ -76,7 +74,6 @@ export const LoginForm = () => {
               <div className="flex-1 border-t border-[#D9D9D9]"></div>
             </div>
           </div>
-          */}
         </div>
         <form className="flex flex-col" onSubmit={handleSubmit(signInEmail)}>
           <label className="text-[#404040] mb-2">Correo electrónico</label>
