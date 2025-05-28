@@ -165,7 +165,7 @@ export function Header({ showNavigation, ...rest }: HeaderProps) {
                 </button>
                 {openProfileMenu && (
                   <div className='absolute right-0 mt-2 w-40 bg-white border border-gray-300 rounded z-50'>
-                    <Link href='/perfil'>
+                    <Link href='#'>
                       <div className='px-4 py-2 hover:bg-gray-100 cursor-pointer'>Mi perfil</div>
                     </Link>
                     <button
