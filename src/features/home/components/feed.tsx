@@ -213,7 +213,7 @@ async function fetchMoreGroups({ page }: FetchPaginationParams): Promise<GroupPr
   const { data: nextPageData, error } = await db
     .from('groups')
     .select('id, name, description, image_url, created_at, geo_department, geo_district, owner_id(*)')
-    .order('created_at', { ascending: false })
+    .order('id', { ascending: true })
     .range(offset, offset + PROJECTS_RESULTS_PER_PAGE - 1);
 
   if (error) {
