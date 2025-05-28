@@ -254,6 +254,7 @@ export type Database = {
           apellido_materno: string
           apellido_paterno: string
           celular: string
+          country_code: string
           created_at: string
           geo_department: string
           geo_district: string
@@ -268,6 +269,7 @@ export type Database = {
           apellido_materno?: string | null
           apellido_paterno?: string | null
           celular?: string | null
+          country_code?: string | null
           created_at?: string
           geo_department?: string | null
           geo_district?: string | null
@@ -282,6 +284,7 @@ export type Database = {
           apellido_materno?: string | null
           apellido_paterno?: string | null
           celular?: string | null
+          country_code?: string | null
           created_at?: string
           geo_department?: string | null
           geo_district?: string | null
@@ -306,6 +309,52 @@ export type Database = {
             isOneToOne: false
             referencedRelation: 'geo_pe_districts'
             referencedColumns: ['code']
+          },
+        ]
+      }
+      project_votes: {
+        Row: {
+          created_at: string
+          id: string
+          project_id: string
+          user_id: string
+          vote_type: Database['public']['Enums']['project_vote_type'] | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          project_id: string
+          user_id: string
+          vote_type?: Database['public']['Enums']['project_vote_type'] | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          project_id?: string
+          user_id?: string
+          vote_type?: Database['public']['Enums']['project_vote_type'] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'project_votes_project_id_fkey'
+            columns: ['project_id']
+            isOneToOne: false
+            referencedRelation: 'projects'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'project_votes_project_id_fkey'
+            columns: ['project_id']
+            isOneToOne: false
+            referencedRelation: 'random_projects'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'project_votes_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -694,7 +743,22 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      get_project_vote_summary: {
+        Args: { project_id: string }
+        Returns: {
+          golden_votes: number
+          silver_votes: number
+          user_has_voted: boolean
+        }[]
+      }
+      get_votes_left: {
+        Args: Record<PropertyKey, never> | { user_id: string }
+        Returns: number
+      }
+      vote_for_project: {
+        Args: { project_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       ioarr_type:
@@ -703,6 +767,7 @@ export type Database = {
         | 'extension'
         | 'repair'
         | 'replacement'
+      project_vote_type: 'golden' | 'silver'
       visibility: 'draft' | 'public' | 'private'
     }
     CompositeTypes: {
@@ -826,6 +891,7 @@ export const Constants = {
         'repair',
         'replacement',
       ],
+      project_vote_type: ['golden', 'silver'],
       visibility: ['draft', 'public', 'private'],
     },
   },

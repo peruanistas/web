@@ -10,7 +10,7 @@ type ModalProps = {
   projectId: string | null;
 };
 
-export const Modal = ({ isOpen, onClose, message, routeType, type, projectId }: ModalProps) => {
+export const SuccessModal = ({ isOpen, onClose, message, routeType, type, projectId }: ModalProps) => {
   if (!isOpen) return null;
 
   return (

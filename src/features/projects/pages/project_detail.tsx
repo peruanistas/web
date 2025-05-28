@@ -5,31 +5,41 @@ import ProjectUserCard from '@projects/components/project_user_card';
 import { CalendarDays, MapPin, Star, Trophy, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import '@projects/styles/styles.css';
-import { type Tables } from '@db/schema';
 import { db } from '@db/client';
 import { CommentsSection } from '@common/components/commentsSection';
 import { Footer } from '@common/components/footer';
-import { PE_DEPARTMENTS } from '@common/data/geo';
+import { PE_DEPARTMENTS, PE_DISTRICTS } from '@common/data/geo';
 import { Modal } from '@common/components/modal';
 import { Share } from '@common/components/share';
 import { ContentLayout } from '@common/components/content_layout';
 import { formatIoaarType } from '@projects/utils';
 import { MarkdownViewer } from '@common/components/md_viewer';
+import { useQuery } from '@tanstack/react-query';
+import type { ProjectFull } from '@projects/types';
+import { VoteConfirmationModal } from '@projects/components/vote_confirmation_modal';
 
 type ProjectsDetailsPageProps = {
   id: string;
 };
 
-type Project = Tables<'projects'> & {
-  author_id: Tables<'profiles'>;
-};
-
 export default function ProjectsDetailsPage({ id }: ProjectsDetailsPageProps) {
-  const [modalOpen, setModalOpen] = useState(false);
+  const [voteModalOpen, setVoteModalOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [project, setProject] = useState<Project | null>(null);
+  const [project, setProject] = useState<ProjectFull | null>(null);
   const url = window.location.href;
+
+  const {
+    data: votesSummary,
+    isLoading: votesSummaryLoading,
+    // isError: votesSummaryError, 😝 I don't!!
+  } = useQuery({
+    queryKey: ['project_vote_summary', id],
+    queryFn: async () => {
+      return db.rpc('get_project_vote_summary', { project_id: id }).then((rows) => rows.data![0]);
+    },
+    enabled: !!project,
+  });
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -47,9 +57,8 @@ export default function ProjectsDetailsPage({ id }: ProjectsDetailsPageProps) {
         setLoading(false);
       });
 
-  }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    , []);
+  } // eslint-disable-next-line react-hooks/exhaustive-deps
+  , []);
 
 
   return (
@@ -104,32 +113,50 @@ export default function ProjectsDetailsPage({ id }: ProjectsDetailsPageProps) {
           </div>
           <div className="flex flex-col justify-center p-2 w-full max-w-lg lg:sticky lg:top-40 self-start min-w-full lg:min-w-md">
             <h1 className="project_detail_layout__title my-3">{project.title}</h1>
-            <div style={{ display: 'flex', flexDirection: 'row', gap: '8px', alignContent: 'center' }} >
+            <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'row', gap: '8px', alignContent: 'center' }} >
               <MapPin size={15} />
               <p style={{ fontSize: '14px' }}>
-                {project.geo_department && PE_DEPARTMENTS[project.geo_department]?.name}
+                {PE_DEPARTMENTS[project.geo_department].name}, {PE_DISTRICTS[project.geo_district].name}
               </p>
             </div>
             <div className='project_detail_layout__score_content '>
               <div className='project_detail_layout__score_title'>
-                <p style={{ fontSize: '42px' }}><strong>0</strong></p>
+                <p style={{ fontSize: '42px' }}>
+                  { votesSummary &&
+                    <strong>
+                      {votesSummary.golden_votes * 2 + votesSummary.silver_votes}
+                    </strong>
+                  }
+                  { !votesSummary && <label className='loader'></label> }
+                </p>
                 <p>puntos</p>
               </div>
               <div className='project_detail_layout__score_stars' >
                 <div style={{ display: 'flex', flexDirection: 'row', gap: '8px' }}>
-                  <p>0</p>
+                  <p>{votesSummary ? votesSummary.golden_votes : <span className='loader'></span>}</p>
                   <Star color='#f7865d' fill={'#f7865d'} size={24} />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'row', gap: '8px' }}>
-                  <p>0</p>
+                  <p>{votesSummary ? votesSummary.silver_votes : <span className='loader'></span>}</p>
                   <Star color='#b2b2b2' fill={'#b2b2b2'} size={24} />
                 </div>
               </div>
             </div>
             <p className='my-2' style={{ color: 'var(--main-color-bt-bg)', fontSize: '20px' }}><strong>#12</strong> en {formatIoaarType(project!.ioarr_type)}</p>
             <div className='mb-3'>
-              <ProjectDetailButton title='Vota por este proyecto' onClick={() => { setModalOpen(true); }} />
-              <ProjectDetailButton title='Compartir' theme='secondary' onClick={() => { setShareOpen(true); }} />
+              <ProjectDetailButton
+                title={
+                  votesSummary?.user_has_voted ? 'Ya has votado' : 'Vota por este proyecto'
+                }
+                onClick={async () => {
+                  if (loading) return;
+                  setVoteModalOpen(true);
+                }}
+                loading={votesSummaryLoading}
+                disabled={votesSummary?.user_has_voted}
+                theme={votesSummary?.user_has_voted ? 'secondary' : undefined}
+              />
+              <ProjectDetailButton title='Compartir' theme='secondary' onClick={async () => { setShareOpen(true); }} />
             </div>
             <ProjectUserCard author={project.author_id} />
           </div>
@@ -158,13 +185,13 @@ export default function ProjectsDetailsPage({ id }: ProjectsDetailsPageProps) {
       </ContentLayout>
       }
 
-
-
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
-        <div className='text-2xl font-bold my-1 '>
-          <h1>Lo Sentimos el sistema de votacion estara disponible proximamente</h1>
-        </div>
-      </Modal>
+      {
+        project && <VoteConfirmationModal
+          onClose={() => setVoteModalOpen(false)}
+          open={voteModalOpen}
+          project={project}
+        />
+      }
 
       <Modal open={shareOpen} onClose={() => setShareOpen(false)}>
         <Share url={url} title={project?.title} location={project?.geo_department && PE_DEPARTMENTS[project.geo_department]?.name} content={project?.content} />

@@ -48,11 +48,13 @@
     margin: 0 auto;
     color: #fafafa;
     width: 100%;
-    padding: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
     border-radius: 5px;
     font-weight: 600;
     font-size: 20px;
-    margin: 5px;
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
 
 .project_detail_button.main {
@@ -73,14 +75,13 @@
     font-size: 20px;
     overflow: auto;
 }
+
 .project_detail_layout__score_stars{
     font-weight: bold;
     font-size: 20px;
-}
-
-.project_detail_layout__score_stars{
     display: flex;
     flex-direction: row;
+    align-items: center;
     gap: 20px;
 }
 

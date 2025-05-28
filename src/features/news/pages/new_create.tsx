@@ -6,7 +6,7 @@ import { db } from '@db/client';
 import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { PageBanner } from '@common/components/page_banner';
-import { Modal } from '@common/components/modal_create';
+import { SuccessModal } from '@common/components/modal_create';
 import { type MDXEditorMethods } from '@mdxeditor/editor'; // Importación type-only
 import { 
   MDXEditor, 
@@ -295,7 +295,7 @@ export default function NewCreatePage() {
           </form>
         </div>
       </div>
-      <Modal
+      <SuccessModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         message="Publicacion creada exitosamente!"

@@ -5,8 +5,11 @@ import { Link, useLocation } from 'wouter';
 import { ContentLayout } from './content_layout';
 import { useAuthStore } from '@auth/store/auth_store';
 import { db } from '@db/client';
+import { useQuery } from '@tanstack/react-query';
 import { User, ChevronDown, Plus, FileText, Briefcase, Calendar } from 'lucide-react'; // Importamos íconos adicionales
 import logo from '@assets/images/logo_with_text.webp';
+import { getVotesLeft } from '@projects/utils';
+import ContentLoader from 'react-content-loader';
 
 export const HEADER_NAV_HEIGHT = 46;
 export const HEADER_BAR_HEIGHT = 72;
@@ -42,6 +45,20 @@ export function Header({ showNavigation, ...rest }: HeaderProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const {
+    data: votesLeft,
+    isLoading: isVotesLoading,
+    isError: isVotesError,
+  } = useQuery({
+    queryKey: ['votes_left', user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      return getVotesLeft();
+    },
+    enabled: !!user,
+    staleTime: 60 * 1000, // 1 minute
+  });
+
   return (
     <header
       {...rest}
@@ -67,7 +84,8 @@ export function Header({ showNavigation, ...rest }: HeaderProps) {
             </Link>
 
             {/* Menú "Crear" */}
-            <div className='relative' ref={createMenuRef}>
+            { user &&
+              <div className='relative' ref={createMenuRef}>
               <button
                 onClick={() => setOpenCreateMenu(!openCreateMenu)}
                 className='hidden md:flex items-center gap-1 px-4 py-2 border border-gray-300 rounded-md bg-primary text-sm font-medium text-white hover:bg-primary-border cursor-pointer'
@@ -98,8 +116,33 @@ export function Header({ showNavigation, ...rest }: HeaderProps) {
                   </Link>
                 </div>
               )}
-            </div>
+              </div>
+            }
 
+            {/* Votes left (when authenticated) */}
+            {user && (
+              <div className='flex items-center gap-2 min-w-[120px]'>
+                {isVotesLoading ? (
+                  <ContentLoader
+                    speed={2}
+                    width={80}
+                    height={20}
+                    viewBox='0 0 80 20'
+                    backgroundColor='#ededed'
+                    foregroundColor='#ecebeb'
+                    style={{ width: 80, height: 20 }}
+                  >
+                    <rect x='0' y='4' rx='4' ry='4' width='80' height='12' />
+                  </ContentLoader>
+                ) : votesLeft !== null && !isVotesError ? (
+                  <span className='text-sm text-gray-700'>
+                    Votos restantes: <strong>{votesLeft}</strong>
+                  </span>
+                ) : null}
+              </div>
+            )}
+
+            {/* Menú de perfil */}
             {!user ? (
               <>
                 <Link className='cursor-pointer' href='/login'>

@@ -4,19 +4,27 @@ import { PE_DEPARTMENTS, PE_DISTRICTS } from '@common/data/geo';
 import type { ProjectPreview } from '@projects/types';
 import { formatIoaarType } from '@projects/utils';
 import { Star } from 'lucide-react';
+import { useState } from 'react';
 import ContentLoader from 'react-content-loader';
 import { FaVoteYea } from 'react-icons/fa';
 import { FaLocationDot } from 'react-icons/fa6';
 import { Link } from 'wouter';
+import { VoteConfirmationModal } from './vote_confirmation_modal';
 
 type ProjectCardProps = ProjectPreview & {};
 
-export function voteProject() {
-
-}
-
 export function ProjectCard(project: ProjectCardProps) {
+  const [voteModalOpen, setVoteModalOpen] = useState(false);
+
   return (
+    <>
+    {
+      project && <VoteConfirmationModal
+        onClose={() => setVoteModalOpen(false)}
+        open={voteModalOpen}
+        project={project}
+      />
+    }
     <Link href={`/proyectos/${project.id}`}>
       <article className='flex flex-col border border-border rounded-sm bg-white'>
         {/* Project image */}
@@ -37,8 +45,10 @@ export function ProjectCard(project: ProjectCardProps) {
             </span>
             <Button
               leading={<FaVoteYea />}
-              onClick={() => {
-
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setVoteModalOpen(true);
               }}>
               Votar
             </Button>
@@ -59,11 +69,11 @@ export function ProjectCard(project: ProjectCardProps) {
               <p>0</p>
               <Star color='#b2b2b2' fill={'#b2b2b2'} size={20} />
             </div>
-
           </div>
         </div>
       </article>
     </Link>
+    </>
   );
 }
 

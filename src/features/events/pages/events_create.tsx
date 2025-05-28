@@ -8,7 +8,7 @@ import { getDistrictsForDepartment, pushBlobToStorage } from '@common/utils';
 import { PE_DEPARTMENTS } from '@common/data/geo';
 import { useAuthStore } from '@auth/store/auth_store';
 import { Admonition } from '@common/components/admonition';
-import { Modal } from '@common/components/modal_create';
+import { SuccessModal } from '@common/components/modal_create';
 import { Info } from 'lucide-react';
 import { type MDXEditorMethods } from '@mdxeditor/editor'; // Importación type-only
 import { 
@@ -424,7 +424,7 @@ export default function EventsCreatePage() {
           </form>
         </div>
       </div>
-      <Modal
+      <SuccessModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         message="¡Evento creado exitosamente!"

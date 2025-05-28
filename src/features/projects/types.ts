@@ -11,3 +11,7 @@ export type ProjectPreview = Pick<
     | 'geo_department'
     | 'geo_district'
 >;
+
+export type ProjectFull = Tables<'projects'> & {
+  author_id: Tables<'profiles'>;
+};

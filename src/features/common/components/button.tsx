@@ -3,7 +3,7 @@ import React from 'react';
 type ButtonVariant = 'white' | 'red' | 'hero';
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   leading?: React.ReactNode;
   variant?: ButtonVariant;
 };
