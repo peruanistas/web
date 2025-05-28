@@ -24,7 +24,6 @@ type Inputs = {
   acceptTerms: boolean;
 };
 
-
 export const CompleteProfileForm = () => {
   const { setProfileCompleted } = useAuthStore.getState();
 
@@ -42,6 +41,7 @@ export const CompleteProfileForm = () => {
 
   const [modalVisible, setModalVisible] = useState<"terminos" | "privacidad" | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [dniError, setDniError] = useState<string | null>(null);
 
   const departamentoSeleccionado = watch("departamento");
   const tipoDocumentoSeleccionado = watch("tipo_documento");
@@ -53,48 +53,79 @@ export const CompleteProfileForm = () => {
     ? getDistrictsForDepartment(departamentoSeleccionado)
     : [];
 
-const onSubmit = async (data: Inputs) => {
-  if (!user) {
-    setSubmitError("No hay usuario autenticado");
-    return;
-  }
-
-  try {
-    const phoneParsed = parsePhoneNumber(data.celular || '');
-    const profileData = {
-      id: user.id,
-      nombres: data.nombres.trim(),
-      apellido_paterno: data.apellido_paterno.trim(),
-      apellido_materno: data.apellido_materno.trim(),
-      celular: phoneParsed?.nationalNumber || '',
-      country_code: phoneParsed?.countryCallingCode
-        ? `+${phoneParsed.countryCallingCode}`
-        : '',
-      tipo_documento: data.tipo_documento,
-      numero_documento: data.numero_documento,
-      geo_department: data.departamento,
-      geo_district: data.distrito,
-      profile_completed: true
-    };
-
-    const { error } = await db
-      .from('profiles')
-      .update(profileData)
-      .eq('id', user.id);
-
-    if (error) {
-      console.error('Error al guardar perfil:', error);
-      setSubmitError('Error al guardar el perfil. Por favor, inténtalo de nuevo.');
+  const onSubmit = async (data: Inputs) => {
+    if (!user) {
+      setSubmitError("No hay usuario autenticado");
       return;
     }
 
-    setProfileCompleted(true);
-    navigate('/');
-  } catch (error) {
-    console.error('Error inesperado:', error);
-    setSubmitError('Error inesperado. Por favor, inténtalo de nuevo.');
-  }
-};
+    setDniError(null);
+    setSubmitError(null);
+
+    try {
+      let dniVerified = false;
+      if (data.tipo_documento === 'dni') {
+        const verifyResponse = await fetch(
+          'https://blnqgjxcgdyaeutdeomf.supabase.co/functions/v1/dni_validation',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_KEY}`,
+            },
+            body: JSON.stringify({
+              numero_documento: data.numero_documento,
+              nombres: data.nombres,
+              apellido_paterno: data.apellido_paterno,
+              apellido_materno: data.apellido_materno,
+              user_id: user.id,
+            }),
+          }
+        );
+
+        const verificationResult = await verifyResponse.json();
+        dniVerified = verifyResponse.ok && verificationResult.verified;
+        
+        if (!dniVerified) {
+          setDniError('Los datos no coinciden con los registros de RENIEC');
+          return;
+        }
+      }
+
+      const phoneParsed = parsePhoneNumber(data.celular || '');
+
+      const profileData = {
+        id: user.id,
+        nombres: data.nombres.trim(),
+        apellido_paterno: data.apellido_paterno.trim(),
+        apellido_materno: data.apellido_materno.trim(),
+        celular: phoneParsed?.nationalNumber || '',
+        country_code: phoneParsed?.countryCallingCode
+          ? `+${phoneParsed.countryCallingCode}`
+          : '',
+        tipo_documento: data.tipo_documento,
+        numero_documento: data.numero_documento,
+        geo_department: data.departamento,
+        geo_district: data.distrito,
+        profile_completed: data.tipo_documento === 'dni' ? dniVerified : true,
+      };
+
+      const { error } = await db
+        .from('profiles')
+        .update(profileData)
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      setProfileCompleted(profileData.profile_completed);
+      navigate(profileData.profile_completed ? '/' : '/perfil?verification=failed');
+    } catch (error) {
+      console.error('Error:', error);
+      setSubmitError(
+        error instanceof Error ? error.message : 'Error al guardar el perfil'
+      );
+    }
+  };
 
   const getDocumentConfig = (tipo: 'dni' | 'carnet') => {
     if (tipo === 'dni') {
@@ -313,6 +344,11 @@ const onSubmit = async (data: Inputs) => {
             )}
           </div>
           <div className="sm:col-span-2">
+            {dniError && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+                {dniError}
+              </div>
+            )}
             <Button
               variant="red"
               className="font-semibold w-full mt-2"
