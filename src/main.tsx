@@ -24,6 +24,7 @@ import 'react-day-picker/style.css';
 import 'leaflet/dist/leaflet.css';
 import './index.css';
 import { RouteGuard } from '@auth/guards/route-guards';
+import { GroupsPage } from '@groups/pages/groups';
 
 export function PeruanistasRouter() {
   useQueryFavicon();
@@ -43,6 +44,9 @@ export function PeruanistasRouter() {
       <Route path='/eventos/:id'>
         {({ id }) => <EventDetailBasic id={id} />}
       </Route>
+
+      <Route path='/grupos' component={GroupsPage} />
+
       <Route path='/proyectos' component={ProjectsPage} />
       <Route path='/proyectos/crear' component={ProjectsCreatePage} />
       <Route path='/proyectos/:id'>

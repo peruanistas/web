@@ -1,17 +1,11 @@
 import { Header } from '@common/components/header';
 import { Footer } from '@common/components/footer';
 import { Layout } from '@common/components/layout';
-
 import { CommentsSection } from '@common/components/commentsSection';
-
-import { EventStatusTag } from '@events/components/eventstatustag';
 import { YoutubeAuthorCard } from '@events/components/youtubeauthorcard';
-
 import { Calendar, MapPin, Info } from 'lucide-react';
 import InfoItem from '@events/components/infoitem';
-
 import { useQuery } from '@tanstack/react-query';
-
 import { db } from '@db/client'; // Me daba error importar de la forma tradicional con @ xdddddddddd
 import type { Database } from '@db/schema'; // Paolito si lo puedes cambiar (o alguien)
 // Ya debería funcionar bien 👍
@@ -50,20 +44,12 @@ export function EventDetailBasic({ id }: Props) {
       <Header />
 
       <main className="max-w-4xl mx-auto px-10 py-10">
-
-        <div className="mb-4">
+        {/* <div className="mb-4">
           <EventStatusTag />
-        </div>
-
-        <h1 className="text-2xl font-bold mb-2">
+        </div> */}
+        <h1 className="text-3xl font-bold mb-4">
           {event.title}
         </h1>
-        <p className="text-gray-600 mb-1">Evento ID: {event.id}</p>
-
-        <p className="mb-6">
-          {event.content}
-        </p>
-
         {event.image_url && (
           <div className="mb-6">
             <img
@@ -73,6 +59,10 @@ export function EventDetailBasic({ id }: Props) {
             />
           </div>
         )}
+
+        <p className="mb-6">
+          {event.content}
+        </p>
 
         <div className="mb-6">
           <YoutubeAuthorCard

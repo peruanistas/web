@@ -36,7 +36,7 @@ export function ProjectCard(project: ProjectCardProps) {
               {formatIoaarType(project.ioarr_type)}
             </span>
             <Button
-              trailing={<FaVoteYea />}
+              leading={<FaVoteYea />}
               onClick={() => {
 
               }}>

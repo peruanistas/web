@@ -10,7 +10,7 @@ type GroupCardProps = GroupPreview & {};
 
 export function GroupCard(group: GroupCardProps) {
   return (
-    <Link href={'#'}>
+    <Link href={`/grupos/${group.id}`}>
       <article className='flex flex-col border border-border rounded-sm bg-white'>
         {/* Group image */}
         <img

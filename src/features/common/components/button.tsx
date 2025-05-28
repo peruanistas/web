@@ -4,7 +4,7 @@ type ButtonVariant = 'white' | 'red' | 'hero';
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   onClick?: () => void;
-  trailing?: React.ReactNode;
+  leading?: React.ReactNode;
   variant?: ButtonVariant;
 };
 
@@ -14,7 +14,7 @@ export function Button({
   disabled,
   style,
   className,
-  trailing,
+  leading,
   variant = 'white',
   ...rest
 }: ButtonProps) {
@@ -51,17 +51,17 @@ export function Button({
       {...rest}
     >
       {
-        trailing && (
+        leading && (
           <>
-            <div className='flex items-center justify-between gap-2'>
-              {trailing}
+            <div className='flex items-center justify-between gap-1.5'>
+              {leading}
               {children}
             </div>
           </>
         )
       }
       {
-        !trailing && children
+        !leading && children
       }
     </button>
   );

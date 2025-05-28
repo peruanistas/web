@@ -159,7 +159,7 @@ export function PublicationDetail({ id }: Props) {
                     <div>{/* TODO: Handle upvote, downvote, impressions logic */}</div>
                     <div>
                       <Button
-                        trailing={<Share2 size={18} />}
+                        leading={<Share2 size={18} />}
                         onClick={() => setShareOpen(true)}
                       >
                         Compartir

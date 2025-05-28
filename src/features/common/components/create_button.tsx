@@ -10,7 +10,7 @@ export function CreateButton({ onClick, children }: CreateButtonProps) {
   return (
     <Button
       variant='red'
-      trailing={<Plus size={20} />}
+      leading={<Plus size={20} />}
       onClick={onClick}
       style={{
         paddingLeft: 8,

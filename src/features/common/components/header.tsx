@@ -70,7 +70,7 @@ export function Header({ showNavigation, ...rest }: HeaderProps) {
             <div className='relative' ref={createMenuRef}>
               <button
                 onClick={() => setOpenCreateMenu(!openCreateMenu)}
-                className='hidden md:flex items-center gap-1 px-4 py-2 border border-gray-300 rounded-md bg-white text-sm font-medium text-gray-950 hover:bg-gray-50 cursor-pointer'
+                className='hidden md:flex items-center gap-1 px-4 py-2 border border-gray-300 rounded-md bg-primary text-sm font-medium text-white hover:bg-primary-border cursor-pointer'
               >
                 <Plus size={16} />
                 Crear
