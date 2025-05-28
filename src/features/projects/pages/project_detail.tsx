@@ -56,7 +56,7 @@ export default function ProjectsDetailsPage({ id }: ProjectsDetailsPageProps) {
         </div>
       </div>}
       {!loading && <ContentLayout>
-        <div className='gap-[16px] flex flex-col-reverse md:flex-row lg:flex-row justify-center h-fit py-2'>
+        <div className='gap-[16px] flex flex-col-reverse lg:flex-row justify-center h-fit py-2'>
           <div>
             <div className='flex justify-center items-center w-full'>
               <div className="project_detail_layout__img_container">
@@ -87,8 +87,8 @@ export default function ProjectsDetailsPage({ id }: ProjectsDetailsPageProps) {
             </div>
 
             <div>
-              <h1 className='text-lg font-semibold border-b-2 border-red-600 w-fit mb-4'>Descripción</h1>
-              <div className='project_detail_description my-3' style={{ maxWidth: 1000, fontSize: '16px' }}>
+              <h1 className='text-lg font-semibold border-b-2 border-red-600 w-fit mb-0'>Descripción</h1>
+              <div className='project_detail_description mb-3' style={{ maxWidth: 900, fontSize: '16px' }}>
                 {project && (
                   <>
                     <MarkdownViewer content={project.content} />
@@ -98,7 +98,7 @@ export default function ProjectsDetailsPage({ id }: ProjectsDetailsPageProps) {
               <CommentsSection project_id={project?.id} handleRefresh={() => { }} />
             </div>
           </div>
-          <div className="flex flex-col justify-center p-2 px-4 w-full max-w-lg lg:sticky lg:top-40 self-start ">
+          <div className="flex flex-col justify-center p-2 w-full max-w-lg lg:sticky lg:top-40 self-start min-w-full lg:min-w-md">
             <h1 className="project_detail_layout__title my-3">{project?.title}</h1>
             <div style={{ display: 'flex', flexDirection: 'row', gap: '8px', alignContent: 'center' }} >
               <MapPin size={15} />
