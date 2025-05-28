@@ -1,10 +1,11 @@
-import { useForm } from "react-hook-form";
-import { db } from "@db/client";
-import { Button } from "@common/components/button";
-import { Link, useLocation } from "wouter";
-import { useState } from "react";
-import { Check, X, Eye, EyeOff } from "lucide-react";
-import { useAuthStore } from "@auth/store/auth_store";
+import { useForm } from 'react-hook-form';
+import { db } from '@db/client';
+import { Button } from '@common/components/button';
+import { Link, useLocation } from 'wouter';
+import { useState } from 'react';
+import { Check, X, Eye, EyeOff } from 'lucide-react';
+import { useAuthStore } from '@auth/store/auth_store';
+import { getRedirectURL } from '@common/utils';
 
 type Inputs = {
   email: string;
@@ -19,7 +20,7 @@ export const SignUpForm = () => {
     watch,
   } = useForm<Inputs>();
 
-  const password = watch("password") || "";
+  const password = watch('password') || '';
 
   const [hasTyped, setHasTyped] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -38,7 +39,7 @@ export const SignUpForm = () => {
     if (error) {
       console.error(error.message);
     } else {
-      console.log("Cuenta creada (verifica tu correo)");
+      console.log('Cuenta creada (verifica tu correo)');
       setUser(data.user);
       navigate('/completar-registro');
     }
@@ -47,6 +48,9 @@ export const SignUpForm = () => {
     const signUpGoogle = async () => {
     const { error } = await db.auth.signInWithOAuth({
       provider: 'google',
+      options: {
+        redirectTo: getRedirectURL(),
+      }
     });
     if (error) {
       console.error(error.message);
@@ -55,7 +59,7 @@ export const SignUpForm = () => {
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!hasTyped) setHasTyped(true);
-    register("password").onChange?.(e);
+    register('password').onChange?.(e);
   };
 
   return (
@@ -90,19 +94,19 @@ export const SignUpForm = () => {
             type="email"
             placeholder="Email"
             className="border border-[#D9D9D9] rounded-lg p-2 mb-4 w-full text-[#404040]"
-            {...register("email", { required: 'Campo requerido', })}
+            {...register('email', { required: 'Campo requerido', })}
           />
           {errors.email && <p className="text-red-500 text-sm mb-2">{errors.email.message}</p>}
 
           <label className="text-[#404040] mb-2">Contraseña</label>
           <div className="relative mb-2">
             <input
-              type={showPassword ? "text" : "password"}
+              type={showPassword ? 'text' : 'password'}
               placeholder="Contraseña"
               className="border border-[#D9D9D9] rounded-lg p-2 w-full text-[] pr-10 text-[#404040]"
-              {...register("password", {
+              {...register('password', {
                 required: 'Campo requerido',
-                minLength: { value: 8, message: "La contraseña debe tener al menos 8 caracteres" },
+                minLength: { value: 8, message: 'La contraseña debe tener al menos 8 caracteres' },
                 onChange: handlePasswordChange,
               })}
             />
@@ -119,7 +123,7 @@ export const SignUpForm = () => {
 
           <ul
             className={`text-xs space-y-1 mb-4 transform transition-all duration-300 ease-in-out origin-top ${
-              hasTyped ? "opacity-100 max-h-40" : "opacity-0 max-h-0 pointer-events-none"
+              hasTyped ? 'opacity-100 max-h-40' : 'opacity-0 max-h-0 pointer-events-none'
             }`}
           >
             <PasswordRule passed={validation.length} text="Debe tener al menos 8 caracteres" />
@@ -129,7 +133,7 @@ export const SignUpForm = () => {
               Crear cuenta
           </Button>
           <label className="text-[#757575] text-[14px] text-center">
-            ¿Ya tienes una cuenta?{" "}
+            ¿Ya tienes una cuenta?{' '}
             <Link to="/login" className="underline cursor-pointer">
               Inicia sesión
             </Link>
@@ -154,7 +158,7 @@ function validatePassword(password: string) {
 
 function PasswordRule({ passed, text }: { passed: boolean; text: string }) {
   return (
-    <li className={`flex items-center gap-2 ${passed ? "text-green-600" : "text-red-500"}`}>
+    <li className={`flex items-center gap-2 ${passed ? 'text-green-600' : 'text-red-500'}`}>
       {passed ? <Check size={16} /> : <X size={16} />}
       <span>{text}</span>
     </li>

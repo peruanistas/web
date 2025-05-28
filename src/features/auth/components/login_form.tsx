@@ -4,6 +4,7 @@ import { Link, useLocation } from 'wouter';
 import { db } from '@db/client';
 import { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
+import { getRedirectURL } from '@common/utils';
 
 type Inputs = {
   email: string;
@@ -40,6 +41,9 @@ export const LoginForm = () => {
   const signInGoogle = async () => {
     const { error } = await db.auth.signInWithOAuth({
       provider: 'google',
+      options: {
+        redirectTo: getRedirectURL(),
+      }
     });
     if (error) {
       setErrorMessage(error.message);
