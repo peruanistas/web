@@ -1,13 +1,19 @@
+import { Button } from '@common/components/button';
 import { NO_IMAGE_URL } from '@common/constants';
 import { PE_DEPARTMENTS, PE_DISTRICTS } from '@common/data/geo';
 import type { ProjectPreview } from '@projects/types';
 import { formatIoaarType } from '@projects/utils';
 import { Star } from 'lucide-react';
 import ContentLoader from 'react-content-loader';
+import { FaVoteYea } from 'react-icons/fa';
 import { FaLocationDot } from 'react-icons/fa6';
 import { Link } from 'wouter';
 
 type ProjectCardProps = ProjectPreview & {};
+
+export function voteProject() {
+
+}
 
 export function ProjectCard(project: ProjectCardProps) {
   return (
@@ -25,9 +31,18 @@ export function ProjectCard(project: ProjectCardProps) {
           <h2 className='font-semibold mb-1 line-clamp-2 break-words'>
             {project.title}
           </h2>
-          <span className='font-semibold text-primary mt-1'>
-            {formatIoaarType(project.ioarr_type)}
-          </span>
+          <div className='flex items-center justify-between gap-2'>
+            <span className='font-semibold text-primary mt-1'>
+              {formatIoaarType(project.ioarr_type)}
+            </span>
+            <Button
+              trailing={<FaVoteYea />}
+              onClick={() => {
+
+              }}>
+              Votar
+            </Button>
+          </div>
         </div>
         {/* Project footer info */}
         <div className='flex justify-between items-center h-12 bg-gray-100 px-3 py-2 rounded-b-sm border-t border-border'>

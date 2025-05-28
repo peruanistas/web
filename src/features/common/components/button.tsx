@@ -3,7 +3,8 @@ import React from 'react';
 type ButtonVariant = 'white' | 'red' | 'hero';
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
-  trailing?: React.ReactNode,
+  onClick: () => void;
+  trailing?: React.ReactNode;
   variant?: ButtonVariant;
 };
 

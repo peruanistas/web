@@ -93,11 +93,11 @@ export default function ProjectsDetailsPage({id}: ProjectsDetailsPageProps) {
 
                 <div>
                     <h1 className='text-lg font-semibold border-b-2 border-red-600 w-fit mb-4'>Descripción</h1>
-                    <p className='project_detail_description my-3' style={{ maxWidth: 1000, fontSize: '16px' }}>
+                    <div className='project_detail_description my-3' style={{ maxWidth: 1000, fontSize: '16px' }}>
                         {project && (
                             <MDXEditor ref={ref} markdown={project.content} readOnly />
                         )}
-                    </p>
+                    </div>
                     <CommentsSection project_id={project?.id} handleRefresh={()=>{}}/>
                 </div>
 
