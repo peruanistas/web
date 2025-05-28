@@ -20,17 +20,21 @@ type ProjectsDetailsPageProps = {
   id: string;
 };
 
+type Project = Tables<'projects'> & {
+  author_id: Tables<'profiles'>;
+};
+
 export default function ProjectsDetailsPage({ id }: ProjectsDetailsPageProps) {
   const [modalOpen, setModalOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [project, setProject] = useState<Tables<'projects'> | null>(null);
+  const [project, setProject] = useState<Project | null>(null);
   const url = window.location.href;
 
   useEffect(() => {
     window.scrollTo(0, 0);
     db.from('projects')
-      .select('*')
+      .select('*, author_id(*)')
       .eq('id', id)
       .single()
       .then((response) => {
@@ -55,12 +59,12 @@ export default function ProjectsDetailsPage({ id }: ProjectsDetailsPageProps) {
         <div className="loader">
         </div>
       </div>}
-      {!loading && <ContentLayout>
+      {project && <ContentLayout>
         <div className='gap-[16px] flex flex-col-reverse lg:flex-row justify-center h-fit py-2'>
           <div>
             <div className='flex justify-center items-center w-full'>
               <div className="project_detail_layout__img_container">
-                <img src={project?.image_url || undefined} />
+                <img src={project.image_url || undefined} />
               </div>
             </div>
             <div className='flex flex-row flex-wrap bg-red-100 justify-center items-center w-full px-8 py-6 gap-6 text-sm h-fit my-10'>
@@ -95,15 +99,15 @@ export default function ProjectsDetailsPage({ id }: ProjectsDetailsPageProps) {
                   </>
                 )}
               </div>
-              <CommentsSection project_id={project?.id} handleRefresh={() => { }} />
+              <CommentsSection project_id={project.id} handleRefresh={() => { }} />
             </div>
           </div>
           <div className="flex flex-col justify-center p-2 w-full max-w-lg lg:sticky lg:top-40 self-start min-w-full lg:min-w-md">
-            <h1 className="project_detail_layout__title my-3">{project?.title}</h1>
+            <h1 className="project_detail_layout__title my-3">{project.title}</h1>
             <div style={{ display: 'flex', flexDirection: 'row', gap: '8px', alignContent: 'center' }} >
               <MapPin size={15} />
               <p style={{ fontSize: '14px' }}>
-                {project?.geo_department && PE_DEPARTMENTS[project.geo_department]?.name}
+                {project.geo_department && PE_DEPARTMENTS[project.geo_department]?.name}
               </p>
             </div>
             <div className='project_detail_layout__score_content '>
@@ -127,7 +131,7 @@ export default function ProjectsDetailsPage({ id }: ProjectsDetailsPageProps) {
               <ProjectDetailButton title='Vota por este proyecto' onClick={() => { setModalOpen(true); }} />
               <ProjectDetailButton title='Compartir' theme='secondary' onClick={() => { setShareOpen(true); }} />
             </div>
-            <ProjectUserCard />
+            <ProjectUserCard author={project.author_id} />
           </div>
           {/*
             <div className='project_detail_subtitle'>

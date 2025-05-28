@@ -27,7 +27,7 @@ export function ProjectCard(project: ProjectCardProps) {
           src={project.image_url ?? NO_IMAGE_URL}
         />
         {/* Project information */}
-        <div className='flex flex-col p-3 min-h-[108px] h-[108px]'>
+        <div className='flex flex-col p-3 min-h-[132px] h-[132px]'>
           <h2 className='font-semibold mb-1 line-clamp-2 break-words'>
             {project.title}
           </h2>
