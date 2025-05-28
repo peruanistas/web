@@ -40,39 +40,7 @@ export function GroupDetail({ id }: GroupDetailProps) {
     enabled: !!id,
   });
 
-  if (isLoading) return (
-    <Layout>
-      <Header />
-      <ContentLayout>
-        <main className="py-10">
-          <div className="mb-6">
-            <ContentLoader
-              speed={2}
-              width="100%"
-              height={320}
-              viewBox="0 0 700 320"
-              backgroundColor="#ededed"
-              foregroundColor="#ecebeb"
-              style={{ width: '100%', height: 'auto', maxWidth: 700 }}
-            >
-              {/* Banner */}
-              <rect x="0" y="0" rx="12" ry="12" width="100%" height="160" />
-              {/* Title */}
-              <rect x="0" y="180" rx="6" ry="6" width="60%" height="32" />
-              {/* Location */}
-              <rect x="0" y="220" rx="4" ry="4" width="40%" height="18" />
-              {/* Description */}
-              <rect x="0" y="250" rx="4" ry="4" width="90%" height="16" />
-              <rect x="0" y="270" rx="4" ry="4" width="70%" height="16" />
-              {/* Say something input */}
-              <rect x="0" y="300" rx="8" ry="8" width="100%" height="20" />
-            </ContentLoader>
-          </div>
-        </main>
-      </ContentLayout>
-      <Footer />
-    </Layout>
-  );
+  if (isLoading) return <Skeleton />;
 
   if (isError || !group) return <div className="text-center py-10 text-red-600">Error al cargar el grupo.</div>;
 
@@ -93,9 +61,9 @@ export function GroupDetail({ id }: GroupDetailProps) {
             </div>
           )}
           {/* Group Info Row */}
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+          <div className="mb-6 min-w-full">
             <div>
-              <div className='flex justify-between gap-4'>
+              <div className='flex justify-between lg:gap-4 lg:flex-row flex-col mb-2'>
                 <div>
                   <h1 className="text-3xl font-bold mb-3">{group.name}</h1>
                   <div className="flex items-center gap-2 text-gray-600 mb-3">
@@ -133,6 +101,42 @@ export function GroupDetail({ id }: GroupDetailProps) {
           {/* Posts feed placeholder */}
           <div className="bg-gray-50 border border-border rounded-lg p-6 text-center text-gray-400">
             Todavía no hay publicaciones
+          </div>
+        </main>
+      </ContentLayout>
+      <Footer />
+    </Layout>
+  );
+}
+
+function Skeleton() {
+  return (
+    <Layout>
+      <Header />
+      <ContentLayout>
+        <main className="py-10">
+          <div className="mb-6">
+            <ContentLoader
+              speed={2}
+              width="100%"
+              height={320}
+              viewBox="0 0 700 320"
+              backgroundColor="#ededed"
+              foregroundColor="#ecebeb"
+              style={{ width: '100%', height: 'auto', maxWidth: 700 }}
+            >
+              {/* Banner */}
+              <rect x="0" y="0" rx="12" ry="12" width="100%" height="160" />
+              {/* Title */}
+              <rect x="0" y="180" rx="6" ry="6" width="60%" height="32" />
+              {/* Location */}
+              <rect x="0" y="220" rx="4" ry="4" width="40%" height="18" />
+              {/* Description */}
+              <rect x="0" y="250" rx="4" ry="4" width="90%" height="16" />
+              <rect x="0" y="270" rx="4" ry="4" width="70%" height="16" />
+              {/* Say something input */}
+              <rect x="0" y="300" rx="8" ry="8" width="100%" height="20" />
+            </ContentLoader>
           </div>
         </main>
       </ContentLayout>
