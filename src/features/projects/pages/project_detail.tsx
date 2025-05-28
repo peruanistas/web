@@ -3,7 +3,7 @@ import { Layout } from '@common/components/layout';
 import ProjectDetailButton from '@projects/components/project_detail_button';
 import ProjectUserCard from '@projects/components/project_user_card';
 import { CalendarDays, MapPin, Star, Trophy, Users } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import '@projects/styles/styles.css';
 import { type Tables } from '@db/schema';
 import { db } from '@db/client';
@@ -13,6 +13,7 @@ import { PE_DEPARTMENTS } from '@common/data/geo';
 import { Modal } from '@common/components/modal';
 import { Share } from '@common/components/share';
 import { ContentLayout } from '@common/components/content_layout';
+import { MDXEditor, type MDXEditorMethods } from '@mdxeditor/editor';
 
 type ProjectsDetailsPageProps = {
   id: string;
@@ -24,6 +25,7 @@ export default function ProjectsDetailsPage({id}: ProjectsDetailsPageProps) {
     const [loading, setLoading] = useState(true);
     const [project, setProject] = useState<Tables<'projects'> | null>(null);
     const url =  window.location.href;
+    const ref = useRef<MDXEditorMethods>(null);
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -92,7 +94,9 @@ export default function ProjectsDetailsPage({id}: ProjectsDetailsPageProps) {
                 <div>
                     <h1 className='text-lg font-semibold border-b-2 border-red-600 w-fit mb-4'>Descripción</h1>
                     <p className='project_detail_description my-3' style={{ maxWidth: 1000, fontSize: '16px' }}>
-                        {project?.content}
+                        {project && (
+                            <MDXEditor ref={ref} markdown={project.content} readOnly />
+                        )}
                     </p>
                     <CommentsSection project_id={project?.id} handleRefresh={()=>{}}/>
                 </div>
