@@ -42,7 +42,7 @@ export function CommentsSection({project_id, event_id, publication_id}: CommentT
 
     let query = db
       .from('comments')
-      .select('*, profiles(nombres, apellidos)')
+      .select('*, profiles(nombres, apellido_paterno, apellido_materno)')
       .order('created_at', { ascending: true })
       .range(from, to);
 
