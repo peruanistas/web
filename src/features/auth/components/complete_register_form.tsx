@@ -10,7 +10,8 @@ import { useLocation } from "wouter";
 
 type Inputs = {
   nombres: string;
-  apellidos: string;
+  apellido_paterno: string;
+  apellido_materno: string;
   celular: string;
   tipo_documento: 'dni' | 'carnet';
   numero_documento: string;
@@ -20,6 +21,8 @@ type Inputs = {
 };
 
 export const CompleteProfileForm = () => {
+  const { setProfileCompleted } = useAuthStore.getState();
+
   const {
     register,
     handleSubmit,
@@ -55,7 +58,8 @@ export const CompleteProfileForm = () => {
       const profileData = {
         id: user.id,
         nombres: data.nombres.trim(),
-        apellidos: data.apellidos.trim(),
+        apellido_paterno: data.apellido_paterno.trim(),
+        apellido_materno: data.apellido_materno.trim(),
         celular: data.celular,
         tipo_documento: data.tipo_documento,
         numero_documento: data.numero_documento,
@@ -64,9 +68,11 @@ export const CompleteProfileForm = () => {
         profile_completed: true
       };
 
+
       const { error } = await db
-        .from('profiles')
-        .insert(profileData);
+      .from('profiles')
+      .update(profileData)
+      .eq('id', user.id);
 
       if (error) {
         console.error('Error al guardar perfil:', error);
@@ -75,6 +81,7 @@ export const CompleteProfileForm = () => {
       }
 
       console.log("Perfil insertado correctamente:", profileData);
+      setProfileCompleted(true);
       navigate('/');
     } catch (error) {
       console.error('Error inesperado:', error);
@@ -134,19 +141,36 @@ export const CompleteProfileForm = () => {
           </div>
           <div>
             <label className="text-[#404040] block mb-1">
-              Apellidos <span className="text-red-500">*</span>
+              Apellido paterno <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
-              placeholder="Ingresa tus apellidos"
+              placeholder="Ingresa tu apellido paterno"
               className="border border-[#D9D9D9] rounded-lg p-2 w-full text-[#404040]"
-              {...register("apellidos", {
+              {...register("apellido_paterno", {
                 required: 'Campo requerido',
                 minLength: { value: 2, message: 'Debe tener al menos 2 caracteres' }
               })}
             />
-            {errors.apellidos && (
-              <p className="text-red-500 text-xs mt-1">{errors.apellidos.message}</p>
+            {errors.apellido_paterno && (
+              <p className="text-red-500 text-xs mt-1">{errors.apellido_paterno.message}</p>
+            )}
+          </div>
+          <div>
+            <label className="text-[#404040] block mb-1">
+              Apellido materno <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Ingresa tu apellido materno"
+              className="border border-[#D9D9D9] rounded-lg p-2 w-full text-[#404040]"
+              {...register("apellido_materno", {
+                required: 'Campo requerido',
+                minLength: { value: 2, message: 'Debe tener al menos 2 caracteres' }
+              })}
+            />
+            {errors.apellido_materno && (
+              <p className="text-red-500 text-xs mt-1">{errors.apellido_materno.message}</p>
             )}
           </div>
           <div>

@@ -23,6 +23,7 @@ import { PublicationDetail } from '@news/pages/news_detail';
 import 'react-day-picker/style.css';
 import 'leaflet/dist/leaflet.css';
 import './index.css';
+import { RouteGuard } from '@auth/guards/route-guards';
 
 export function PeruanistasRouter() {
   useQueryFavicon();
@@ -81,7 +82,9 @@ function PeruanistasRoot() {
     <StrictMode>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <PeruanistasRouter />
+          <RouteGuard>
+            <PeruanistasRouter />
+          </RouteGuard>
         </AuthProvider>
         {showDevtools && (
           <React.Suspense fallback={null}>

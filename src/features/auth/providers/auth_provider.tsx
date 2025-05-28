@@ -7,7 +7,7 @@ type AuthProviderProps = {
 };
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const { setUser, clearUser } = useAuthStore();
+  const { setUser, setProfileCompleted, clearUser } = useAuthStore();
 
   useEffect(() => {
     const getSession = async () => {
@@ -15,12 +15,37 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         data: { session },
       } = await db.auth.getSession();
 
-      setUser(session?.user ?? null);
+      const user = session?.user ?? null;
+      setUser(user);
+
+      if (user) {
+        const { data, error } = await db
+          .from('profiles')
+          .select('profile_completed')
+          .eq('id', user.id)
+          .single();
+
+        if (!error && data) {
+          setProfileCompleted(data.profile_completed);
+        }
+      }
     };
 
-    const { data: listener } = db.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT') clearUser();
-      else setUser(session?.user ?? null);
+    const { data: listener } = db.auth.onAuthStateChange((_event, session) => {
+      const user = session?.user ?? null;
+      setUser(user);
+
+      if (user) {
+        db.from('profiles')
+          .select('profile_completed')
+          .eq('id', user.id)
+          .single()
+          .then(({ data, error }) => {
+            if (!error && data) {
+              setProfileCompleted(data.profile_completed);
+            }
+          });
+      }
     });
 
     getSession();
