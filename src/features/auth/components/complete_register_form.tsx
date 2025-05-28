@@ -7,18 +7,23 @@ import { getDistrictsForDepartment } from "@common/utils";
 import { db } from "@db/client";
 import { useAuthStore } from "@auth/store/auth_store";
 import { useLocation } from "wouter";
+import 'react-phone-number-input/style.css';
+import PhoneInput, { isValidPhoneNumber, parsePhoneNumber } from 'react-phone-number-input';
+import { Controller } from 'react-hook-form';
 
 type Inputs = {
   nombres: string;
   apellido_paterno: string;
   apellido_materno: string;
   celular: string;
+  country_code: string;
   tipo_documento: 'dni' | 'carnet';
   numero_documento: string;
   departamento: string;
   distrito: string;
   acceptTerms: boolean;
 };
+
 
 export const CompleteProfileForm = () => {
   const { setProfileCompleted } = useAuthStore.getState();
@@ -27,6 +32,7 @@ export const CompleteProfileForm = () => {
     register,
     handleSubmit,
     watch,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<Inputs>({
     defaultValues: {
@@ -47,47 +53,48 @@ export const CompleteProfileForm = () => {
     ? getDistrictsForDepartment(departamentoSeleccionado)
     : [];
 
-  const onSubmit = async (data: Inputs) => {
-    if (!user) {
-      setSubmitError("No hay usuario autenticado");
-      return;
-    }
+const onSubmit = async (data: Inputs) => {
+  if (!user) {
+    setSubmitError("No hay usuario autenticado");
+    return;
+  }
 
-    try {
-      setSubmitError(null);
-      const profileData = {
-        id: user.id,
-        nombres: data.nombres.trim(),
-        apellido_paterno: data.apellido_paterno.trim(),
-        apellido_materno: data.apellido_materno.trim(),
-        celular: data.celular,
-        tipo_documento: data.tipo_documento,
-        numero_documento: data.numero_documento,
-        geo_department: data.departamento,
-        geo_district: data.distrito,
-        profile_completed: true
-      };
+  try {
+    const phoneParsed = parsePhoneNumber(data.celular || '');
+    const profileData = {
+      id: user.id,
+      nombres: data.nombres.trim(),
+      apellido_paterno: data.apellido_paterno.trim(),
+      apellido_materno: data.apellido_materno.trim(),
+      celular: phoneParsed?.nationalNumber || '',
+      country_code: phoneParsed?.countryCallingCode
+        ? `+${phoneParsed.countryCallingCode}`
+        : '',
+      tipo_documento: data.tipo_documento,
+      numero_documento: data.numero_documento,
+      geo_department: data.departamento,
+      geo_district: data.distrito,
+      profile_completed: true
+    };
 
-
-      const { error } = await db
+    const { error } = await db
       .from('profiles')
       .update(profileData)
       .eq('id', user.id);
 
-      if (error) {
-        console.error('Error al guardar perfil:', error);
-        setSubmitError('Error al guardar el perfil. Por favor, inténtalo de nuevo.');
-        return;
-      }
-
-      console.log("Perfil insertado correctamente:", profileData);
-      setProfileCompleted(true);
-      navigate('/');
-    } catch (error) {
-      console.error('Error inesperado:', error);
-      setSubmitError('Error inesperado. Por favor, inténtalo de nuevo.');
+    if (error) {
+      console.error('Error al guardar perfil:', error);
+      setSubmitError('Error al guardar el perfil. Por favor, inténtalo de nuevo.');
+      return;
     }
-  };
+
+    setProfileCompleted(true);
+    navigate('/');
+  } catch (error) {
+    console.error('Error inesperado:', error);
+    setSubmitError('Error inesperado. Por favor, inténtalo de nuevo.');
+  }
+};
 
   const getDocumentConfig = (tipo: 'dni' | 'carnet') => {
     if (tipo === 'dni') {
@@ -177,14 +184,23 @@ export const CompleteProfileForm = () => {
             <label className="text-[#404040] block mb-1">
               Celular <span className="text-red-500">*</span>
             </label>
-            <input
-              type="tel"
-              placeholder="987654321"
-              className="border border-[#D9D9D9] rounded-lg p-2 w-full text-[#404040]"
-              {...register("celular", {
+            <Controller
+              control={control}
+              name="celular"
+              rules={{
                 required: 'Campo requerido',
-                pattern: { value: /^9[0-9]{8}$/, message: "Debe empezar con 9 y tener 9 dígitos en total" },
-              })}
+                validate: (value) =>
+                  isValidPhoneNumber(value || '') || 'Número de teléfono inválido',
+              }}
+              render={({ field }) => (
+                <PhoneInput
+                  {...field}
+                  defaultCountry="PE"
+                  international
+                  countryCallingCodeEditable={false}
+                  className="border border-[#D9D9D9] rounded-lg p-2 w-full text-[#404040]"
+                />
+              )}
             />
             {errors.celular && (
               <p className="text-red-500 text-xs mt-1">{errors.celular.message}</p>
