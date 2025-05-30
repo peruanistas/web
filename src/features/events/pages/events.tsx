@@ -86,6 +86,7 @@ export function EventsPage() {
       <PageBanner
         title='Eventos'
         description='Explora y participa de los eventos disponibles'
+        variant='event'
       />
       <ContentLayout>
         <main className='py-6'>

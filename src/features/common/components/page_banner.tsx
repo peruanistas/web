@@ -1,22 +1,32 @@
-import bannersmall from '@assets/images/banner_sm.webp';
+import bannerProject from '@assets/images/banner_project.webp';
+import bannerGroup from '@assets/images/banner_group.webp';
+import bannerEvent from '@assets/images/banner_event.webp';
 import { ContentLayout } from './content_layout';
 
 type PageBannerProps = {
   title: string,
   description: string,
   trailing?: React.ReactNode,
+  variant?: 'project' | 'group' | 'event',
 };
 
-export function PageBanner({ title, description, trailing }: PageBannerProps) {
+export function PageBanner({ title, description, trailing, variant }: PageBannerProps) {
+
+  const bannerImage = variant === 'group'
+  ? bannerGroup
+  : variant === 'event'
+  ? bannerEvent
+  : bannerProject;
+
   return (
     <ContentLayout style={{
-      backgroundImage: `url(${bannersmall})`,
+      backgroundImage: `url(${bannerImage})`,
       backgroundSize: 'cover',
       backgroundRepeat: 'no-repeat',
-      backgroundPosition: 'center top',
-      maxHeight: 175,
-      height: 175,
-      boxShadow: 'inset 0px 175px 0px rgba(0, 0, 0, 0.62)',
+      backgroundPosition: 'center',
+      maxHeight: 190,
+      height: 190,
+      boxShadow: 'inset 0px 190px 0px rgba(0, 0, 0, 0.65)',
     }}>
       <div className='flex h-full items-end place-content-between gap-4'>
         <div className='flex flex-col justify-center gap-4 h-full w-full'>

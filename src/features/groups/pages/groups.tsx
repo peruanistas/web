@@ -85,6 +85,7 @@ export function GroupsPage() {
       <PageBanner
         title='Grupos'
         description='Explora todos los grupos disponibles. Únete y comparte publicaciones con ellos.'
+        variant='group'
       />
       <ContentLayout>
         <main className='py-6'>
