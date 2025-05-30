@@ -2,9 +2,9 @@ export function Modal({ open, onClose, children }: { open: boolean, onClose: () 
   if (!open) return null;
   return (
     <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+      className="fixed inset-0 bg-black/50 flex items-center justify-center"
       onClick={onClose}
-      style={{ pointerEvents: 'auto' }}
+      style={{ pointerEvents: 'auto', zIndex: 696969 }}
     >
       <div
         className="bg-white p-6 rounded shadow-lg relative"
