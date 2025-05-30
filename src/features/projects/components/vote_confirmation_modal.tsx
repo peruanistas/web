@@ -2,7 +2,7 @@ import { Modal } from '@common/components/modal';
 import { PE_DEPARTMENTS, PE_DISTRICTS } from '@common/data/geo';
 import type { ProjectPreview } from '@projects/types';
 import { formatIoaarType, getVotesLeft, voteForProject } from '@projects/utils';
-import { MapPin, Star } from 'lucide-react';
+import { LucideInfo, MapPin, Star } from 'lucide-react';
 import ProjectDetailButton from './project_detail_button';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@auth/store/auth_store';
@@ -20,14 +20,15 @@ export function VoteConfirmationModal({ open, onClose, project }: VoteConfirmati
   const queryClient = useQueryClient();
 
   const [, navigate] = useLocation();
-    const {
+
+  const {
     data: votesLeft,
     isLoading: isVotesLoading,
-    // isError: isVotesError, 😝 who cares!!!
+    isError: isVotesError,
   } = useQuery({
     queryKey: ['votes_left', user?.id],
     queryFn: async () => {
-      if (!user) return null;
+      if (!user) return 0;
       return getVotesLeft();
     },
     enabled: !!user,
@@ -35,6 +36,16 @@ export function VoteConfirmationModal({ open, onClose, project }: VoteConfirmati
   });
 
   if (!open) return null;
+
+  if (isVotesLoading || isVotesError) {
+    return (
+      <Modal open={open} onClose={onClose}>
+        <div className='flex flex-col items-center justify-center h-full'>
+          <p className='loader'></p>
+        </div>
+      </Modal>
+    );
+  }
 
   if (!user) {
     return (
@@ -66,6 +77,15 @@ export function VoteConfirmationModal({ open, onClose, project }: VoteConfirmati
     );
   }
 
+  const userVotesLeft = votesLeft ?? 0;
+  const noVotesLeft = userVotesLeft === 0;
+
+  const isGolden = (
+    user.profile.geo_department === project.geo_department &&
+    user.profile.geo_district === project.geo_district
+  );
+  const userDistrictName = PE_DISTRICTS[user.profile.geo_district]!.name;
+
   return (
     <Modal open={open} onClose={onClose}>
       <h1 className='mt-2 text-2xl font-bold'>Estás apunto de votar por</h1>
@@ -76,7 +96,7 @@ export function VoteConfirmationModal({ open, onClose, project }: VoteConfirmati
           </div>
           <div className='flex flex-col justify-center'>
             <h2 className='text-xl mb-0.5 font-semibold'>{project?.title}</h2>
-            <div className='flex gap-2 mb-0.5'>
+            <div className='flex gap-2'>
               <span className='text-primary font-bold mb-2'>{formatIoaarType(project?.ioarr_type)}</span> ·
               <span>0 puntos</span>
             </div>
@@ -89,26 +109,57 @@ export function VoteConfirmationModal({ open, onClose, project }: VoteConfirmati
           </div>
         </div>
       </div>
-      <div className='flex gap-3 text-lg items-center bg-orange-100 p-2 mb-4 font-normal!'>
-        <Star color='#f7865d' fill={'#f7865d'} size={40} />
-        <p>
-          Como este proyecto pertenece a tu localidad, tu voto contará&nbsp;
-          <span className='font-bold'>2 puntos</span>
-        </p>
-      </div>
-      <ProjectDetailButton title='Votar' onClick={async () => {
-        try {
-          await voteForProject(project.id);
-          // sucess message
-          await queryClient.invalidateQueries({ queryKey: ['votes_left'] });
-          await queryClient.invalidateQueries({ queryKey: ['project_vote_summary', project.id] });
-          onClose();
-          navigate(`/proyectos/${project.id}`);
-        } catch (err) {
-          console.log(err);
-          alert('Hubo un error. Por favor inténtalo de nuevo más tarde.');
-        }
-      }} />
+      {isGolden && (
+        <div className='flex gap-3 text-lg items-center bg-orange-100 p-2 mb-4 font-normal!'>
+          <Star color='#f7865d' fill={'#f7865d'} size={40} />
+          <p>
+            Como este proyecto pertenece a tu distrito ({userDistrictName}), tu voto contará&nbsp;
+            <span className='font-bold'>2 puntos</span>
+          </p>
+        </div>
+      )}
+      {!isGolden && (
+        <div className='flex gap-3 text-lg items-center bg-gray-200 p-2 mb-4 font-normal!'>
+          <Star color='#a0a0a0' fill={'#a0a0a0'} size={40} />
+          <p>
+            Como este proyecto <b>no</b> pertenece a tu distrito ({userDistrictName}), tu voto contará&nbsp;
+            <span className='font-bold'>1 punto</span>
+          </p>
+        </div>
+      )}
+      <ProjectDetailButton
+        title={'Votar'}
+        disabled={noVotesLeft}
+        onClick={async () => {
+          try {
+            await voteForProject(project.id);
+            // sucess message
+            await queryClient.invalidateQueries({ queryKey: ['votes_left'] });
+            await queryClient.invalidateQueries({ queryKey: ['project_vote_summary', project.id] });
+            onClose();
+            navigate(`/proyectos/${project.id}`);
+          } catch (err) {
+            console.log(err);
+            alert('Hubo un error. Por favor inténtalo de nuevo más tarde.');
+          }
+        }}
+      />
+      {
+        noVotesLeft && (
+          <div className='mt-2 flex gap-2 items-center'>
+            <LucideInfo size={18} color='#222' />
+            <p>No te quedan votos disponibles. Podrás votar la siguiente semana.</p>
+          </div>
+        )
+      }
+      {
+        userVotesLeft > 0 && (
+          <div className='mt-2 flex gap-2 items-center'>
+            <LucideInfo size={18} color='#222' />
+            <p>Te quedan <span className='font-bold'>{userVotesLeft}</span> {userVotesLeft === 1 ? 'voto' : 'votos'} disponibles.</p>
+          </div>
+        )
+      }
     </Modal>
   );
 }

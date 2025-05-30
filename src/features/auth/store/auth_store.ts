@@ -1,12 +1,17 @@
 import { create } from 'zustand';
 import type { User } from '@supabase/supabase-js';
+import type { Tables } from '@db/schema';
+
+export type PeruanistaUser = User & {
+  profile: Required<Tables<'profiles'>>,
+};
 
 type AuthStore = {
-  user: User | null;
+  user: PeruanistaUser | null;
   profileCompleted: boolean;
   authChecked: boolean;
   isConfirmed: boolean;
-  setUser: (user: User | null) => void;
+  setUser: (user: PeruanistaUser | null) => void;
   setProfileCompleted: (completed: boolean) => void;
   setAuthChecked: (checked: boolean) => void;
   clearUser: () => void;

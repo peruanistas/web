@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { db } from '@db/client';
-import { useAuthStore } from '@auth/store/auth_store';
+import { useAuthStore, type PeruanistaUser } from '@auth/store/auth_store';
+import type { User } from '@supabase/supabase-js';
+import type { Nullish } from '@common/types';
 
 type AuthProviderProps = {
   children: React.ReactNode;
@@ -10,48 +12,46 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const { setUser, setProfileCompleted, setAuthChecked } = useAuthStore();
 
   useEffect(() => {
-    const getSession = async () => {
-      const {
-        data: { session },
-      } = await db.auth.getSession();
+    const fetchProfile = async (user_id: string) => {
+      const { data, error } = await db
+        .from('profiles')
+        .select('*')
+        .eq('id', user_id)
+        .single();
 
-      const user = session?.user ?? null;
-      setUser(user);
-
-      if (user) {
-        setUser(user); // Esto actualiza también `isConfirmed`
-
-        const { data, error } = await db
-          .from('profiles')
-          .select('profile_completed')
-          .eq('id', user.id)
-          .single();
-
-        if (!error && data) {
-          setProfileCompleted(data.profile_completed);
-        }
+      if (error) {
+        // user have no linked profile, which is fatal
+        return null;
       }
-      setAuthChecked(true);
+      return data;
     };
 
-    const { data: listener } = db.auth.onAuthStateChange((_event, session) => {
-      const user = session?.user ?? null;
-      setUser(user); // Esto actualiza también `isConfirmed`
+    const handleSupabaseUser = async (supaUser: Nullish<User>) => {
+      const user = (supaUser ?? null) as PeruanistaUser | null;
 
-      if (user) {
-        db.from('profiles')
-          .select('profile_completed')
-          .eq('id', user.id)
-          .single()
-          .then(({ data, error }) => {
-            if (!error && data) {
-              setProfileCompleted(data.profile_completed);
-            }
-            setAuthChecked(true);
-          });
-      } else {
+      console.log('HANDLING', supaUser);
+
+      try {
+        if (!user) return;
+
+        const profile = await fetchProfile(user.id);
+        if (!profile) return;
+
+        user.profile = profile;
+        setProfileCompleted(profile.profile_completed);
+      } finally {
+        setUser(user);
         setAuthChecked(true);
       }
+    };
+
+    const getSession = async () => {
+      const { data: { session } } = await db.auth.getSession();
+      handleSupabaseUser(session?.user);
+    };
+
+    const { data: listener } = db.auth.onAuthStateChange(async (_event, session) => {
+      handleSupabaseUser(session?.user);
     });
 
     getSession();
@@ -59,6 +59,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return () => {
       listener?.subscription.unsubscribe();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return <>{children}</>;
