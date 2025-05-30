@@ -16,6 +16,7 @@ import '@projects/styles/projects_list.scss';
 import { CreateButton } from '@common/components/create_button';
 import type { GroupPreview } from '@groups/types';
 import { GroupCard } from '@groups/components/group_card';
+import { useScrollReset } from '@common/hooks/useScrollReset';
 
 const PROJECTS_ORDER_OPTIONS = [
   { value: 'event_date_asc', label: 'Por fecha (antiguos)' },
@@ -25,6 +26,7 @@ const PROJECTS_ORDER_OPTIONS = [
 const PROJECTS_RESULTS_PER_PAGE = 6;
 
 export function GroupsPage() {
+  useScrollReset();
   const [department, setDepartment] = useState('');
   const [district, setDistrict] = useState('');
   const [search, setSearch] = useState('');

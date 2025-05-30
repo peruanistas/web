@@ -14,12 +14,14 @@ import type { GroupPreview } from '@groups/types';
 import { GroupCard } from '@groups/components/group_card';
 import { BsFillPeopleFill } from 'react-icons/bs';
 import { MdHomeWork } from 'react-icons/md';
+import { useScrollReset } from '@common/hooks/useScrollReset';
 
 const NEWS_RESULTS_PER_PAGE = 8;
 const PROJECTS_RESULTS_PER_PAGE = 3;
 const GROUPS_RESULTS_PER_PAGE = 6;
 
 export function HomeFeed() {
+  useScrollReset();
   const [, setLocation] = useLocation();
 
   const { data: contentPages, fetchNextPage, isLoading, isFetchingNextPage } = useInfiniteQuery({

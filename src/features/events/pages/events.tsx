@@ -16,6 +16,7 @@ import type { EventPreview } from '@events/types';
 import { CalendarFilter } from '@events/components/calendar_filter';
 import { useLocation } from 'wouter';
 import { CreateButton } from '@common/components/create_button';
+import { useScrollReset } from '@common/hooks/useScrollReset';
 
 const EVENTS_ORDER_OPTIONS = [
   { value: 'event_date_asc', label: 'Por fecha (cercanos)' },
@@ -25,6 +26,7 @@ const EVENTS_ORDER_OPTIONS = [
 const EVENTS_RESULTS_PER_PAGE = 6;
 
 export function EventsPage() {
+  useScrollReset();
   const [department, setDepartment] = useState('');
   const [district, setDistrict] = useState('');
   const [search, setSearch] = useState('');

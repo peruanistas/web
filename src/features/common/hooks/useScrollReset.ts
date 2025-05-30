@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
+import { useLayoutEffect } from 'react';
 
 export function useScrollReset() {
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (window.location.href.indexOf('#') === -1) {
       setTimeout(() => {
         window.scrollTo(0, 0);

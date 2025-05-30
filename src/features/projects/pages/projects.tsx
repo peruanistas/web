@@ -15,6 +15,7 @@ import { useLocation } from 'wouter';
 import { ProjectFilters } from '@projects/components/projects_filters';
 import '@projects/styles/projects_list.scss';
 import { CreateButton } from '@common/components/create_button';
+import { useScrollReset } from '@common/hooks/useScrollReset';
 
 const PROJECTS_ORDER_OPTIONS = [
   { value: 'event_date_asc', label: 'Por fecha (antiguos)' },
@@ -24,6 +25,7 @@ const PROJECTS_ORDER_OPTIONS = [
 const PROJECTS_RESULTS_PER_PAGE = 6;
 
 export function ProjectsPage() {
+  useScrollReset();
   const [department, setDepartment] = useState('');
   const [district, setDistrict] = useState('');
   const [search, setSearch] = useState('');
