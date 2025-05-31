@@ -429,10 +429,11 @@ export default function ProfileComponent() {
                     <h2 className="text-2xl font-semibold text-gray-900 leading-tight">
                       {profile.nombres} {profile.apellido_paterno} {profile.apellido_materno}
                     </h2>
+                    {/*
                     <p className="text-gray-700 text-sm">
                       No bio yet
                     </p>
-                    <Button variant="red" className="w-full">Editar perfil</Button>
+                    <Button variant="red" className="w-full">Editar perfil</Button>*/}
                   </div>
 
                   {/* contacto */}

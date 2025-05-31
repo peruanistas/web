@@ -1,35 +1,44 @@
 import { Button } from '@common/components/button';
 import { Link } from 'wouter';
-import hero from '@assets/images/hero_image.png';
+import homeBanner from '@assets/images/hero_image.png';
+import { ContentLayout } from '@common/components/content_layout';
 
-export function HomeBanner() {
+type MainBannerProps = {
+  title: string;
+  description: string;
+  trailing?: React.ReactNode;
+};
+
+export function HomeBanner({ title, description, trailing }: MainBannerProps) {
+
   return (
-    <div className="relative w-full overflow-hidden">
-      <div className="relative w-full text-white">
-        <div className="absolute inset-0 z-0">
-          <img src={hero} alt="Banner Peruanistas" className="object-cover w-full h-full" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#A32929]"></div>
-        </div>
-        <div className="relative z-10 mx-auto flex max-w-7xl flex-col md:flex-row items-center px-4 py-8 md:py-12 lg:py-16">
-          <div className="w-full md:w-2/3 space-y-4 text-center md:text-left">
-            <h2 className="text-xl md:text-3xl lg:text-4xl font-bold m-0">
-              Únete a los peruanistas
-            </h2>
-            <h3 className="text-xl md:text-3xl lg:text-4xl font-bold mt-1">
-              y sé parte del cambio
-            </h3>
-            <p className="text-[13px] md:text-base max-w-xl leading-snug mt-2 mb-4">
-              Como peruanista, tendrás acceso a las últimas noticias de lo que a ti más te importa
-              y podrás participar activamente en proyectos de tu comunidad.
-            </p>
+    <div className="relative w-full" style={{ maxHeight: 325, height: 325 }}>
+      <div
+        className="absolute inset-0 z-0"
+        style={{
+          backgroundImage: `url(${homeBanner})`,
+          backgroundSize: 'cover',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+        }}
+      />
+
+      <div className="absolute inset-0 z-15 bg-gradient-to-r from-[#A32929]/100 to-[#A32929]/40 md:from-[#A32929]/90 md:to-transparent" />
+
+      <ContentLayout className="relative z-20 h-full">
+        <div className="flex h-full items-end place-content-between gap-4">
+          <div className="flex flex-col justify-center gap-4 h-full w-full">
+            <h1 className="text-3xl md:text-4xl font-bold text-white md:w-1/3">{title}</h1>
+            <p className="text-sm md:text-base leading-snug text-white md:w-2/4">{description}</p>
             <div>
-              <Link to='/about'>
-                <Button variant='hero'>Conoce más</Button>
+              <Link to="/about">
+                <Button variant="hero">Conoce más</Button>
               </Link>
             </div>
           </div>
+          {trailing}
         </div>
-      </div>
+      </ContentLayout>
     </div>
   );
 }
