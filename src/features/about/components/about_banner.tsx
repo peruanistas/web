@@ -1,37 +1,59 @@
 import { Button } from '@common/components/button';
 import { Link } from 'wouter';
-import banner from '@assets/images/about_banner.png';
+import aboutBanner from '@assets/images/about_banner.png';
+import { ContentLayout } from '@common/components/content_layout';
 
-export function AboutBanner() {
+type AboutBannerProps = {
+  title: string;
+  subtitle: string;
+  description: string;
+  trailing?: React.ReactNode;
+};
+
+export function AboutBanner({ title, subtitle, description, trailing }: AboutBannerProps) {
+
   return (
-    <div className="relative w-full overflow-hidden">
-      <div className="relative w-full text-white">
-        <div className="absolute inset-0 z-0">
-          <img src={banner} alt="Banner Peruanistas" className="object-cover w-full h-full" />
-          <div className="absolute inset-0 bg-[#611919]/60"></div>
-        </div>
-        <div className="relative z-10 mx-auto flex max-w-7xl flex-col items-center px-4 py-12 md:py-18 lg:py-24">
-          <div className="w-full space-y-4 text-center">
-            <h1 className="text-xl md:text-3xl lg:text-4xl font-bold m-0">
-              PERUANISTAS
-            </h1>
-            <h2 className="text-xl md:text-3xl lg:text-4xl font-bold mt-1">
-              Hacer que el Perú funcione para todos
-            </h2>
-            <p className="md:text-base max-w-xl mx-auto leading-snug mt-2 mb-4">
-              Somos una red de peruanos comprometidos con transformar nuestro país a través de proyectos que generen impacto real.
-            </p>
+    <div className="relative w-full" style={{ maxHeight: 400, height: 400 }}>
+      <div
+        className="absolute inset-0 z-0"
+        style={{
+          backgroundImage: `url(${aboutBanner})`,
+          backgroundSize: 'cover',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+        }}
+      />
+
+      <div className="absolute inset-0 bg-[#611919]/60" />
+
+      <ContentLayout className="relative z-20 h-full">
+        <div className="flex h-full items-end place-content-between gap-4">
+            <div className="flex flex-col justify-center items-center gap-4 h-full w-full">
+            <h1 className="text-4xl md:text-5xl font-bold text-white text-center">{title}</h1>
+            <h2 className="text-3xl md:text-4xl font-bold text-white text-center">{subtitle}</h2>
+            <p className="text-sm md:text-base leading-snug text-white text-center max-w-2xl">{description}</p>
             <div className="flex flex-wrap gap-3 justify-center">
-              <Link to="/signup" className="flex-1 min-w-[120px] max-w-[200px]">
-                <Button variant="white" className="font-semibold w-full">Únete a nosotros</Button>
+              <Link to="/signup">
+                <Button
+                  variant="white"
+                  className="font-semibold px-6 whitespace-nowrap"
+                >
+                  Únete a nosotros
+                </Button>
               </Link>
-              <Link to="/proyectos" className="flex-1 min-w-[120px] max-w-[200px]">
-                <Button variant="white" className="font-semibold w-full">Conoce proyectos</Button>
+              <Link to="/proyectos">
+                <Button
+                  variant="white"
+                  className="font-semibold px-6 whitespace-nowrap"
+                >
+                  Conoce proyectos
+                </Button>
               </Link>
             </div>
           </div>
+          {trailing}
         </div>
-      </div>
+      </ContentLayout>
     </div>
   );
 }

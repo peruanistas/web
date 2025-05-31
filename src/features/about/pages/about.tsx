@@ -8,7 +8,11 @@ export function AboutPage() {
   return (
     <main>
       <Header />
-      <AboutBanner />
+      <AboutBanner
+      title="PERUANISTA"
+      subtitle="Hacer que el Perú funcione"
+      description="Somos una red de peruanos comprometidos con transformar nuestro país a través de proyectos que generen impacto real."
+      />
       <MissionSection />
       <Footer />
     </main>
