@@ -26,6 +26,8 @@ export const PE_DEPARTMENTS = {
     '25': { code: '25', name: 'Ucayali' },
 } as Record<string, { code: string; name: string }>;
 
+type District = { code: string; name: string };
+
 // ⚠️ *Note*:
 // To get only the districts for an specific department
 // use the function `getDistrictsForDepartment` in utils.ts
@@ -1922,3 +1924,18 @@ export const PE_DISTRICTS = {
     '150516': { code: '150516', name: 'Zuñiga' },
     '080309': { code: '080309', name: 'Zurite' },
 } as Record<string, { code: string; name: string }>;
+
+
+export const DEPARTMENT_OPTIONS = Object.entries(PE_DEPARTMENTS)
+  .sort(([, a], [, b]) => a.name.localeCompare(b.name))
+  .map(([code, d]) => ({ value: code, label: d.name }));
+
+export const DISTRICTS_BY_DEPARTMENT = Object.fromEntries(
+  Object.keys(PE_DEPARTMENTS).map(deptCode => [
+    deptCode,
+    Object.entries(PE_DISTRICTS)
+      .filter(([, district]) => district.code.startsWith(deptCode))
+      .sort(([, a], [, b]) => a.name.localeCompare(b.name))
+      .map(([code, d]) => ({ value: code, label: d.name })) 
+  ])
+);

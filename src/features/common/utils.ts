@@ -35,7 +35,7 @@ export function formatDate2(rawDate: number | string | Date) {
   return `${day} ${month} ${year}`;
 }
 
-
+//Eliminar esto al reemplazar todos los usos de PE_DEPARTMENTS y PE_DISTRICTS
 export function getDistrictsForDepartment(departmentCode: string) {
   return Object.entries(PE_DISTRICTS).filter(([, district]) => {
     return district.code.startsWith(departmentCode);
