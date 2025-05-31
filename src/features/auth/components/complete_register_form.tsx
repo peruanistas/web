@@ -2,8 +2,7 @@ import { useForm } from "react-hook-form";
 import { TermsModal } from "@common/components/terms_modal";
 import { Button } from "@common/components/button";
 import { useState } from "react";
-import { PE_DEPARTMENTS } from "@common/data/geo";
-import { getDistrictsForDepartment } from "@common/utils";
+import { DEPARTMENT_OPTIONS, DISTRICTS_BY_DEPARTMENT } from "@common/data/geo";
 import { db } from "@db/client";
 import { useAuthStore } from "@auth/store/auth_store";
 import { useLocation } from "wouter";
@@ -49,9 +48,10 @@ export const CompleteProfileForm = () => {
   const { user } = useAuthStore();
   const [, navigate] = useLocation();
 
-  const distritos = departamentoSeleccionado
-    ? getDistrictsForDepartment(departamentoSeleccionado)
-    : [];
+
+const distritos = departamentoSeleccionado
+  ? DISTRICTS_BY_DEPARTMENT[departamentoSeleccionado] || []
+  : [];
 
   const onSubmit = async (data: Inputs) => {
     if (!user) {
@@ -279,9 +279,9 @@ export const CompleteProfileForm = () => {
               {...register("departamento", { required: 'Campo requerido' })}
             >
               <option value="">Selecciona departamento</option>
-              {Object.entries(PE_DEPARTMENTS).map(([code, { name }]) => (
-                <option key={code} value={code} className="truncate">
-                  {name}
+              {DEPARTMENT_OPTIONS.map(option => (
+                <option key={option.value} value={option.value} className="truncate">
+                  {option.label}
                 </option>
               ))}
             </select>
@@ -302,9 +302,9 @@ export const CompleteProfileForm = () => {
               <option value="">
                 {!departamentoSeleccionado ? 'Selecciona departamento' : 'Selecciona distrito'}
               </option>
-              {distritos.map(([code, { name }]) => (
-                <option key={code} value={code} className="truncate">
-                  {name}
+              {distritos.map(option => (
+                <option key={option.value} value={option.value} className="truncate">
+                  {option.label}
                 </option>
               ))}
             </select>
