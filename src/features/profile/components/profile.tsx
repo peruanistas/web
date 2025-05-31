@@ -388,9 +388,30 @@ export default function ProfileComponent() {
     }
   };
 
-  if (!user) return <p className="text-center py-10">Cargando perfil...</p>;
+  // Early return if user doesn't exist
+  if (!user) {
+    return <p className="text-center py-10">Cargando perfil...</p>;
+  }
+
+  // Early return if profile doesn't exist - redirect to complete profile
+  if (!user.profile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Card className="p-8 text-center max-w-md">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Completa tu perfil</h2>
+          <p className="text-gray-600 mb-6">
+            Necesitas completar tu información de perfil para acceder a esta página.
+          </p>
+          <Button variant="red" onClick={() => navigate('/completar-registro')}>
+            Completar perfil
+          </Button>
+        </Card>
+      </div>
+    );
+  }
 
   const { profile } = user;
+
   return (
     <div className="min-h-screen">
       <div className="max-w-7xl mx-auto px-4">
@@ -402,23 +423,25 @@ export default function ProfileComponent() {
               <Card>
                 <div className="p-6">
                   <div className="space-y-4 text-center">
-                    <Avatar className="w-56 h-56 mx-auto" >
-                      {profile.nombres?.charAt(0)}
+                    <Avatar className="w-56 h-56 mx-auto">
+                      {profile.nombres?.charAt(0) || 'U'}
                     </Avatar>
-                      <h2 className="text-2xl font-semibold text-gray-900 leading-tight">
-                        {profile.nombres} {profile.apellido_paterno} {profile.apellido_materno}
-                      </h2>
-                      <p className="text-gray-700 text-sm">
-                        No bio yet
-                      </p>
-                      <Button variant="red" className="w-full">Editar perfil</Button>
+                    <h2 className="text-2xl font-semibold text-gray-900 leading-tight">
+                      {profile.nombres} {profile.apellido_paterno} {profile.apellido_materno}
+                    </h2>
+                    <p className="text-gray-700 text-sm">
+                      No bio yet
+                    </p>
+                    <Button variant="red" className="w-full">Editar perfil</Button>
                   </div>
 
                   {/* contacto */}
                   <div className="space-y-2 py-5">
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                       <MapPin className="w-4 h-4" />
-                      <span>{PE_DISTRICTS[profile.geo_district].name}, {PE_DEPARTMENTS[profile.geo_department].name}</span>
+                      <span>
+                        {PE_DISTRICTS[profile.geo_district]?.name || 'Distrito desconocido'}, {PE_DEPARTMENTS[profile.geo_department]?.name || 'Departamento desconocido'}
+                      </span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                       <Mail className="w-4 h-4" />

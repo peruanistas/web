@@ -47,7 +47,7 @@ export function VoteConfirmationModal({ open, onClose, project }: VoteConfirmati
     );
   }
 
-  if (!user) {
+  if (!user?.profile) {
     return (
       <Modal open={open} onClose={onClose}>
         <div className='my-1'>
