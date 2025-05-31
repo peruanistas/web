@@ -5,8 +5,8 @@ import { useForm } from 'react-hook-form';
 import { Layout } from '@common/components/layout';
 import { Header } from '@common/components/header';
 import { PageBanner } from '@common/components/page_banner';
-import { getDistrictsForDepartment, pushBlobToStorage } from '@common/utils';
-import { PE_DEPARTMENTS } from '@common/data/geo';
+import { pushBlobToStorage } from '@common/utils';
+import { DEPARTMENT_OPTIONS, DISTRICTS_BY_DEPARTMENT } from '@common/data/geo';
 import { Admonition } from '@common/components/admonition';
 import { SuccessModal } from '@common/components/modal_create';
 import { Info } from 'lucide-react';
@@ -315,14 +315,15 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                   {...register('department', {
                     required: 'El departamento es obligatorio'
                   })}
-                  className={`w-full px-3 py-2 border rounded-md ${errors.department ? 'border-red-500' : 'border-gray-300'
-                    }`}
+                  className={`w-full px-3 py-2 border rounded-md ${
+                    errors.department ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 >
                   <option value="">Seleccione un departamento</option>
-                  {Object.entries(PE_DEPARTMENTS).map(([code, dept]) => (
-                    <option key={code} value={code}>
-                      {dept.name}
-                  </option>
+                  {DEPARTMENT_OPTIONS.map(option => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
                   ))}
                 </select>
                 {errors.department && (
@@ -341,18 +342,19 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                   {...register('district', {
                     required: 'Debe seleccionar un distrito'
                   })}
-                  className={`w-full px-3 py-2 border rounded-md ${errors.district ? 'border-red-500' : 'border-gray-300'
-                    } ${!watch('department') ? 'bg-gray-100' : ''}`}
+                  className={`w-full px-3 py-2 border rounded-md ${
+                    errors.district ? 'border-red-500' : 'border-gray-300'
+                  } ${!watch('department') ? 'bg-gray-100' : ''}`}
                 >
                   <option value="">
                     {watch('department')
                       ? 'Seleccione un distrito'
-                      : ''}
+                      : 'Primero seleccione un departamento'}
                   </option>
                   {watch('department') &&
-                    getDistrictsForDepartment(watch('department')).map(([code, district]) => (
-                      <option key={code} value={code}>
-                        {district.name}
+                    DISTRICTS_BY_DEPARTMENT[watch('department')]?.map(option => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
                       </option>
                     ))
                   }
