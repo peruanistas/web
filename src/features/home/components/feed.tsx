@@ -15,6 +15,8 @@ import { GroupCard } from '@groups/components/group_card';
 import { BsFillPeopleFill } from 'react-icons/bs';
 import { MdHomeWork } from 'react-icons/md';
 import { useScrollReset } from '@common/hooks/useScrollReset';
+import { ProjectFilters } from '@projects/components/projects_filters';
+import { useState } from 'react';
 
 const NEWS_RESULTS_PER_PAGE = 8;
 const PROJECTS_RESULTS_PER_PAGE = 3;
@@ -23,20 +25,28 @@ const GROUPS_RESULTS_PER_PAGE = 6;
 export function HomeFeed() {
   useScrollReset();
   const [, setLocation] = useLocation();
+  const [department, setDepartment] = useState('');
+  const [district, setDistrict] = useState('');
 
-  const { data: contentPages, fetchNextPage, isLoading, isFetchingNextPage } = useInfiniteQuery({
-    queryKey: ['damero_paginated_list'],
-    queryFn: ({ pageParam }) => {
-      const pages = Promise.all([
-        fetchMoreNews({ page: pageParam }),
-        fetchMoreProjects({ page: pageParam }),
-        fetchMoreGroups({ page: pageParam }),
-      ] as const);
-      return pages;
-    },
-    initialPageParam: 0,
-    getNextPageParam: (_, pages) => pages.length,
-  });
+const {
+  data: contentPages,
+  fetchNextPage,
+  isLoading,
+  isFetchingNextPage,
+  refetch,
+} = useInfiniteQuery({
+  queryKey: ['damero_paginated_list', department, district],
+  queryFn: ({ pageParam }) => {
+    const pages = Promise.all([
+      fetchMoreNews({ page: pageParam, department, district }),
+      fetchMoreProjects({ page: pageParam, department, district }),
+      fetchMoreGroups({ page: pageParam, department, district }),
+    ] as const);
+    return pages;
+  },
+  initialPageParam: 0,
+  getNextPageParam: (_, pages) => pages.length,
+});
 
   // Intersection Observer for infinite scrolling
   const observerTarget = useRef<HTMLDivElement>(null);
@@ -74,12 +84,25 @@ export function HomeFeed() {
   return (
     <section>
       <ContentLayout variant='wide'>
-        <div className='flex justify-end'>
-          <CreateButton onClick={() => setLocation('/feed/crear')}>
-            Crear publicación
-          </CreateButton>
-        </div>
-      </ContentLayout>
+      <div className='flex justify-between items-center mb-4 gap-4 flex-wrap'>
+      <div className='flex-grow'>
+        <ProjectFilters
+          department={department}
+          district={district}
+          onDepartmentChange={code => {
+          setDepartment(code);
+          setDistrict('');
+          }}
+          onDistrictChange={setDistrict}/>
+      </div>
+      <div className='shrink-0'>
+      <CreateButton onClick={() => setLocation('/feed/crear')}>
+      Crear publicación
+      </CreateButton>
+      </div>
+      </div>
+      
+        </ContentLayout>
       {
         contentPages?.pages.map(([publications, projects, groups], i) => (
           <React.Fragment key={i}>
@@ -172,12 +195,14 @@ export function HomeFeed() {
 
 type FetchPaginationParams = {
   page: number,
+  department?: string;
+  district?: string;
 }
 
 async function fetchMoreNews({ page }: FetchPaginationParams): Promise<PublicationPreview[]> {
   const offset = page * NEWS_RESULTS_PER_PAGE;
 
-  const { data: nextPageData, error } = await db
+  const { data, error } = await db
     .from('publications')
     .select('*, source_id (id, name, image_icon_url)')
     .order('created_at', { ascending: false })
@@ -187,37 +212,56 @@ async function fetchMoreNews({ page }: FetchPaginationParams): Promise<Publicati
     throw new Error(error.message);
   }
 
-  return nextPageData;
+  return data;
 }
 
-async function fetchMoreProjects({ page }: FetchPaginationParams): Promise<ProjectPreview[]> {
+async function fetchMoreProjects({ page, department, district }: FetchPaginationParams): Promise<ProjectPreview[]> {
   const offset = page * PROJECTS_RESULTS_PER_PAGE;
 
-  const { data: nextPageData, error } = await db
+  let query = db
     .from('projects')
     .select('id, title, image_url, created_at, geo_department, geo_district, impression_count, ioarr_type')
     .order('created_at', { ascending: false })
     .range(offset, offset + PROJECTS_RESULTS_PER_PAGE - 1);
 
+  if (department) {
+    query = query.eq('geo_department', department);
+  }
+
+  if (district) {
+    query = query.eq('geo_district', district);
+  }
+
+  const { data, error } = await query;
+
   if (error) {
     throw new Error(error.message);
   }
 
-  return nextPageData;
+  return data;
 }
 
-async function fetchMoreGroups({ page }: FetchPaginationParams): Promise<GroupPreview[]> {
+async function fetchMoreGroups({ page, department, district }: FetchPaginationParams): Promise<GroupPreview[]> {
   const offset = page * GROUPS_RESULTS_PER_PAGE;
 
-  const { data: nextPageData, error } = await db
+  let query = db
     .from('groups')
     .select('id, name, description, image_url, created_at, geo_department, geo_district, owner_id(*)')
     .order('id', { ascending: true })
     .range(offset, offset + GROUPS_RESULTS_PER_PAGE - 1);
 
+  if (department) {
+    query = query.eq('geo_department', department);
+  }
+  if (district) {
+    query = query.eq('geo_district', district);
+  }
+
+  const { data, error } = await query;
+
   if (error) {
     throw new Error(error.message);
   }
 
-  return nextPageData;
+  return data;
 }

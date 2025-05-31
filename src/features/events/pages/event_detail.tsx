@@ -6,9 +6,8 @@ import { AuthorInfo } from '@events/components/author_info';
 import { Calendar, MapPin } from 'lucide-react';
 import InfoItem from '@events/components/infoitem';
 import { useQuery } from '@tanstack/react-query';
-import { db } from '@db/client'; // Me daba error importar de la forma tradicional con @ xdddddddddd
-import type { Tables } from '@db/schema'; // Paolito si lo puedes cambiar (o alguien)
-// Ya debería funcionar bien 👍
+import { db } from '@db/client'; 
+import type { Tables } from '@db/schema'; 
 import { useScrollReset } from '@common/hooks/useScrollReset';
 import { formatDate, formatDate2 } from '@common/utils';
 import { PE_DEPARTMENTS, PE_DISTRICTS } from '@common/data/geo';
