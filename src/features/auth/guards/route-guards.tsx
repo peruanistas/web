@@ -22,6 +22,11 @@ export const RouteGuard = ({ children }: { children: React.ReactNode }) => {
       return;
     }
 
+    if (!user && location === '/perfil') {
+      setLocation('/login');
+      return;
+    }
+
     if (user && !isConfirmed && location !== '/confirmar-correo') {
       setLocation('/confirmar-correo');
       return;

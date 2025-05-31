@@ -20,7 +20,8 @@ export default defineConfig({
       '@auth': fileURLToPath(new URL('./src/features/auth', import.meta.url)),
       '@about': fileURLToPath(new URL('./src/features/about', import.meta.url)),
       '@db': fileURLToPath(new URL('./src/services/db', import.meta.url)),
-      '@hooks': fileURLToPath(new URL('./src/features/hooks', import.meta.url))
+      '@hooks': fileURLToPath(new URL('./src/features/hooks', import.meta.url)),
+      '@profile': fileURLToPath(new URL('./src/features/profile', import.meta.url)),
     },
   },
 });

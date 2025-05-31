@@ -27,6 +27,7 @@
     "react-phone-number-input": "^3.4.12",
     "react-select": "^5.10.1",
     "react-share": "^5.2.2",
+    "sonner": "^2.0.3",
     "tailwindcss": "^4.1.6",
     "wouter": "^3.7.0",
     "zustand": "^5.0.4"

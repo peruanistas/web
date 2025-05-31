@@ -85,7 +85,7 @@ const distritos = departamentoSeleccionado
 
         const verificationResult = await verifyResponse.json();
         dniVerified = verifyResponse.ok && verificationResult.verified;
-        
+
         if (!dniVerified) {
           setDniError('Los datos no coinciden con los registros de RENIEC');
           return;

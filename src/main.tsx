@@ -27,6 +27,7 @@ import { RouteGuard } from '@auth/guards/route-guards';
 import { ConfirmEmailPage } from '@auth/pages/confirm_email';
 import { GroupsPage } from '@groups/pages/groups';
 import { GroupDetail } from '@groups/pages/group_detail';
+import { ProfilePage } from '@profile/pages/profile';
 
 export function PeruanistasRouter() {
   useQueryFavicon();
@@ -41,6 +42,8 @@ export function PeruanistasRouter() {
       <Route path='/login' component={LoginPage} />
       <Route path='/confirmar-correo' component={ConfirmEmailPage} />
       <Route path='/completar-registro' component={CompleteRegisterPage} />
+
+      <Route path='/perfil' component={ProfilePage} />
 
       <Route path='/eventos' component={EventsPage} />
       <Route path='/eventos/crear' component={EventsCreatePage} />

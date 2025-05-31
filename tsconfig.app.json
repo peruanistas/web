@@ -37,6 +37,7 @@
       "@about/*": ["./src/features/about/*"],
       "@db/*": ["./src/services/db/*"],
       "@hooks/*": ["./src/features/hooks/*"],
+      "@profile/*": ["./src/features/profile/*"],
     }
   },
   "include": ["src"]
