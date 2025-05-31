@@ -204,34 +204,36 @@ export default function ProfileComponent() {
             className="hover:shadow-md transition-shadow cursor-pointer"
             onClick={() => navigate(`/proyectos/${project.id}`)}
           >
-            <div className="p-6">
-              <div className="flex items-start gap-4">
+            <div className="p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row items-start gap-4">
                 <img
                   src={project.image_url || "/placeholder.svg?height=80&width=80"}
                   alt="Proyecto"
-                  className="w-20 h-20 rounded-lg object-cover"
+                  className="w-full sm:w-20 h-48 sm:h-20 rounded-lg object-cover flex-shrink-0"
                 />
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h4 className="font-semibold text-lg">{project.title}</h4>
-                    <Badge variant={project.visibility === 'published' ? 'default' : 'secondary'}>
-                      {project.visibility === 'published' ? 'Publicado' : 'Borrador'}
-                    </Badge>
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-col gap-2 mb-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <h4 className="font-semibold text-lg leading-tight flex-1 min-w-0 break-words">{project.title}</h4>
+                      <Badge variant={project.visibility === 'published' ? 'default' : 'secondary'} className="flex-shrink-0">
+                        {project.visibility === 'published' ? 'Publicado' : 'Borrador'}
+                      </Badge>
+                    </div>
                   </div>
-                  <p className="text-gray-600 text-sm mb-3">
+                  <p className="text-gray-600 text-sm mb-3 line-clamp-3">
                     {project.content.substring(0, 150)}...
                   </p>
-                  <div className="flex items-center gap-4 text-sm text-gray-500">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-gray-500">
                     <div className="flex items-center gap-1">
-                      <Eye className="w-4 h-4" />
+                      <Eye className="w-4 h-4 flex-shrink-0" />
                       <span>{project.impression_count}</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <MapPin className="w-4 h-4" />
-                      <span>{PE_DISTRICTS[project.geo_district]?.name}, {PE_DEPARTMENTS[project.geo_department]?.name}</span>
+                    <div className="flex items-center gap-1 min-w-0">
+                      <MapPin className="w-4 h-4 flex-shrink-0" />
+                      <span className="truncate">{PE_DISTRICTS[project.geo_district]?.name}, {PE_DEPARTMENTS[project.geo_department]?.name}</span>
                     </div>
-                    <Badge variant="outline">{project.ioarr_type}</Badge>
-                    <span>Creado {new Date(project.created_at).toLocaleDateString('es-PE')}</span>
+                    <Badge variant="outline" className="self-start">{project.ioarr_type}</Badge>
+                    <span className="whitespace-nowrap">Creado {new Date(project.created_at).toLocaleDateString('es-PE')}</span>
                   </div>
                 </div>
               </div>
@@ -261,39 +263,41 @@ export default function ProfileComponent() {
             className="hover:shadow-md transition-shadow cursor-pointer"
             onClick={() => navigate(`/feed/${publication.id}`)}
           >
-            <div className="p-6">
-              <div className="flex items-start gap-4">
+            <div className="p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row items-start gap-4">
                 {publication.image_url && (
                   <img
                     src={publication.image_url}
                     alt="Publicación"
-                    className="w-20 h-20 rounded-lg object-cover"
+                    className="w-full sm:w-20 h-48 sm:h-20 rounded-lg object-cover flex-shrink-0"
                   />
                 )}
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h4 className="font-semibold text-lg">{publication.title}</h4>
-                    <Badge variant={publication.visibility === 'published' ? 'default' : 'secondary'}>
-                      {publication.visibility === 'public' ? 'Publicado' : 'Borrador'}
-                    </Badge>
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-col gap-2 mb-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <h4 className="font-semibold text-lg leading-tight flex-1 min-w-0 break-words">{publication.title}</h4>
+                      <Badge variant={publication.visibility === 'published' ? 'default' : 'secondary'} className="flex-shrink-0">
+                        {publication.visibility === 'public' ? 'Publicado' : 'Borrador'}
+                      </Badge>
+                    </div>
                   </div>
-                  <p className="text-gray-600 text-sm mb-3">
+                  <p className="text-gray-600 text-sm mb-3 line-clamp-3">
                     {publication.content.substring(0, 150)}...
                   </p>
-                  <div className="flex items-center gap-4 text-sm text-gray-500">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-gray-500">
                     <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 text-green-500" />
+                      <Star className="w-4 h-4 text-green-500 flex-shrink-0" />
                       <span>{publication.upvotes}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 text-red-500 rotate-180" />
+                      <Star className="w-4 h-4 text-red-500 rotate-180 flex-shrink-0" />
                       <span>{publication.downvotes}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Eye className="w-4 h-4" />
+                      <Eye className="w-4 h-4 flex-shrink-0" />
                       <span>{publication.impression_count}</span>
                     </div>
-                    <span>Publicado {new Date(publication.published_at).toLocaleDateString('es-PE')}</span>
+                    <span className="whitespace-nowrap">Publicado {new Date(publication.published_at).toLocaleDateString('es-PE')}</span>
                   </div>
                 </div>
               </div>
@@ -323,38 +327,40 @@ export default function ProfileComponent() {
             className="hover:shadow-md transition-shadow cursor-pointer"
             onClick={() => navigate(`/eventos/${event.id}`)}
           >
-            <div className="p-6">
-              <div className="flex items-start gap-4">
+            <div className="p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row items-start gap-4">
                 <img
                   src={event.image_url || "/placeholder.svg?height=80&width=80"}
                   alt="Evento"
-                  className="w-20 h-20 rounded-lg object-cover"
+                  className="w-full sm:w-20 h-48 sm:h-20 rounded-lg object-cover flex-shrink-0"
                 />
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h4 className="font-semibold text-lg">{event.title}</h4>
-                    <Badge variant={event.visibility === 'published' ? 'default' : 'secondary'}>
-                      {event.visibility === 'published' ? 'Publicado' : 'Borrador'}
-                    </Badge>
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-col gap-2 mb-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <h4 className="font-semibold text-lg leading-tight flex-1 min-w-0 break-words">{event.title}</h4>
+                      <Badge variant={event.visibility === 'published' ? 'default' : 'secondary'} className="flex-shrink-0">
+                        {event.visibility === 'published' ? 'Publicado' : 'Borrador'}
+                      </Badge>
+                    </div>
                   </div>
-                  <p className="text-gray-600 text-sm mb-3">
+                  <p className="text-gray-600 text-sm mb-3 line-clamp-3">
                     {event.content.substring(0, 150)}...
                   </p>
-                  <div className="flex items-center gap-4 text-sm text-gray-500">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-gray-500">
                     <div className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />
-                      <span>{new Date(event.event_date).toLocaleDateString('es-PE')}</span>
+                      <Calendar className="w-4 h-4 flex-shrink-0" />
+                      <span className="whitespace-nowrap">{new Date(event.event_date).toLocaleDateString('es-PE')}</span>
+                    </div>
+                    <div className="flex items-center gap-1 min-w-0">
+                      <MapPin className="w-4 h-4 flex-shrink-0" />
+                      <span className="truncate">{PE_DISTRICTS[event.geo_district]?.name}, {PE_DEPARTMENTS[event.geo_department]?.name}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <MapPin className="w-4 h-4" />
-                      <span>{PE_DISTRICTS[event.geo_district]?.name}, {PE_DEPARTMENTS[event.geo_department]?.name}</span>
+                      <Users className="w-4 h-4 flex-shrink-0" />
+                      <span className="whitespace-nowrap">{event.attendees} asistentes</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Users className="w-4 h-4" />
-                      <span>{event.attendees} asistentes</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Eye className="w-4 h-4" />
+                      <Eye className="w-4 h-4 flex-shrink-0" />
                       <span>{event.impression_count}</span>
                     </div>
                   </div>
@@ -392,8 +398,6 @@ export default function ProfileComponent() {
   if (!user) {
     return <p className="text-center py-10">Cargando perfil...</p>;
   }
-
-  // Early return if profile doesn't exist - redirect to complete profile
   if (!user.profile) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -423,10 +427,10 @@ export default function ProfileComponent() {
               <Card>
                 <div className="p-6">
                   <div className="space-y-4 text-center">
-                    <Avatar className="w-56 h-56 mx-auto">
+                    <Avatar className="w-32 sm:w-56 h-32 sm:h-56 mx-auto">
                       {profile.nombres?.charAt(0) || 'U'}
                     </Avatar>
-                    <h2 className="text-2xl font-semibold text-gray-900 leading-tight">
+                    <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 leading-tight">
                       {profile.nombres} {profile.apellido_paterno} {profile.apellido_materno}
                     </h2>
                     {/*
@@ -439,17 +443,17 @@ export default function ProfileComponent() {
                   {/* contacto */}
                   <div className="space-y-2 py-5">
                     <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <MapPin className="w-4 h-4" />
-                      <span>
+                      <MapPin className="w-4 h-4 flex-shrink-0" />
+                      <span className="truncate">
                         {PE_DISTRICTS[profile.geo_district]?.name || 'Distrito desconocido'}, {PE_DEPARTMENTS[profile.geo_department]?.name || 'Departamento desconocido'}
                       </span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Mail className="w-4 h-4" />
-                      <span>{user.email}</span>
+                      <Mail className="w-4 h-4 flex-shrink-0" />
+                      <span className="truncate">{user.email}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Calendar className="w-4 h-4" />
+                      <Calendar className="w-4 h-4 flex-shrink-0" />
                       <span>Se unió en {new Date(user.created_at).toLocaleDateString('es-PE', { month: 'long', year: 'numeric' })}</span>
                     </div>
                   </div>
@@ -477,9 +481,9 @@ export default function ProfileComponent() {
           <div className="lg:col-span-3">
             <div className="space-y-6">
               {/* Navegación del feed - SIN "Actividad reciente" */}
-              <div className="flex gap-4 border-b border-gray-200">
+              <div className="flex gap-4 border-b border-gray-200 overflow-x-auto">
                 <button
-                  className={`pb-3 px-1 transition-colors ${
+                  className={`pb-3 px-1 transition-colors whitespace-nowrap ${
                     activeTab === 'projects'
                       ? 'border-b-2 border-primary text-primary font-medium'
                       : 'text-gray-600 hover:text-gray-900'
@@ -489,7 +493,7 @@ export default function ProfileComponent() {
                   Proyectos
                 </button>
                 <button
-                  className={`pb-3 px-1 transition-colors ${
+                  className={`pb-3 px-1 transition-colors whitespace-nowrap ${
                     activeTab === 'events'
                       ? 'border-b-2 border-primary text-primary font-medium'
                       : 'text-gray-600 hover:text-gray-900'
@@ -499,7 +503,7 @@ export default function ProfileComponent() {
                   Eventos
                 </button>
                 <button
-                  className={`pb-3 px-1 transition-colors ${
+                  className={`pb-3 px-1 transition-colors whitespace-nowrap ${
                     activeTab === 'publications'
                       ? 'border-b-2 border-primary text-primary font-medium'
                       : 'text-gray-600 hover:text-gray-900'
