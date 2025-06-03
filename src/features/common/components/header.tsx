@@ -159,9 +159,19 @@ export function Header({ showNavigation, ...rest }: HeaderProps) {
               <div className='relative' ref={profileMenuRef}>
                 <button
                   onClick={() => setOpenProfileMenu(!openProfileMenu)}
-                  className='p-1.5 rounded-full border hover:bg-gray-100'
+                  className='rounded-full hover:bg-gray-100 flex items-center justify-center cursor-pointer'
                 >
-                  <User size={22} className='text-gray-700' />
+                  {user?.profile?.avatar_url ? (
+                    <img
+                      src={user.profile.avatar_url}
+                      alt="User avatar"
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer">
+                      <User size={18} className='text-gray-600' />
+                    </div>
+                  )}
                 </button>
                 {openProfileMenu && (
                   <div className='absolute right-0 mt-2 w-40 bg-white border border-gray-300 rounded z-50'>
@@ -170,7 +180,7 @@ export function Header({ showNavigation, ...rest }: HeaderProps) {
                     </Link>
                     <button
                       onClick={handleLogout}
-                      className='w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600'
+                      className='w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600 cursor-pointer'
                     >
                       Cerrar sesión
                     </button>

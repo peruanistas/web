@@ -39,46 +39,85 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'comments_author_id_fkey'
-            columns: ['author_id']
+            foreignKeyName: "comments_author_id_fkey"
+            columns: ["author_id"]
             isOneToOne: false
-            referencedRelation: 'profiles'
-            referencedColumns: ['id']
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'comments_event_id_fkey'
-            columns: ['event_id']
+            foreignKeyName: "comments_event_id_fkey"
+            columns: ["event_id"]
             isOneToOne: false
-            referencedRelation: 'events'
-            referencedColumns: ['id']
+            referencedRelation: "events"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'comments_project_id_fkey'
-            columns: ['project_id']
+            foreignKeyName: "comments_project_id_fkey"
+            columns: ["project_id"]
             isOneToOne: false
-            referencedRelation: 'projects'
-            referencedColumns: ['id']
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'comments_project_id_fkey'
-            columns: ['project_id']
+            foreignKeyName: "comments_project_id_fkey"
+            columns: ["project_id"]
             isOneToOne: false
-            referencedRelation: 'random_projects'
-            referencedColumns: ['id']
+            referencedRelation: "random_projects"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'comments_publication_id_fkey'
-            columns: ['publication_id']
+            foreignKeyName: "comments_publication_id_fkey"
+            columns: ["publication_id"]
             isOneToOne: false
-            referencedRelation: 'publications'
-            referencedColumns: ['id']
+            referencedRelation: "publications"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'comments_publication_id_fkey'
-            columns: ['publication_id']
+            foreignKeyName: "comments_publication_id_fkey"
+            columns: ["publication_id"]
             isOneToOne: false
-            referencedRelation: 'random_publications'
-            referencedColumns: ['id']
+            referencedRelation: "random_publications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_attendees: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_attendees_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_attendees_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -98,7 +137,7 @@ export type Database = {
           published_at: string
           title: string
           updated_at: string
-          visibility: Database['public']['Enums']['visibility']
+          visibility: Database["public"]["Enums"]["visibility"]
         }
         Insert: {
           active?: boolean
@@ -115,7 +154,7 @@ export type Database = {
           published_at: string
           title: string
           updated_at?: string
-          visibility?: Database['public']['Enums']['visibility']
+          visibility?: Database["public"]["Enums"]["visibility"]
         }
         Update: {
           active?: boolean
@@ -132,29 +171,29 @@ export type Database = {
           published_at?: string
           title?: string
           updated_at?: string
-          visibility?: Database['public']['Enums']['visibility']
+          visibility?: Database["public"]["Enums"]["visibility"]
         }
         Relationships: [
           {
-            foreignKeyName: 'events_author_id_fkey'
-            columns: ['author_id']
+            foreignKeyName: "events_author_id_fkey"
+            columns: ["author_id"]
             isOneToOne: false
-            referencedRelation: 'profiles'
-            referencedColumns: ['id']
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'events_geo_department_fkey'
-            columns: ['geo_department']
+            foreignKeyName: "events_geo_department_fkey"
+            columns: ["geo_department"]
             isOneToOne: false
-            referencedRelation: 'geo_pe_departments'
-            referencedColumns: ['code']
+            referencedRelation: "geo_pe_departments"
+            referencedColumns: ["code"]
           },
           {
-            foreignKeyName: 'events_geo_district_fkey'
-            columns: ['geo_district']
+            foreignKeyName: "events_geo_district_fkey"
+            columns: ["geo_district"]
             isOneToOne: false
-            referencedRelation: 'geo_pe_districts'
-            referencedColumns: ['code']
+            referencedRelation: "geo_pe_districts"
+            referencedColumns: ["code"]
           },
         ]
       }
@@ -227,25 +266,25 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'groups_geo_department_fkey'
-            columns: ['geo_department']
+            foreignKeyName: "groups_geo_department_fkey"
+            columns: ["geo_department"]
             isOneToOne: false
-            referencedRelation: 'geo_pe_departments'
-            referencedColumns: ['code']
+            referencedRelation: "geo_pe_departments"
+            referencedColumns: ["code"]
           },
           {
-            foreignKeyName: 'groups_geo_district_fkey'
-            columns: ['geo_district']
+            foreignKeyName: "groups_geo_district_fkey"
+            columns: ["geo_district"]
             isOneToOne: false
-            referencedRelation: 'geo_pe_districts'
-            referencedColumns: ['code']
+            referencedRelation: "geo_pe_districts"
+            referencedColumns: ["code"]
           },
           {
-            foreignKeyName: 'groups_owner_id_fkey'
-            columns: ['owner_id']
+            foreignKeyName: "groups_owner_id_fkey"
+            columns: ["owner_id"]
             isOneToOne: false
-            referencedRelation: 'profiles'
-            referencedColumns: ['id']
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -253,6 +292,8 @@ export type Database = {
         Row: {
           apellido_materno: string
           apellido_paterno: string
+          avatar_url: string
+          bio: string
           celular: string
           country_code: string
           created_at: string
@@ -268,6 +309,8 @@ export type Database = {
         Insert: {
           apellido_materno?: string | null
           apellido_paterno?: string | null
+          avatar_url?: string | null
+          bio?: string | null
           celular?: string | null
           country_code?: string | null
           created_at?: string
@@ -283,6 +326,8 @@ export type Database = {
         Update: {
           apellido_materno?: string | null
           apellido_paterno?: string | null
+          avatar_url?: string | null
+          bio?: string | null
           celular?: string | null
           country_code?: string | null
           created_at?: string
@@ -297,18 +342,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'profiles_geo_department_fkey'
-            columns: ['geo_department']
+            foreignKeyName: "profiles_geo_department_fkey"
+            columns: ["geo_department"]
             isOneToOne: false
-            referencedRelation: 'geo_pe_departments'
-            referencedColumns: ['code']
+            referencedRelation: "geo_pe_departments"
+            referencedColumns: ["code"]
           },
           {
-            foreignKeyName: 'profiles_geo_district_fkey'
-            columns: ['geo_district']
+            foreignKeyName: "profiles_geo_district_fkey"
+            columns: ["geo_district"]
             isOneToOne: false
-            referencedRelation: 'geo_pe_districts'
-            referencedColumns: ['code']
+            referencedRelation: "geo_pe_districts"
+            referencedColumns: ["code"]
           },
         ]
       }
@@ -318,43 +363,43 @@ export type Database = {
           id: string
           project_id: string
           user_id: string
-          vote_type: Database['public']['Enums']['project_vote_type'] | null
+          vote_type: Database["public"]["Enums"]["project_vote_type"] | null
         }
         Insert: {
           created_at?: string
           id?: string
           project_id: string
           user_id: string
-          vote_type?: Database['public']['Enums']['project_vote_type'] | null
+          vote_type?: Database["public"]["Enums"]["project_vote_type"] | null
         }
         Update: {
           created_at?: string
           id?: string
           project_id?: string
           user_id?: string
-          vote_type?: Database['public']['Enums']['project_vote_type'] | null
+          vote_type?: Database["public"]["Enums"]["project_vote_type"] | null
         }
         Relationships: [
           {
-            foreignKeyName: 'project_votes_project_id_fkey'
-            columns: ['project_id']
+            foreignKeyName: "project_votes_project_id_fkey"
+            columns: ["project_id"]
             isOneToOne: false
-            referencedRelation: 'projects'
-            referencedColumns: ['id']
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'project_votes_project_id_fkey'
-            columns: ['project_id']
+            foreignKeyName: "project_votes_project_id_fkey"
+            columns: ["project_id"]
             isOneToOne: false
-            referencedRelation: 'random_projects'
-            referencedColumns: ['id']
+            referencedRelation: "random_projects"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'project_votes_user_id_fkey'
-            columns: ['user_id']
+            foreignKeyName: "project_votes_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: 'profiles'
-            referencedColumns: ['id']
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -369,11 +414,11 @@ export type Database = {
           id: string
           image_url: string | null
           impression_count: number
-          ioarr_type: Database['public']['Enums']['ioarr_type']
+          ioarr_type: Database["public"]["Enums"]["ioarr_type"]
           published_at: string
           title: string
           updated_at: string
-          visibility: Database['public']['Enums']['visibility']
+          visibility: Database["public"]["Enums"]["visibility"]
         }
         Insert: {
           active?: boolean
@@ -385,11 +430,11 @@ export type Database = {
           id?: string
           image_url?: string | null
           impression_count?: number
-          ioarr_type: Database['public']['Enums']['ioarr_type']
+          ioarr_type: Database["public"]["Enums"]["ioarr_type"]
           published_at: string
           title: string
           updated_at?: string
-          visibility?: Database['public']['Enums']['visibility']
+          visibility?: Database["public"]["Enums"]["visibility"]
         }
         Update: {
           active?: boolean
@@ -401,33 +446,33 @@ export type Database = {
           id?: string
           image_url?: string | null
           impression_count?: number
-          ioarr_type?: Database['public']['Enums']['ioarr_type']
+          ioarr_type?: Database["public"]["Enums"]["ioarr_type"]
           published_at?: string
           title?: string
           updated_at?: string
-          visibility?: Database['public']['Enums']['visibility']
+          visibility?: Database["public"]["Enums"]["visibility"]
         }
         Relationships: [
           {
-            foreignKeyName: 'projects_author_id_fkey'
-            columns: ['author_id']
+            foreignKeyName: "projects_author_id_fkey"
+            columns: ["author_id"]
             isOneToOne: false
-            referencedRelation: 'profiles'
-            referencedColumns: ['id']
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'projects_geo_department_fkey'
-            columns: ['geo_department']
+            foreignKeyName: "projects_geo_department_fkey"
+            columns: ["geo_department"]
             isOneToOne: false
-            referencedRelation: 'geo_pe_departments'
-            referencedColumns: ['code']
+            referencedRelation: "geo_pe_departments"
+            referencedColumns: ["code"]
           },
           {
-            foreignKeyName: 'projects_geo_district_fkey'
-            columns: ['geo_district']
+            foreignKeyName: "projects_geo_district_fkey"
+            columns: ["geo_district"]
             isOneToOne: false
-            referencedRelation: 'geo_pe_districts'
-            referencedColumns: ['code']
+            referencedRelation: "geo_pe_districts"
+            referencedColumns: ["code"]
           },
         ]
       }
@@ -478,7 +523,7 @@ export type Database = {
           title: string
           updated_at: string
           upvotes: number
-          visibility: Database['public']['Enums']['visibility']
+          visibility: Database["public"]["Enums"]["visibility"]
         }
         Insert: {
           active?: boolean
@@ -496,7 +541,7 @@ export type Database = {
           title: string
           updated_at?: string
           upvotes?: number
-          visibility?: Database['public']['Enums']['visibility']
+          visibility?: Database["public"]["Enums"]["visibility"]
         }
         Update: {
           active?: boolean
@@ -514,22 +559,22 @@ export type Database = {
           title?: string
           updated_at?: string
           upvotes?: number
-          visibility?: Database['public']['Enums']['visibility']
+          visibility?: Database["public"]["Enums"]["visibility"]
         }
         Relationships: [
           {
-            foreignKeyName: 'publications_author_id_fkey'
-            columns: ['author_id']
+            foreignKeyName: "publications_author_id_fkey"
+            columns: ["author_id"]
             isOneToOne: false
-            referencedRelation: 'profiles'
-            referencedColumns: ['id']
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'publications_source_id_fkey'
-            columns: ['source_id']
+            foreignKeyName: "publications_source_id_fkey"
+            columns: ["source_id"]
             isOneToOne: false
-            referencedRelation: 'publication_sources'
-            referencedColumns: ['id']
+            referencedRelation: "publication_sources"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -574,25 +619,25 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'groups_geo_department_fkey'
-            columns: ['geo_department']
+            foreignKeyName: "groups_geo_department_fkey"
+            columns: ["geo_department"]
             isOneToOne: false
-            referencedRelation: 'geo_pe_departments'
-            referencedColumns: ['code']
+            referencedRelation: "geo_pe_departments"
+            referencedColumns: ["code"]
           },
           {
-            foreignKeyName: 'groups_geo_district_fkey'
-            columns: ['geo_district']
+            foreignKeyName: "groups_geo_district_fkey"
+            columns: ["geo_district"]
             isOneToOne: false
-            referencedRelation: 'geo_pe_districts'
-            referencedColumns: ['code']
+            referencedRelation: "geo_pe_districts"
+            referencedColumns: ["code"]
           },
           {
-            foreignKeyName: 'groups_owner_id_fkey'
-            columns: ['owner_id']
+            foreignKeyName: "groups_owner_id_fkey"
+            columns: ["owner_id"]
             isOneToOne: false
-            referencedRelation: 'profiles'
-            referencedColumns: ['id']
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -607,11 +652,11 @@ export type Database = {
           id: string | null
           image_url: string | null
           impression_count: number | null
-          ioarr_type: Database['public']['Enums']['ioarr_type'] | null
+          ioarr_type: Database["public"]["Enums"]["ioarr_type"] | null
           published_at: string | null
           title: string | null
           updated_at: string | null
-          visibility: Database['public']['Enums']['visibility'] | null
+          visibility: Database["public"]["Enums"]["visibility"] | null
         }
         Insert: {
           active?: boolean | null
@@ -623,11 +668,11 @@ export type Database = {
           id?: string | null
           image_url?: string | null
           impression_count?: number | null
-          ioarr_type?: Database['public']['Enums']['ioarr_type'] | null
+          ioarr_type?: Database["public"]["Enums"]["ioarr_type"] | null
           published_at?: string | null
           title?: string | null
           updated_at?: string | null
-          visibility?: Database['public']['Enums']['visibility'] | null
+          visibility?: Database["public"]["Enums"]["visibility"] | null
         }
         Update: {
           active?: boolean | null
@@ -639,33 +684,33 @@ export type Database = {
           id?: string | null
           image_url?: string | null
           impression_count?: number | null
-          ioarr_type?: Database['public']['Enums']['ioarr_type'] | null
+          ioarr_type?: Database["public"]["Enums"]["ioarr_type"] | null
           published_at?: string | null
           title?: string | null
           updated_at?: string | null
-          visibility?: Database['public']['Enums']['visibility'] | null
+          visibility?: Database["public"]["Enums"]["visibility"] | null
         }
         Relationships: [
           {
-            foreignKeyName: 'projects_author_id_fkey'
-            columns: ['author_id']
+            foreignKeyName: "projects_author_id_fkey"
+            columns: ["author_id"]
             isOneToOne: false
-            referencedRelation: 'profiles'
-            referencedColumns: ['id']
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'projects_geo_department_fkey'
-            columns: ['geo_department']
+            foreignKeyName: "projects_geo_department_fkey"
+            columns: ["geo_department"]
             isOneToOne: false
-            referencedRelation: 'geo_pe_departments'
-            referencedColumns: ['code']
+            referencedRelation: "geo_pe_departments"
+            referencedColumns: ["code"]
           },
           {
-            foreignKeyName: 'projects_geo_district_fkey'
-            columns: ['geo_district']
+            foreignKeyName: "projects_geo_district_fkey"
+            columns: ["geo_district"]
             isOneToOne: false
-            referencedRelation: 'geo_pe_districts'
-            referencedColumns: ['code']
+            referencedRelation: "geo_pe_districts"
+            referencedColumns: ["code"]
           },
         ]
       }
@@ -686,7 +731,7 @@ export type Database = {
           title: string | null
           updated_at: string | null
           upvotes: number | null
-          visibility: Database['public']['Enums']['visibility'] | null
+          visibility: Database["public"]["Enums"]["visibility"] | null
         }
         Insert: {
           active?: boolean | null
@@ -704,7 +749,7 @@ export type Database = {
           title?: string | null
           updated_at?: string | null
           upvotes?: number | null
-          visibility?: Database['public']['Enums']['visibility'] | null
+          visibility?: Database["public"]["Enums"]["visibility"] | null
         }
         Update: {
           active?: boolean | null
@@ -722,27 +767,34 @@ export type Database = {
           title?: string | null
           updated_at?: string | null
           upvotes?: number | null
-          visibility?: Database['public']['Enums']['visibility'] | null
+          visibility?: Database["public"]["Enums"]["visibility"] | null
         }
         Relationships: [
           {
-            foreignKeyName: 'publications_author_id_fkey'
-            columns: ['author_id']
+            foreignKeyName: "publications_author_id_fkey"
+            columns: ["author_id"]
             isOneToOne: false
-            referencedRelation: 'profiles'
-            referencedColumns: ['id']
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'publications_source_id_fkey'
-            columns: ['source_id']
+            foreignKeyName: "publications_source_id_fkey"
+            columns: ["source_id"]
             isOneToOne: false
-            referencedRelation: 'publication_sources'
-            referencedColumns: ['id']
+            referencedRelation: "publication_sources"
+            referencedColumns: ["id"]
           },
         ]
       }
     }
     Functions: {
+      get_event_attendance_summary: {
+        Args: { event_id: string }
+        Returns: {
+          attendees_count: number
+          user_is_attending: boolean
+        }[]
+      }
       get_project_vote_summary: {
         Args: { project_id: string }
         Returns: {
@@ -755,6 +807,10 @@ export type Database = {
         Args: Record<PropertyKey, never> | { user_id: string }
         Returns: number
       }
+      toggle_event_attendance: {
+        Args: { event_id: string }
+        Returns: undefined
+      }
       vote_for_project: {
         Args: { project_id: string }
         Returns: undefined
@@ -762,13 +818,13 @@ export type Database = {
     }
     Enums: {
       ioarr_type:
-        | 'investment'
-        | 'optimization'
-        | 'extension'
-        | 'repair'
-        | 'replacement'
-      project_vote_type: 'golden' | 'silver'
-      visibility: 'draft' | 'public' | 'private'
+        | "investment"
+        | "optimization"
+        | "extension"
+        | "repair"
+        | "replacement"
+      project_vote_type: "golden" | "silver"
+      visibility: "draft" | "public" | "private"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -776,29 +832,29 @@ export type Database = {
   }
 }
 
-type DefaultSchema = Database[Extract<keyof Database, 'public'>]
+type DefaultSchema = Database[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
-    | keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof Database },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof Database
   }
-    ? keyof (Database[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
-        Database[DefaultSchemaTableNameOrOptions['schema']]['Views'])
+    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
-      Database[DefaultSchemaTableNameOrOptions['schema']]['Views'])[TableName] extends {
+  ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema['Tables'] &
-        DefaultSchema['Views'])
-    ? (DefaultSchema['Tables'] &
-        DefaultSchema['Views'])[DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
         Row: infer R
       }
       ? R
@@ -807,21 +863,21 @@ export type Tables<
 
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema['Tables']
+    | keyof DefaultSchema["Tables"]
     | { schema: keyof Database },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof Database
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions['schema']]['Tables']
+    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
+  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
-    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Insert: infer I
       }
       ? I
@@ -830,21 +886,21 @@ export type TablesInsert<
 
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema['Tables']
+    | keyof DefaultSchema["Tables"]
     | { schema: keyof Database },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof Database
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions['schema']]['Tables']
+    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
+  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
-    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Update: infer U
       }
       ? U
@@ -853,46 +909,46 @@ export type TablesUpdate<
 
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
-    | keyof DefaultSchema['Enums']
+    | keyof DefaultSchema["Enums"]
     | { schema: keyof Database },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
     schema: keyof Database
   }
-    ? keyof Database[DefaultSchemaEnumNameOrOptions['schema']]['Enums']
+    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
 > = DefaultSchemaEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaEnumNameOrOptions['schema']]['Enums'][EnumName]
-  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema['Enums']
-    ? DefaultSchema['Enums'][DefaultSchemaEnumNameOrOptions]
+  ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-    | keyof DefaultSchema['CompositeTypes']
+    | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof Database },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof Database
   }
-    ? keyof Database[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes']
+    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
 > = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes'][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema['CompositeTypes']
-    ? DefaultSchema['CompositeTypes'][PublicCompositeTypeNameOrOptions]
+  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
 
 export const Constants = {
   public: {
     Enums: {
       ioarr_type: [
-        'investment',
-        'optimization',
-        'extension',
-        'repair',
-        'replacement',
+        "investment",
+        "optimization",
+        "extension",
+        "repair",
+        "replacement",
       ],
-      project_vote_type: ['golden', 'silver'],
-      visibility: ['draft', 'public', 'private'],
+      project_vote_type: ["golden", "silver"],
+      visibility: ["draft", "public", "private"],
     },
   },
-} as const;
+} as const

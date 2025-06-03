@@ -1,11 +1,15 @@
-import type React from "react"
-import { MapPin, Mail, Calendar, Users, Star, GitFork, Eye } from "lucide-react"
+import { MapPin, Mail, Calendar, Users, Star, Eye, Pencil, X, Save, User } from "lucide-react"
 import { Button } from "@common/components/button";
 import { useAuthStore } from "@auth/store/auth_store";
 import { PE_DEPARTMENTS, PE_DISTRICTS } from "@common/data/geo";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { db } from "@db/client";
 import { useLocation } from "wouter";
+import { Card } from "@profile/components/ui/card";
+import { Badge } from "@profile/components/ui/badge";
+import { Avatar } from "@profile/components/ui/avatar";
+import { pushBlobToStorage } from "@common/utils";
+import type { Tables } from "@db/schema";
 
 type Project = {
   id: string;
@@ -58,47 +62,6 @@ type Event = {
   event_date: string;
 };
 
-const Avatar = ({
-  src,
-  alt,
-  className = "",
-  children,
-}: { src?: string; alt?: string; className?: string; children?: React.ReactNode }) => (
-  <div className={`relative inline-block ${className}`}>
-    {src ? (
-      <img src={src || "/placeholder.svg"} alt={alt} className="w-full h-full rounded-full object-cover" />
-    ) : (
-      <div className="w-full h-full rounded-full bg-gray-300 flex items-center justify-center">{children}</div>
-    )}
-  </div>
-)
-
-const Card = ({ children, className = "", onClick }: { children: React.ReactNode; className?: string; onClick?: () => void }) => (
-  <div onClick={onClick} className={`bg-white rounded-lg shadow-sm border border-gray-200 ${className}`}>{children}</div>
-)
-
-const Badge = ({
-  children,
-  variant = "default",
-  className = "",
-}: { children: React.ReactNode; variant?: "default" | "secondary" | "outline"; className?: string }) => {
-  const variantClasses = {
-    default: "bg-primary text-red-800",
-    secondary: "bg-gray-100 text-gray-800",
-    outline: "border border-gray-300 text-gray-700 bg-white",
-  }
-
-  return (
-    <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${variantClasses[variant]} ${className}`}
-    >
-      {children}
-    </span>
-  )
-}
-
-const Separator = ({ className = "" }: { className?: string }) => <hr className={`border-gray-200 ${className}`} />
-
 export default function ProfileComponent() {
   const user = useAuthStore((state) => state.user);
   const [, navigate] = useLocation();
@@ -107,6 +70,79 @@ export default function ProfileComponent() {
   const [publications, setPublications] = useState<Publication[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [tempBio, setTempBio] = useState(user?.profile?.bio || '');
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleEditClick = () => {
+    setTempBio(user?.profile?.bio || '');
+    setIsEditing(true);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setAvatarPreview(null);
+  };
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAvatarPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    if (!user?.id) return;
+
+    setIsUpdating(true);
+    try {
+      let avatarUrl = user.profile?.avatar_url || null;
+
+      if (fileInputRef.current?.files?.[0]) {
+        const bucketPath = await pushBlobToStorage(
+          db,
+          'multimedia',
+          fileInputRef.current.files[0]
+        );
+        avatarUrl = bucketPath;
+      }
+
+      const { error } = await db
+        .from('profiles')
+        .update({
+          bio: tempBio,
+          ...(avatarUrl && { avatar_url: avatarUrl })
+        })
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      if (user) {
+        useAuthStore.getState().setUser({
+          ...user,
+          profile: {
+            ...user.profile,
+            bio: tempBio,
+            avatar_url: avatarUrl || user.profile?.avatar_url,
+            nombres: user.profile?.nombres || '',
+            apellido_paterno: user.profile?.apellido_paterno || '',
+            apellido_materno: user.profile?.apellido_materno || '',
+            profile_completed: user.profile?.profile_completed || false,
+          } as Required<Tables<'profiles'>>
+        });
+      }
+
+      setIsEditing(false);
+      setAvatarPreview(null);
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      alert('Error al actualizar el perfil');
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   useEffect(() => {
     if (user?.id) {
@@ -416,7 +452,7 @@ export default function ProfileComponent() {
 
   const { profile } = user;
 
-  return (
+   return (
     <div className="min-h-screen">
       <div className="max-w-7xl mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -425,19 +461,95 @@ export default function ProfileComponent() {
             <div className="sticky top-8 space-y-6">
               {/* perfil */}
               <Card>
-                <div className="p-6">
+                <div className="p-8">
                   <div className="space-y-4 text-center">
-                    <Avatar className="w-32 sm:w-56 h-32 sm:h-56 mx-auto">
-                      {profile.nombres?.charAt(0) || 'U'}
-                    </Avatar>
-                    <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 leading-tight">
-                      {profile.nombres} {profile.apellido_paterno} {profile.apellido_materno}
-                    </h2>
-                    {/*
-                    <p className="text-gray-700 text-sm">
-                      No bio yet
-                    </p>
-                    <Button variant="red" className="w-full">Editar perfil</Button>*/}
+                    <div className="relative mx-auto w-32 sm:w-56 h-32 sm:h-56">
+                      <Avatar
+                        src={avatarPreview || user?.profile?.avatar_url}
+                        alt="Foto de perfil"
+                        className="w-32 h-32 sm:w-56 sm:h-56 mx-auto bg-gray-200 flex items-center justify-center"
+                      >
+                        <User className="w-1/2 h-1/2 text-gray-600" />
+                      </Avatar>                      {isEditing && (
+                        <>
+                          <input
+                            type="file"
+                            ref={fileInputRef}
+                            onChange={handleAvatarChange}
+                            accept="image/*"
+                            className="hidden"
+                            id="avatar-upload"
+                          />
+                          <label
+                            htmlFor="avatar-upload"
+                            className="absolute bottom-0 right-0 bg-white p-3 rounded-full shadow-md cursor-pointer hover:bg-gray-100"
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </label>
+                        </>
+                      )}
+                    </div>
+                    <div className="text-left">
+                      <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 leading-tight">
+                        {user?.profile?.nombres} {user?.profile?.apellido_paterno} {user?.profile?.apellido_materno}
+                      </h2>
+                    </div>
+                    {isEditing ? (
+                      <div className="space-y-4">
+                        <textarea
+                          value={tempBio}
+                          onChange={(e) => setTempBio(e.target.value)}
+                          placeholder="Cuéntanos sobre ti..."
+                          className="min-h-[100px] w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+                        />
+                        <div className="flex gap-2 w-full">
+                          <Button
+                            variant="white"
+                            onClick={handleCancelEdit}
+                            disabled={isUpdating}
+                            className="w-1/2 flex items-center justify-center gap-1 text-sm"
+                          >
+                          <span>Cancelar</span>
+                          </Button>
+                          <Button
+                            variant="red"
+                            onClick={handleSaveProfile}
+                            disabled={isUpdating}
+                            className="w-1/2 flex items-center justify-center gap-2 text-sm"
+                          >
+                            {isUpdating ? (
+                              "Guardando..."
+                            ) : (
+                              <>
+                              <span>Guardar</span>
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        {user?.profile?.bio ? (
+                          <div className="text-left">
+                            <p className="text-gray-700 text-sm whitespace-pre-line">
+                              {user.profile.bio}
+                            </p>
+                          </div>
+                        ) : (
+                          <p className="text-gray-400 text-left text-sm italic">
+                            No hay descripción aún
+                          </p>
+                        )}
+                        <Button
+                          variant="red"
+                          className="w-full flex items-center justify-center gap-2"
+                          onClick={handleEditClick}
+                        >
+                          <Pencil className="w-4 h-4" />
+                          <span>Editar perfil</span>
+                        </Button>
+                      </>
+                    )}
                   </div>
 
                   {/* contacto */}
@@ -445,7 +557,7 @@ export default function ProfileComponent() {
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                       <MapPin className="w-4 h-4 flex-shrink-0" />
                       <span className="truncate">
-                        {PE_DISTRICTS[profile.geo_district]?.name || 'Distrito desconocido'}, {PE_DEPARTMENTS[profile.geo_department]?.name || 'Departamento desconocido'}
+                        {PE_DISTRICTS[profile.geo_district as string]?.name || 'Distrito desconocido'}, {PE_DEPARTMENTS[profile.geo_department as string]?.name || 'Departamento desconocido'}
                       </span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-600">
