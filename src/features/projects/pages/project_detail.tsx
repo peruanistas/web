@@ -17,6 +17,7 @@ import { MarkdownViewer } from '@common/components/md_viewer';
 import { useQuery } from '@tanstack/react-query';
 import type { ProjectFull } from '@projects/types';
 import { VoteConfirmationModal } from '@projects/components/vote_confirmation_modal';
+import { Link } from 'wouter';
 
 type ProjectsDetailsPageProps = {
   id: string;
@@ -158,7 +159,9 @@ export default function ProjectsDetailsPage({ id }: ProjectsDetailsPageProps) {
               />
               <ProjectDetailButton title='Compartir' theme='secondary' onClick={async () => { setShareOpen(true); }} />
             </div>
-            <ProjectUserCard author={project.author_id} />
+            <Link to={`/u/${project.author_id.id}`}>
+              <ProjectUserCard author={project.author_id} />
+            </Link>
           </div>
           {/*
             <div className='project_detail_subtitle'>

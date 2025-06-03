@@ -11,73 +11,65 @@ import { Avatar } from "@profile/components/ui/avatar";
 import { pushBlobToStorage } from "@common/utils";
 import type { Tables } from "@db/schema";
 
-type Project = {
-  id: string;
-  title: string;
-  content: string;
-  created_at: string;
-  updated_at: string;
-  published_at: string;
-  author_id: string;
-  active: boolean;
-  visibility: string;
-  ioarr_type: string;
-  geo_department: string;
-  geo_district: string;
-  impression_count: number;
-  image_url: string | null;
-};
+type Project = Tables<'projects'>;
+type Publication = Tables<'publications'>;
+type Event = Tables<'events'>;
+type Profile = Tables<'profiles'>;
 
-type Publication = {
-  id: string;
-  title: string;
-  content: string;
-  created_at: string;
-  published_at: string;
-  author_id: string | null;
-  source_id: string | null;
-  active: boolean;
-  visibility: string;
-  upvotes: number;
-  downvotes: number;
-  impression_count: number;
-  image_url: string | null;
-};
+interface ProfileComponentProps {
+  userId?: string;
+  isOwnProfile?: boolean;
+}
 
-type Event = {
-  id: string;
-  title: string;
-  content: string;
-  created_at: string;
-  updated_at: string;
-  published_at: string;
-  author_id: string;
-  active: boolean;
-  visibility: string;
-  geo_department: string;
-  geo_district: string;
-  attendees: number;
-  impression_count: number;
-  image_url: string | null;
-  event_date: string;
-};
-
-export default function ProfileComponent() {
-  const user = useAuthStore((state) => state.user);
+export default function ProfileComponent({ userId, isOwnProfile }: ProfileComponentProps) {
+  const currentUser = useAuthStore((state) => state.user);
   const [, navigate] = useLocation();
   const [activeTab, setActiveTab] = useState<'projects' | 'events' | 'publications'>('projects');
   const [projects, setProjects] = useState<Project[]>([]);
   const [publications, setPublications] = useState<Publication[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
+  const [externalProfile, setExternalProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(false);
+  const [profileLoading, setProfileLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [tempBio, setTempBio] = useState(user?.profile?.bio || '');
+  const [tempBio, setTempBio] = useState('');
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const isOwn = isOwnProfile ?? (!userId || userId === currentUser?.id);
+  const targetUserId = userId || currentUser?.id;
+  const displayProfile = isOwn ? currentUser?.profile : externalProfile;
+
+  useEffect(() => {
+    if (!isOwn && userId) {
+      fetchExternalProfile();
+    }
+  }, [userId, isOwn]);
+
+  const fetchExternalProfile = async () => {
+    if (!userId) return;
+
+    setProfileLoading(true);
+    try {
+      const { data, error } = await db
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error) throw error;
+      setExternalProfile(data);
+    } catch (error) {
+      console.error('Error fetching external profile:', error);
+      navigate('/404');
+    } finally {
+      setProfileLoading(false);
+    }
+  };
+
   const handleEditClick = () => {
-    setTempBio(user?.profile?.bio || '');
+    setTempBio(displayProfile?.bio || '');
     setIsEditing(true);
   };
 
@@ -94,11 +86,11 @@ export default function ProfileComponent() {
   };
 
   const handleSaveProfile = async () => {
-    if (!user?.id) return;
+    if (!currentUser?.id || !isOwn) return;
 
     setIsUpdating(true);
     try {
-      let avatarUrl = user.profile?.avatar_url || null;
+      let avatarUrl = currentUser.profile?.avatar_url || null;
 
       if (fileInputRef.current?.files?.[0]) {
         const bucketPath = await pushBlobToStorage(
@@ -115,21 +107,21 @@ export default function ProfileComponent() {
           bio: tempBio,
           ...(avatarUrl && { avatar_url: avatarUrl })
         })
-        .eq('id', user.id);
+        .eq('id', currentUser.id);
 
       if (error) throw error;
 
-      if (user) {
+      if (currentUser) {
         useAuthStore.getState().setUser({
-          ...user,
+          ...currentUser,
           profile: {
-            ...user.profile,
+            ...currentUser.profile,
             bio: tempBio,
-            avatar_url: avatarUrl || user.profile?.avatar_url,
-            nombres: user.profile?.nombres || '',
-            apellido_paterno: user.profile?.apellido_paterno || '',
-            apellido_materno: user.profile?.apellido_materno || '',
-            profile_completed: user.profile?.profile_completed || false,
+            avatar_url: avatarUrl || currentUser.profile?.avatar_url,
+            nombres: currentUser.profile?.nombres || '',
+            apellido_paterno: currentUser.profile?.apellido_paterno || '',
+            apellido_materno: currentUser.profile?.apellido_materno || '',
+            profile_completed: currentUser.profile?.profile_completed || false,
           } as Required<Tables<'profiles'>>
         });
       }
@@ -145,13 +137,13 @@ export default function ProfileComponent() {
   };
 
   useEffect(() => {
-    if (user?.id) {
+    if (targetUserId && displayProfile) {
       fetchUserData();
     }
-  }, [user?.id, activeTab]);
+  }, [targetUserId, activeTab, displayProfile]);
 
   const fetchUserData = async () => {
-    if (!user?.id) return;
+    if (!targetUserId) return;
 
     setLoading(true);
     try {
@@ -174,12 +166,21 @@ export default function ProfileComponent() {
   };
 
   const fetchProjects = async () => {
-    const { data, error } = await db
+    if (!targetUserId) return;
+
+    const query = db
       .from('projects')
       .select('*')
-      .eq('author_id', user!.id)
+      .eq('author_id', targetUserId)
       .eq('active', true)
       .order('created_at', { ascending: false });
+
+    // Si no es perfil propio, solo mostrar públicos
+    if (!isOwn) {
+      query.eq('visibility', 'public');
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       console.error('Error fetching projects:', error);
@@ -190,12 +191,21 @@ export default function ProfileComponent() {
   };
 
   const fetchPublications = async () => {
-    const { data, error } = await db
+    if (!targetUserId) return;
+
+    const query = db
       .from('publications')
       .select('*')
-      .eq('author_id', user!.id)
+      .eq('author_id', targetUserId)
       .eq('active', true)
       .order('created_at', { ascending: false });
+
+    // Si no es perfil propio, solo mostrar públicos
+    if (!isOwn) {
+      query.eq('visibility', 'public');
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       console.error('Error fetching publications:', error);
@@ -206,12 +216,21 @@ export default function ProfileComponent() {
   };
 
   const fetchEvents = async () => {
-    const { data, error } = await db
+    if (!targetUserId) return;
+
+    const query = db
       .from('events')
       .select('*')
-      .eq('author_id', user!.id)
+      .eq('author_id', targetUserId)
       .eq('active', true)
       .order('created_at', { ascending: false });
+
+    // Si no es perfil propio, solo mostrar públicos
+    if (!isOwn) {
+      query.eq('visibility', 'public');
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       console.error('Error fetching events:', error);
@@ -223,13 +242,22 @@ export default function ProfileComponent() {
 
   const renderProjects = () => {
     if (projects.length === 0) {
-      return (
-        <Card className="p-8 text-center">
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No tienes proyectos aún</h3>
-          <p className="text-gray-600 mb-4">Comienza creando tu primer proyecto</p>
-          <Button variant="red" onClick={() => navigate('/proyectos/crear')}>Crear proyecto</Button>
-        </Card>
-      );
+      if (isOwn) {
+        return (
+          <Card className="p-8 text-center">
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No tienes proyectos aún</h3>
+            <p className="text-gray-600 mb-4">Comienza creando tu primer proyecto</p>
+            <Button variant="red" onClick={() => navigate('/proyectos/crear')}>Crear proyecto</Button>
+          </Card>
+        );
+      } else {
+        return (
+          <Card className="p-8 text-center">
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No hay proyectos públicos</h3>
+            <p className="text-gray-600">Este usuario no ha publicado proyectos aún</p>
+          </Card>
+        );
+      }
     }
 
     return (
@@ -251,9 +279,14 @@ export default function ProfileComponent() {
                   <div className="flex flex-col gap-2 mb-2">
                     <div className="flex items-start justify-between gap-2">
                       <h4 className="font-semibold text-lg leading-tight flex-1 min-w-0 break-words">{project.title}</h4>
-                      <Badge variant={project.visibility === 'published' ? 'default' : 'secondary'} className="flex-shrink-0">
-                        {project.visibility === 'published' ? 'Publicado' : 'Borrador'}
-                      </Badge>
+                      {isOwn && (
+                        <Badge variant={project.visibility === 'public' ? 'outline' : 'secondary'} className="flex-shrink-0">
+                          {
+                          project.visibility === 'public' ? 'Publicado' :
+                          project.visibility === 'private' ? 'Privado' :
+                          'Borrador'}
+                        </Badge>
+                      )}
                     </div>
                   </div>
                   <p className="text-gray-600 text-sm mb-3 line-clamp-3">
@@ -282,13 +315,22 @@ export default function ProfileComponent() {
 
   const renderPublications = () => {
     if (publications.length === 0) {
-      return (
-        <Card className="p-8 text-center">
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No tienes publicaciones aún</h3>
-          <p className="text-gray-600 mb-4">Comparte tu conocimiento con la comunidad</p>
-          <Button variant="red" onClick={() => navigate('/feed/crear')}>Crear publicación</Button>
-        </Card>
-      );
+      if (isOwn) {
+        return (
+          <Card className="p-8 text-center">
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No tienes publicaciones aún</h3>
+            <p className="text-gray-600 mb-4">Comparte tu conocimiento con la comunidad</p>
+            <Button variant="red" onClick={() => navigate('/feed/crear')}>Crear publicación</Button>
+          </Card>
+        );
+      } else {
+        return (
+          <Card className="p-8 text-center">
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No hay publicaciones públicas</h3>
+            <p className="text-gray-600">Este usuario no ha publicado contenido aún</p>
+          </Card>
+        );
+      }
     }
 
     return (
@@ -312,9 +354,18 @@ export default function ProfileComponent() {
                   <div className="flex flex-col gap-2 mb-2">
                     <div className="flex items-start justify-between gap-2">
                       <h4 className="font-semibold text-lg leading-tight flex-1 min-w-0 break-words">{publication.title}</h4>
-                      <Badge variant={publication.visibility === 'published' ? 'default' : 'secondary'} className="flex-shrink-0">
-                        {publication.visibility === 'public' ? 'Publicado' : 'Borrador'}
-                      </Badge>
+                      {isOwn && (
+                        <Badge variant={
+                            publication.visibility === 'public' ? 'outline' :
+                            'secondary'
+                          } className="flex-shrink-0">
+                          {
+                          publication.visibility === 'public' ? 'Publicado' :
+                          publication.visibility === 'private' ? 'Privado' :
+                          'Borrador'
+                          }
+                        </Badge>
+                      )}
                     </div>
                   </div>
                   <p className="text-gray-600 text-sm mb-3 line-clamp-3">
@@ -346,13 +397,22 @@ export default function ProfileComponent() {
 
   const renderEvents = () => {
     if (events.length === 0) {
-      return (
-        <Card className="p-8 text-center">
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No tienes eventos aún</h3>
-          <p className="text-gray-600 mb-4">Organiza eventos para conectar con la comunidad</p>
-          <Button variant="red" onClick={() => navigate('/eventos/crear')}>Crear evento</Button>
-        </Card>
-      );
+      if (isOwn) {
+        return (
+          <Card className="p-8 text-center">
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No tienes eventos aún</h3>
+            <p className="text-gray-600 mb-4">Organiza eventos para conectar con la comunidad</p>
+            <Button variant="red" onClick={() => navigate('/eventos/crear')}>Crear evento</Button>
+          </Card>
+        );
+      } else {
+        return (
+          <Card className="p-8 text-center">
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No hay eventos públicos</h3>
+            <p className="text-gray-600">Este usuario no ha publicado eventos aún</p>
+          </Card>
+        );
+      }
     }
 
     return (
@@ -374,9 +434,20 @@ export default function ProfileComponent() {
                   <div className="flex flex-col gap-2 mb-2">
                     <div className="flex items-start justify-between gap-2">
                       <h4 className="font-semibold text-lg leading-tight flex-1 min-w-0 break-words">{event.title}</h4>
-                      <Badge variant={event.visibility === 'published' ? 'default' : 'secondary'} className="flex-shrink-0">
-                        {event.visibility === 'published' ? 'Publicado' : 'Borrador'}
-                      </Badge>
+                      {isOwn && (
+                        <Badge
+                        variant={
+                          event.visibility === 'public' ? 'outline' :
+                          event.visibility === 'private' ? 'secondary' :
+                          'outline'
+                        }
+                        className="flex-shrink-0"
+                        >
+                        {event.visibility === 'public' ? 'Publicado' :
+                         event.visibility === 'private' ? 'Privado' :
+                         'Borrador'}
+                        </Badge>
+                      )}
                     </div>
                   </div>
                   <p className="text-gray-600 text-sm mb-3 line-clamp-3">
@@ -430,29 +501,50 @@ export default function ProfileComponent() {
     }
   };
 
-  // Early return if user doesn't exist
-  if (!user) {
+  // Loading states
+  if (profileLoading) {
     return <p className="text-center py-10">Cargando perfil...</p>;
   }
-  if (!user.profile) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Card className="p-8 text-center max-w-md">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Completa tu perfil</h2>
-          <p className="text-gray-600 mb-6">
-            Necesitas completar tu información de perfil para acceder a esta página.
-          </p>
-          <Button variant="red" onClick={() => navigate('/completar-registro')}>
-            Completar perfil
-          </Button>
-        </Card>
-      </div>
-    );
+
+  // Early return if profile doesn't exist
+  if (!displayProfile) {
+    if (isOwn) {
+      return <p className="text-center py-10">Cargando perfil...</p>;
+    } else {
+      return <p className="text-center py-10">Usuario no encontrado</p>;
+    }
   }
 
-  const { profile } = user;
+  if (!displayProfile.profile_completed) {
+    if (isOwn) {
+      return (
+        <div className="min-h-screen flex items-center justify-center">
+          <Card className="p-8 text-center max-w-md">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Completa tu perfil</h2>
+            <p className="text-gray-600 mb-6">
+              Necesitas completar tu información de perfil para acceder a esta página.
+            </p>
+            <Button variant="red" onClick={() => navigate('/completar-registro')}>
+              Completar perfil
+            </Button>
+          </Card>
+        </div>
+      );
+    } else {
+      return (
+        <div className="min-h-screen flex items-center justify-center">
+          <Card className="p-8 text-center max-w-md">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Perfil no disponible</h2>
+            <p className="text-gray-600">
+              Este usuario no ha completado su perfil aún.
+            </p>
+          </Card>
+        </div>
+      );
+    }
+  }
 
-   return (
+  return (
     <div className="min-h-screen">
       <div className="max-w-7xl mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -465,12 +557,13 @@ export default function ProfileComponent() {
                   <div className="space-y-4 text-center">
                     <div className="relative mx-auto w-32 sm:w-56 h-32 sm:h-56">
                       <Avatar
-                        src={avatarPreview || user?.profile?.avatar_url}
+                        src={avatarPreview || displayProfile?.avatar_url}
                         alt="Foto de perfil"
                         className="w-32 h-32 sm:w-56 sm:h-56 mx-auto bg-gray-200 flex items-center justify-center"
                       >
                         <User className="w-1/2 h-1/2 text-gray-600" />
-                      </Avatar>                      {isEditing && (
+                      </Avatar>
+                      {isEditing && isOwn && (
                         <>
                           <input
                             type="file"
@@ -491,10 +584,10 @@ export default function ProfileComponent() {
                     </div>
                     <div className="text-left">
                       <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 leading-tight">
-                        {user?.profile?.nombres} {user?.profile?.apellido_paterno} {user?.profile?.apellido_materno}
+                        {displayProfile?.nombres} {displayProfile?.apellido_paterno} {displayProfile?.apellido_materno}
                       </h2>
                     </div>
-                    {isEditing ? (
+                    {isEditing && isOwn ? (
                       <div className="space-y-4">
                         <textarea
                           value={tempBio}
@@ -529,25 +622,27 @@ export default function ProfileComponent() {
                       </div>
                     ) : (
                       <>
-                        {user?.profile?.bio ? (
+                        {displayProfile?.bio ? (
                           <div className="text-left">
                             <p className="text-gray-700 text-sm whitespace-pre-line">
-                              {user.profile.bio}
+                              {displayProfile.bio}
                             </p>
                           </div>
                         ) : (
                           <p className="text-gray-400 text-left text-sm italic">
-                            No hay descripción aún
+                            {isOwn ? "No hay descripción aún" : null}
                           </p>
                         )}
-                        <Button
-                          variant="red"
-                          className="w-full flex items-center justify-center gap-2"
-                          onClick={handleEditClick}
-                        >
-                          <Pencil className="w-4 h-4" />
-                          <span>Editar perfil</span>
-                        </Button>
+                        {isOwn && (
+                          <Button
+                            variant="red"
+                            className="w-full flex items-center justify-center gap-2"
+                            onClick={handleEditClick}
+                          >
+                            <Pencil className="w-4 h-4" />
+                            <span>Editar perfil</span>
+                          </Button>
+                        )}
                       </>
                     )}
                   </div>
@@ -557,16 +652,18 @@ export default function ProfileComponent() {
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                       <MapPin className="w-4 h-4 flex-shrink-0" />
                       <span className="truncate">
-                        {PE_DISTRICTS[profile.geo_district as string]?.name || 'Distrito desconocido'}, {PE_DEPARTMENTS[profile.geo_department as string]?.name || 'Departamento desconocido'}
+                        {PE_DISTRICTS[displayProfile.geo_district as string]?.name || 'Distrito desconocido'}, {PE_DEPARTMENTS[displayProfile.geo_department as string]?.name || 'Departamento desconocido'}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Mail className="w-4 h-4 flex-shrink-0" />
-                      <span className="truncate">{user.email}</span>
-                    </div>
+                    {isOwn && currentUser && (
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <Mail className="w-4 h-4 flex-shrink-0" />
+                        <span className="truncate">{currentUser.email}</span>
+                      </div>
+                    )}
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                       <Calendar className="w-4 h-4 flex-shrink-0" />
-                      <span>Se unió en {new Date(user.created_at).toLocaleDateString('es-PE', { month: 'long', year: 'numeric' })}</span>
+                      <span>Se unió en {new Date(displayProfile.created_at).toLocaleDateString('es-PE', { month: 'long', year: 'numeric' })}</span>
                     </div>
                   </div>
                 </div>
@@ -592,7 +689,7 @@ export default function ProfileComponent() {
           {/* main feed */}
           <div className="lg:col-span-3">
             <div className="space-y-6">
-              {/* Navegación del feed - SIN "Actividad reciente" */}
+              {/* Navegación del feed */}
               <div className="flex gap-4 border-b border-gray-200 overflow-x-auto">
                 <button
                   className={`pb-3 px-1 transition-colors whitespace-nowrap ${
