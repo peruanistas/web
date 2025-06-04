@@ -18,9 +18,11 @@ type commentType ={
   project_id: string | null,
   publication_id: string | null,
   profiles: {
+    id: string;
     nombres: string;
     apellido_materno: string;
     apellido_paterno: string;
+    avatar_url?: string;
   };
 }
 
@@ -32,7 +34,6 @@ export function CommentsSection({project_id, event_id, publication_id}: CommentT
 
   const [refresh, setRefresh] = useState(false);
 
-
   function handleRefresh() {
     setRefresh(!refresh);
   }
@@ -43,7 +44,7 @@ export function CommentsSection({project_id, event_id, publication_id}: CommentT
 
     let query = db
       .from('comments')
-      .select('*, profiles(nombres, apellido_paterno, apellido_materno)')
+      .select('*, profiles(id, nombres, apellido_paterno, apellido_materno, avatar_url)')
       .order('created_at', { ascending: true })
       .range(from, to);
 
@@ -106,7 +107,7 @@ export function CommentsSection({project_id, event_id, publication_id}: CommentT
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [handleObserver]);//observerTarget
 
-  
+
   return (
 
     <section className="mt-8">
@@ -124,6 +125,8 @@ export function CommentsSection({project_id, event_id, publication_id}: CommentT
           {page.map((comment: commentType) => (
             <CommentItem
               key={comment.id}
+              id={comment.profiles.id}
+              avatar={comment.profiles.avatar_url}
               author={`${comment.profiles.nombres} ${comment.profiles.apellido_paterno} ${comment.profiles.apellido_materno}`}
               created_at={new Date(comment.created_at).toLocaleDateString('es-ES', {
                 year: 'numeric',

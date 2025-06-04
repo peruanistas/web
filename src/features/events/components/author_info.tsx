@@ -10,13 +10,23 @@ export function AuthorInfo({
   author,
 }: YoutubeAuthorCardProps) {
   return (
-    <div className="flex items-center justify-between pb-4 shadow-sm max-w-3xl">
-      <div className="flex items-center gap-3">
-        <User strokeWidth={1} />
-        <span className="text-sm text-black">
-          Creado por: <Link to={`/u/${author.id}`}><span className='font-semibold hover:underline hover:text-primary'>{author.nombres} {author.apellido_paterno} {author.apellido_materno}</span></Link>
+    <div className="flex items-center justify-between pb-4 max-w-3xl">
+      <Link to={`/u/${author.id}`} className="flex items-center gap-2">
+        {author.avatar_url ? (
+          <img
+            src={author.avatar_url}
+            alt="Avatar de usuario"
+            className="w-8 h-8 rounded-full object-cover"
+          />
+          ) : (
+            <div className="flex items-center justify-center border border-[#c5c5c5] rounded-full w-8 h-8">
+              <User size={32} strokeWidth={1} />
+            </div>
+        )}
+        <span className="font-medium text-gray-700 hover:text-primary">
+          {author.nombres} {author.apellido_paterno} {author.apellido_materno}
         </span>
-      </div>
+      </Link>
     </div>
   );
 }

@@ -15,6 +15,7 @@ import { Button } from '@common/components/button';
 import ContentLoader from 'react-content-loader';
 import { ContentLayout } from '@common/components/content_layout';
 import { MarkdownViewer } from '@common/components/md_viewer';
+import { Link } from 'wouter';
 
 type Props = {
   id: string;
@@ -131,10 +132,22 @@ export function PublicationDetail({ id }: Props) {
                       )}
                       {publication.author_id && (
                         <>
-                          <User strokeWidth={1} />
-                          <span className="font-medium text-gray-700">
+                          <Link to={`/u/${publication.author_id.id}`} className="flex items-center gap-2">
+                            {publication.author_id.avatar_url ? (
+                              <img
+                                src={publication.author_id.avatar_url}
+                                alt="Avatar de usuario"
+                                className="w-8 h-8 rounded-full object-cover"
+                              />
+                            ) : (
+                              <div className="flex items-center justify-center border border-[#c5c5c5] rounded-full w-8 h-8">
+                                <User size={32} strokeWidth={1} className='text-[#c5c5c5]' />
+                              </div>
+                            )}
+                          <span className="font-medium text-gray-700 hover:text-primary">
                             {publication.author_id.nombres} {publication.author_id.apellido_paterno} {publication.author_id.apellido_materno}
                           </span>
+                          </Link>
                         </>
                       )}
                     </div>
