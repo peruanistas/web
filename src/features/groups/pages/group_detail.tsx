@@ -11,6 +11,8 @@ import ContentLoader from 'react-content-loader';
 import { ContentLayout } from '@common/components/content_layout';
 import { Button } from '@common/components/button';
 import { IoEnter } from 'react-icons/io5';
+import { useState, useEffect } from 'react';
+import { checkGroupMembership, joinGroup, leaveGroup } from '../components/group-membership-functions';
 
 type GroupDetailProps = {
   id: string;
@@ -34,11 +36,54 @@ async function fetchGroup(id: string): Promise<Group | null> {
 export function GroupDetail({ id }: GroupDetailProps) {
   useScrollReset();
 
+  const [user, setUser] = useState<any>(null);
+  const [isMember, setIsMember] = useState(false);
+  const [isLoadingMembership, setIsLoadingMembership] = useState(false);
+
   const { data: group, isLoading, isError } = useQuery({
     queryKey: ['group_detail', id],
     queryFn: () => fetchGroup(id),
     enabled: !!id,
   });
+
+  // Obtener usuario actual y verificar membresía
+  useEffect(() => {
+    const getCurrentUser = async () => {
+      const { data: { user } } = await db.auth.getUser();
+      setUser(user);
+      
+      if (user && group) {
+        try {
+          const membershipStatus = await checkGroupMembership(group.id, user.id);
+          setIsMember(membershipStatus);
+        } catch (error) {
+          console.error('Error checking membership:', error);
+        }
+      }
+    };
+
+    getCurrentUser();
+  }, [group?.id]);
+
+  const handleMembershipAction = async () => {
+    if (!user || !group) return;
+
+    setIsLoadingMembership(true);
+    
+    try {
+      if (isMember) {
+        await leaveGroup(group.id, user.id);
+        setIsMember(false);
+      } else {
+        await joinGroup(group.id, user.id);
+        setIsMember(true);
+      }
+    } catch (error) {
+      console.error('Error updating membership:', error);
+    } finally {
+      setIsLoadingMembership(false);
+    }
+  };
 
   if (isLoading) return <Skeleton />;
 
@@ -72,7 +117,14 @@ export function GroupDetail({ id }: GroupDetailProps) {
                   </div>
                 </div>
                 <div>
-                  <Button leading={<IoEnter />} variant='red'>Unirse</Button>
+                  <Button 
+                    leading={<IoEnter />} 
+                    variant='red'
+                    onClick={handleMembershipAction}
+                    disabled={isLoadingMembership || !user}
+                  >
+                    {isLoadingMembership ? 'Cargando...' : (!user ? 'Inicia sesión' : (isMember ? 'Salirse' : 'Unirse'))}
+                  </Button>
                 </div>
               </div>
               <div className="text-gray-800 mb-2">{group.description}</div>
@@ -92,7 +144,6 @@ export function GroupDetail({ id }: GroupDetailProps) {
               type="text"
               className="flex-1 border-none outline-none bg-transparent text-gray-700 text-base placeholder-gray-400"
               placeholder="Publica algo..."
-              // disabled
             />
             <button className="bg-primary text-white px-4 py-2 rounded font-semibold opacity-60 cursor-not-allowed">
               Publicar

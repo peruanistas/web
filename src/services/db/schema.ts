@@ -227,6 +227,49 @@ export type Database = {
         }
         Relationships: []
       }
+      group_members: {
+        Row: {
+          group_id: string
+          joined_at: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          group_id: string
+          joined_at?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          group_id?: string
+          joined_at?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "random_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       groups: {
         Row: {
           active: boolean
@@ -290,20 +333,20 @@ export type Database = {
       }
       profiles: {
         Row: {
-          apellido_materno: string
-          apellido_paterno: string
-          avatar_url: string
-          bio: string
-          celular: string
-          country_code: string
+          apellido_materno: string | null
+          apellido_paterno: string | null
+          avatar_url: string | null
+          bio: string | null
+          celular: string | null
+          country_code: string | null
           created_at: string
-          geo_department: string
-          geo_district: string
+          geo_department: string | null
+          geo_district: string | null
           id: string
-          nombres: string
-          numero_documento: string
+          nombres: string | null
+          numero_documento: string | null
           profile_completed: boolean
-          tipo_documento: string
+          tipo_documento: string | null
           updated_at: string
         }
         Insert: {
@@ -808,7 +851,7 @@ export type Database = {
         Returns: number
       }
       toggle_event_attendance: {
-        Args: { event_id: string }
+        Args: { p_event_id: string }
         Returns: undefined
       }
       vote_for_project: {

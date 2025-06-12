@@ -3,12 +3,71 @@ import { PE_DEPARTMENTS, PE_DISTRICTS } from '@common/data/geo';
 import ContentLoader from 'react-content-loader';
 import { FaLocationDot } from 'react-icons/fa6';
 import { Link } from 'wouter';
+import { useState, useEffect } from 'react';
+import { db } from '@db/client';
 import type { GroupPreview } from '../types';
 import { Button } from '@common/components/button';
+import { checkGroupMembership, joinGroup, leaveGroup } from './group-membership-functions';
 
 type GroupCardProps = GroupPreview & {};
 
 export function GroupCard(group: GroupCardProps) {
+  const [user, setUser] = useState<any>(null);
+  const [isMember, setIsMember] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const getCurrentUser = async () => {
+      const { data: { user } } = await db.auth.getUser();
+      setUser(user);
+      
+      if (user) {
+        try {
+          const membershipStatus = await checkGroupMembership(group.id, user.id);
+          setIsMember(membershipStatus);
+        } catch (error) {
+          console.error('Error checking membership:', error);
+        }
+      }
+    };
+
+    getCurrentUser();
+  }, [group.id]);
+
+  const handleMembershipAction = async (e: React.MouseEvent) => {
+    e.preventDefault(); 
+    e.stopPropagation();
+
+    if (!user) return;
+
+    setIsLoading(true);
+    
+    try {
+      if (isMember) {
+        await leaveGroup(group.id, user.id);
+        setIsMember(false);
+      } else {
+        await joinGroup(group.id, user.id);
+        setIsMember(true);
+      }
+    } catch (error) {
+      console.error('Error updating membership:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getButtonText = () => {
+    if (isLoading) return 'Cargando...';
+    if (!user) return 'Inicia sesión';
+    return isMember ? 'Salirse' : 'Unirse';
+  };
+
+  const getButtonVariant = () => {
+  if (!user) return undefined; 
+  return isMember ? undefined : 'red'; 
+  };
+
   return (
     <Link href={`/grupos/${group.id}`}>
       <article className='flex flex-col border border-border rounded-sm bg-white'>
@@ -35,8 +94,12 @@ export function GroupCard(group: GroupCardProps) {
             <span className='text-sm'>{PE_DEPARTMENTS[group.geo_department].name}, {PE_DISTRICTS[group.geo_district].name}</span>
           </div>
           <div className='flex text-sm items-center justify-center gap-2'>
-            <Button variant='red'>
-              Unirse
+            <Button 
+              variant={getButtonVariant()}
+              onClick={handleMembershipAction}
+              disabled={isLoading || !user}
+            >
+              {getButtonText()}
             </Button>
           </div>
         </div>
