@@ -2,7 +2,7 @@ import { Header, HEADER_FULL_HEIGHT } from '@common/components/header';
 import { Footer } from '@common/components/footer';
 import { Layout } from '@common/components/layout';
 import { formatDate2, mergeAndShuffle } from '@common/utils';
-import { Calendar, ExternalLink, Share2, User } from 'lucide-react';
+import { Calendar, CircleArrowDown, CircleArrowUp, ExternalLink, Share2, User } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@db/client';
 import type { Tables } from '@db/schema';
@@ -45,9 +45,31 @@ async function fetchPublication(id: string): Promise<Publication | null> {
   return data;
 }
 
+
 export function PublicationDetail({ id }: Props) {
   useScrollReset();
   const [shareOpen, setShareOpen] = useState(false);
+  const [isUpvoted, setIsUpvoted] = useState(false);
+  const [isDownvoted, setIsDownvoted] = useState(false);
+
+  function handleUpVote(){
+    if (!isUpvoted){
+      setIsUpvoted(true);
+      setIsDownvoted(false);
+      return;
+    }
+    setIsUpvoted(false);
+  }
+
+  function handleDownVote(){
+    if (!isDownvoted){
+      setIsDownvoted(true);
+      setIsUpvoted(false);
+      return;
+    }
+    setIsDownvoted(false);
+  }
+
 
   const { data: publication, isLoading, isError } = useQuery({
     queryKey: ['publication_detail', id],
@@ -169,7 +191,15 @@ export function PublicationDetail({ id }: Props) {
                   )}
 
                   <div className={'flex space-y-4 justify-between'}>
-                    <div>{/* TODO: Handle upvote, downvote, impressions logic */}</div>
+                    <div className='bg-white flex-row flex gap-2 items-center justify-center rounded-lg px-4 py-2 border border-border'>
+                      <button onClick={handleUpVote} className={`cursor-pointer transition-colors duration-300 ${isUpvoted ? "text-red-600" : "text-black"}`} >
+                        <CircleArrowUp size={24} />
+                      </button>
+                      <h1>0</h1>
+                      <button onClick={handleDownVote} className={`cursor-pointer transition-colors duration-300 ${isDownvoted ? "text-red-600" : "text-black"}`}>
+                        <CircleArrowDown size={24}  />
+                      </button>
+                    </div>
                     <div>
                       <Button
                         leading={<Share2 size={18} />}
