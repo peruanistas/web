@@ -144,7 +144,7 @@ export function PublicationDetail({ id }: Props) {
           setIsDownvoted(false);
         } else {
           console.log('Voto registrado:', data);
-          setVotes((prev) => prev + 1);
+          setVotes((prev) => prev - 1);
           setIsDownvoted(true);
           setIsVoted(true);
         }
@@ -178,7 +178,7 @@ export function PublicationDetail({ id }: Props) {
           setIsDownvoted(true);
         } else {
           console.log('Voto eliminado:', data);
-          setVotes((prev) => prev - 1);
+          setVotes((prev) => prev + 1);
         }});
     setIsVoted(false);
     setIsDownvoted(false);
