@@ -549,6 +549,49 @@ export type Database = {
         }
         Relationships: []
       }
+      publication_votes: {
+        Row: {
+          id: string
+          publication_id: string | null
+          type: string
+          user_id: string | null
+        }
+        Insert: {
+          id?: string
+          publication_id?: string | null
+          type: string
+          user_id?: string | null
+        }
+        Update: {
+          id?: string
+          publication_id?: string | null
+          type?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "publication_votes_publication_id_fkey"
+            columns: ["publication_id"]
+            isOneToOne: false
+            referencedRelation: "publications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "publication_votes_publication_id_fkey"
+            columns: ["publication_id"]
+            isOneToOne: false
+            referencedRelation: "random_publications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "publication_votes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       publications: {
         Row: {
           active: boolean

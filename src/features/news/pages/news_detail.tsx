@@ -16,6 +16,7 @@ import ContentLoader from 'react-content-loader';
 import { ContentLayout } from '@common/components/content_layout';
 import { MarkdownViewer } from '@common/components/md_viewer';
 import { Link } from 'wouter';
+import { useAuthStore } from '@auth/store/auth_store';
 
 type Props = {
   id: string;
@@ -48,25 +49,138 @@ async function fetchPublication(id: string): Promise<Publication | null> {
 
 export function PublicationDetail({ id }: Props) {
   useScrollReset();
+  const { user } = useAuthStore();
   const [shareOpen, setShareOpen] = useState(false);
   const [isUpvoted, setIsUpvoted] = useState(false);
   const [isDownvoted, setIsDownvoted] = useState(false);
+  const [votes, setVotes] = useState(0);
+  const [isvoted, setIsVoted] = useState(false);  
+
+
+  
 
   function handleUpVote(){
-    if (!isUpvoted){
-      setIsUpvoted(true);
-      setIsDownvoted(false);
+    if(!user){
+      alert('Debes iniciar sesión para votar.');
       return;
     }
+    if (!isUpvoted) {
+      setIsUpvoted(true);
+      setIsDownvoted(false);
+
+
+      if (!isvoted) {
+        db.from('publication_votes')
+          .insert({
+        publication_id: id,
+        user_id: user.id,
+        type: 'upvote',
+          })
+          .then(({ data, error }) => {
+        if (error) {
+          console.error('Error al registrar el voto:', error);
+          setIsUpvoted(false);
+        } else {
+          console.log('Voto registrado:', data);
+          setVotes((prev) => prev + 1);
+          setIsUpvoted(true);
+          setIsVoted(true);
+        }
+          });
+      } else {
+        db.from('publication_votes')
+          .update({ type: 'upvote' })
+          .eq('publication_id', id)
+          .eq('user_id', user.id)
+          .then(({ data, error }) => {
+        if (error) {
+          console.error('Error al actualizar el voto:', error);
+          setIsUpvoted(false);
+        } else {
+          console.log('Voto actualizado:', data);
+          //setVotes((prev) => prev + 1);
+        }
+          });
+      }
+      return;
+    }
+    //eliminar el voto segun el id y user_id
+    db.from('publication_votes')
+      .delete()
+      .eq('publication_id', id)
+      .eq('user_id', user.id)
+      .then(({ data, error }) => {
+        if (error) {
+          console.error('Error al eliminar el voto:', error);
+          setIsDownvoted(true);
+        } else {
+          console.log('Voto eliminado:', data);
+          setVotes((prev) => prev - 1);
+        }});
+    setIsVoted(false);
     setIsUpvoted(false);
   }
 
   function handleDownVote(){
+    if(!user){
+      alert('Debes iniciar sesión para votar.');
+      return;
+    }
     if (!isDownvoted){
       setIsDownvoted(true);
       setIsUpvoted(false);
+
+      
+      if(!isvoted) {
+        db.from('publication_votes')
+          .insert({
+        publication_id: id,
+        user_id: user.id,
+        type: 'downvote',
+          })
+          .then(({ data, error }) => {
+        if (error) {
+          console.error('Error al registrar el voto:', error);
+          setIsDownvoted(false);
+        } else {
+          console.log('Voto registrado:', data);
+          setVotes((prev) => prev + 1);
+          setIsDownvoted(true);
+          setIsVoted(true);
+        }
+          });
+      } else {
+        db.from('publication_votes')
+          .update({ type: 'downvote' })
+          .eq('publication_id', id)
+          .eq('user_id', user.id)
+          .then(({ data, error }) => {
+        if (error) {
+          console.error('Error al actualizar el voto:', error);
+          setIsDownvoted(false);
+        } else {
+          console.log('Voto actualizado:', data);
+          //setVotes((prev) => prev - 1);
+        }
+          });
+      }
+
       return;
     }
+    //eliminar el voto segun el id y user_id
+    db.from('publication_votes')
+      .delete()
+      .eq('publication_id', id)
+      .eq('user_id', user.id)
+      .then(({ data, error }) => {
+        if (error) {
+          console.error('Error al eliminar el voto:', error);
+          setIsDownvoted(true);
+        } else {
+          console.log('Voto eliminado:', data);
+          setVotes((prev) => prev - 1);
+        }});
+    setIsVoted(false);
     setIsDownvoted(false);
   }
 
@@ -81,6 +195,61 @@ export function PublicationDetail({ id }: Props) {
   const [randomContent, setRandomContent] = useState<ContentSidebarPreview[]>([]);
 
   useEffect(() => {
+
+
+    db.from('publication_votes')
+      .select('id, publication_id, user_id, type')
+      .eq('publication_id', id)
+      .then(({ data, error }) => {
+      if (error) {
+        console.error('Error fetching votes:', error);
+        setVotes(0);
+      } else {
+        if (data && data.length > 0) {
+        const upvotes = data.filter(vote => vote.type === 'upvote').length;
+        const downvotes = data.filter(vote => vote.type === 'downvote').length;
+        setVotes(upvotes - downvotes);
+        } else {
+        setVotes(0);
+        }
+      }
+      });
+    
+
+
+    // Check if the user has already voted
+    if (user) {
+      db.from('publication_votes')
+        .select('id, publication_id, user_id, type')
+        .eq('publication_id', id)
+        .eq('user_id', user.id)
+        .then(({ data, error }) => {
+          if (error) {
+            console.error('Error fetching user vote:', error);
+          } else {
+            console.log('User vote data:', data);
+            if (data && data.length > 0) {
+              setIsVoted(true);
+              const userVote = data[0];
+              if (userVote.type === 'upvote') {
+                setIsUpvoted(true);
+              } else if (userVote.type === 'downvote') {
+                setIsDownvoted(true);
+              }
+            } else {
+              setIsVoted(false);
+              setIsUpvoted(false);
+              setIsDownvoted(false);
+            }
+          }
+        });
+    } else {
+      setIsVoted(false);
+      setIsUpvoted(false);
+      setIsDownvoted(false);
+    }
+    
+
     // We fetch 3 projects and 3 publications
     fetchRandomNews(3, seed.current, [id]).then((news) => {
       setRandomContent((prev) => {
@@ -192,11 +361,11 @@ export function PublicationDetail({ id }: Props) {
 
                   <div className={'flex space-y-4 justify-between'}>
                     <div className='bg-white flex-row flex gap-2 items-center justify-center rounded-lg px-4 py-2 border border-border'>
-                      <button onClick={handleUpVote} className={`cursor-pointer transition-colors duration-300 ${isUpvoted ? "text-red-600" : "text-black"}`} >
+                      <button onClick={handleUpVote} className={`cursor-pointer transition-colors duration-300 ${isUpvoted ? 'text-red-600' : 'text-black'}`} >
                         <CircleArrowUp size={24} />
                       </button>
-                      <h1>0</h1>
-                      <button onClick={handleDownVote} className={`cursor-pointer transition-colors duration-300 ${isDownvoted ? "text-red-600" : "text-black"}`}>
+                      <h1>{votes}</h1>
+                      <button onClick={handleDownVote} className={`cursor-pointer transition-colors duration-300 ${isDownvoted ? 'text-red-600' : 'text-black'}`}>
                         <CircleArrowDown size={24}  />
                       </button>
                     </div>
