@@ -13,6 +13,7 @@ import { Button } from '@common/components/button';
 import { IoEnter } from 'react-icons/io5';
 import { useState, useEffect } from 'react';
 import { checkGroupMembership, joinGroup, leaveGroup } from '../components/group-membership-functions';
+import { useAuthStore } from '@auth/store/auth_store';
 
 type GroupDetailProps = {
   id: string;
@@ -36,7 +37,7 @@ async function fetchGroup(id: string): Promise<Group | null> {
 export function GroupDetail({ id }: GroupDetailProps) {
   useScrollReset();
 
-  const [user, setUser] = useState<any>(null);
+  const { user } = useAuthStore();
   const [isMember, setIsMember] = useState(false);
   const [isLoadingMembership, setIsLoadingMembership] = useState(false);
 
@@ -49,9 +50,6 @@ export function GroupDetail({ id }: GroupDetailProps) {
   // Obtener usuario actual y verificar membresía
   useEffect(() => {
     const getCurrentUser = async () => {
-      const { data: { user } } = await db.auth.getUser();
-      setUser(user);
-      
       if (user && group) {
         try {
           const membershipStatus = await checkGroupMembership(group.id, user.id);
@@ -63,13 +61,13 @@ export function GroupDetail({ id }: GroupDetailProps) {
     };
 
     getCurrentUser();
-  }, [group?.id]);
+  }, [group, group?.id, user]);
 
   const handleMembershipAction = async () => {
     if (!user || !group) return;
 
     setIsLoadingMembership(true);
-    
+
     try {
       if (isMember) {
         await leaveGroup(group.id, user.id);
@@ -117,8 +115,8 @@ export function GroupDetail({ id }: GroupDetailProps) {
                   </div>
                 </div>
                 <div>
-                  <Button 
-                    leading={<IoEnter />} 
+                  <Button
+                    leading={<IoEnter />}
                     variant='red'
                     onClick={handleMembershipAction}
                     disabled={isLoadingMembership || !user}
