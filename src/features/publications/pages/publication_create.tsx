@@ -8,8 +8,8 @@ import { useForm } from 'react-hook-form';
 import { PageBanner } from '@common/components/page_banner';
 import { SuccessModal } from '@common/components/modal_create';
 import { type MDXEditorMethods } from '@mdxeditor/editor'; // Importación type-only
-import { 
-  MDXEditor, 
+import {
+  MDXEditor,
   toolbarPlugin,
   UndoRedo,
   BoldItalicUnderlineToggles,
@@ -42,7 +42,7 @@ const ERROR_MESSAGES = {
 };
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
-export default function NewCreatePage() {
+export function NewCreatePage() {
   const { user } = useAuthStore();
   const {
     register,
@@ -55,36 +55,36 @@ export default function NewCreatePage() {
   } = useForm<NewsFormData>();
 
   register('description', {
-  required: ERROR_MESSAGES.REQUIRED,
-  validate: (value) => (value?.trim().length > 0) || ERROR_MESSAGES.REQUIRED
+    required: ERROR_MESSAGES.REQUIRED,
+    validate: (value) => (value?.trim().length > 0) || ERROR_MESSAGES.REQUIRED
   });
   const editorRef = useRef<MDXEditorMethods>(null);
-    const handleDescriptionChange = (markdown: string) => {
-      setValue('description', markdown, { shouldValidate: true });
-      trigger('description');
-    };
+  const handleDescriptionChange = (markdown: string) => {
+    setValue('description', markdown, { shouldValidate: true });
+    trigger('description');
+  };
 
   const [previewImage, setPreviewImage] = useState<string | null>(null);
-  
+
   // Extraemos las propiedades del register para el input file
-  const { ref: fileRef, onChange: hookFormOnChange, ...fileRegisterProps } = 
+  const { ref: fileRef, onChange: hookFormOnChange, ...fileRegisterProps } =
     register('coverImage', {
       required: ERROR_MESSAGES.IMAGE_REQUIRED,
       validate: {
-        fileType: (files) => 
+        fileType: (files) =>
           files[0]?.type?.startsWith('image/') || ERROR_MESSAGES.IMAGE_TYPE,
-        fileSize: (files) => 
+        fileSize: (files) =>
           files[0]?.size <= MAX_FILE_SIZE || ERROR_MESSAGES.IMAGE_SIZE
       }
     });
-  
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // 1. Manejar previsualización
     const file = e.target.files?.[0];
     if (file) {
       setPreviewImage(URL.createObjectURL(file));
     }
-    
+
     // 2. Propagamos el evento al hook form
     hookFormOnChange(e);
     trigger('coverImage');
@@ -111,7 +111,7 @@ export default function NewCreatePage() {
           author_id: user.id,
           published_at: new Date().toISOString(),
           active: true,
-          visibility: 'public', 
+          visibility: 'public',
         })
         .select('id')
         .single();
@@ -141,7 +141,7 @@ export default function NewCreatePage() {
           description="Registra una nueva publicacion para compartir con la comunidad"
         />
         <div className="w-full max-w-4xl bg-white p-8 rounded-lg">
-        {!user && (
+          {!user && (
             <div className="mb-4 text-red-600 font-medium">
               Debes iniciar sesión para crear noticias.
             </div>
@@ -191,14 +191,14 @@ export default function NewCreatePage() {
                           <ListsToggle />
                           {/* <Separator />
                           <CreateLink /> */}
-                          
+
                         </>
                       )
                     }),
                     listsPlugin(),
                     linkPlugin(),
                     quotePlugin(),
-                   
+
                   ]}
                   contentEditableClassName={`
                     [&_ul]:list-disc 
@@ -223,17 +223,17 @@ export default function NewCreatePage() {
               <span className="block font-medium text-gray-700 mb-1">
                 Imagen de portada <span className="text-red-500">*</span>
               </span>
-              
+
               {previewImage && (
                 <div className="mb-4">
-                  <img 
-                    src={previewImage} 
-                    alt="Previsualización" 
+                  <img
+                    src={previewImage}
+                    alt="Previsualización"
                     className="max-h-60 w-auto rounded-md object-contain border border-gray-200"
                   />
                 </div>
               )}
-              
+
               <div className="mt-1 flex items-center">
                 <button
                   type="button"
@@ -258,7 +258,7 @@ export default function NewCreatePage() {
               {errors.coverImage && (
                 <p className="mt-1 text-sm text-red-600">{errors.coverImage.message}</p>
               )}
-            </div>        
+            </div>
 
             {/* Términos y condiciones */}
             {/* <div className="flex items-start">

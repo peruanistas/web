@@ -26,7 +26,7 @@ type ProjectsDetailsPageProps = {
   id: string;
 };
 
-export default function ProjectsDetailsPage({ id }: ProjectsDetailsPageProps) {
+export function ProjectsDetailsPage({ id }: ProjectsDetailsPageProps) {
   const [voteModalOpen, setVoteModalOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [loading, setLoading] = useState(true);

@@ -5,15 +5,15 @@ import { Layout } from '@common/components/layout';
 import { Header } from '@common/components/header';
 import { PageBanner } from '@common/components/page_banner';
 import { DEPARTMENT_OPTIONS, DISTRICTS_BY_DEPARTMENT } from '@common/data/geo';
-import {pushBlobToStorage } from '@common/utils';
+import { pushBlobToStorage } from '@common/utils';
 import { PE_DEPARTMENTS } from '@common/data/geo';
 import { useAuthStore } from '@auth/store/auth_store';
 import { Admonition } from '@common/components/admonition';
 import { SuccessModal } from '@common/components/modal_create';
 import { Info } from 'lucide-react';
 import { type MDXEditorMethods } from '@mdxeditor/editor'; // Importación type-only
-import { 
-  MDXEditor, 
+import {
+  MDXEditor,
   toolbarPlugin,
   UndoRedo,
   BoldItalicUnderlineToggles,
@@ -58,7 +58,7 @@ function getCurrentDateTimeLocal() {
   return local.toISOString().slice(0, 16);
 }
 
-export default function EventsCreatePage() {
+export function EventsCreatePage() {
   const {
     register,
     handleSubmit,
@@ -69,7 +69,7 @@ export default function EventsCreatePage() {
     trigger
   } = useForm<EventFormData>();
 
-    register('description', {
+  register('description', {
     required: ERROR_MESSAGES.REQUIRED,
     validate: (value) => (value?.trim().length > 0) || ERROR_MESSAGES.REQUIRED
   });
@@ -87,21 +87,21 @@ export default function EventsCreatePage() {
       const bucket_path = await pushBlobToStorage(db, 'multimedia', form_data.coverImage[0]);
 
       const eventData = {
-          title: form_data.eventName,
-          content: form_data.description,
-          geo_department: form_data.department,
-          geo_district: form_data.district,
-          image_url: bucket_path,
-          event_date: new Date(form_data.dateTime).toISOString(),
-          author_id: user.id,
-          published_at: new Date().toISOString(),
+        title: form_data.eventName,
+        content: form_data.description,
+        geo_department: form_data.department,
+        geo_district: form_data.district,
+        image_url: bucket_path,
+        event_date: new Date(form_data.dateTime).toISOString(),
+        author_id: user.id,
+        published_at: new Date().toISOString(),
       };
 
       const { data, error } = await db
-      .from('events')
-      .insert(eventData)
-      .select('id')
-      .single();;
+        .from('events')
+        .insert(eventData)
+        .select('id')
+        .single();;
 
       if (error) throw error;
       if (!data?.id) throw new Error('No se obtuvo ID del proyecto');
@@ -116,26 +116,26 @@ export default function EventsCreatePage() {
   };
 
   const [previewImage, setPreviewImage] = useState<string | null>(null);
-  
+
   // Extraemos las propiedades del register para el input file
-  const { ref: fileRef, onChange: hookFormOnChange, ...fileRegisterProps } = 
+  const { ref: fileRef, onChange: hookFormOnChange, ...fileRegisterProps } =
     register('coverImage', {
       required: ERROR_MESSAGES.IMAGE_REQUIRED,
       validate: {
-        fileType: (files) => 
+        fileType: (files) =>
           files[0]?.type?.startsWith('image/') || ERROR_MESSAGES.IMAGE_TYPE,
-        fileSize: (files) => 
+        fileSize: (files) =>
           files[0]?.size <= MAX_FILE_SIZE || ERROR_MESSAGES.IMAGE_SIZE
       }
     });
-  
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // 1. Manejar previsualización
     const file = e.target.files?.[0];
     if (file) {
       setPreviewImage(URL.createObjectURL(file));
     }
-    
+
     // 2. Propagamos el evento al hook form
     hookFormOnChange(e);
     trigger('coverImage');
@@ -208,14 +208,14 @@ export default function EventsCreatePage() {
                           <ListsToggle />
                           {/* <Separator />
                           <CreateLink /> */}
-                          
+
                         </>
                       )
                     }),
                     listsPlugin(),
                     linkPlugin(),
                     quotePlugin(),
-                   
+
                   ]}
                   contentEditableClassName={`
                     [&_ul]:list-disc 
@@ -293,17 +293,17 @@ export default function EventsCreatePage() {
               <span className="block font-medium text-gray-700 mb-1">
                 Imagen de portada <span className="text-red-500">*</span>
               </span>
-              
+
               {previewImage && (
                 <div className="mb-4">
-                  <img 
-                    src={previewImage} 
-                    alt="Previsualización" 
+                  <img
+                    src={previewImage}
+                    alt="Previsualización"
                     className="max-h-60 w-auto rounded-md object-contain border border-gray-200"
                   />
                 </div>
               )}
-              
+
               <div className="mt-1 flex items-center">
                 <button
                   type="button"
@@ -342,9 +342,8 @@ export default function EventsCreatePage() {
                   {...register('department', {
                     required: 'El departamento es obligatorio'
                   })}
-                  className={`w-full px-3 py-2 border rounded-md ${
-                    errors.department ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full px-3 py-2 border rounded-md ${errors.department ? 'border-red-500' : 'border-gray-300'
+                    }`}
                 >
                   <option value="">Seleccione un departamento</option>
                   {DEPARTMENT_OPTIONS.map(option => (
@@ -369,9 +368,8 @@ export default function EventsCreatePage() {
                   {...register('district', {
                     required: 'Debe seleccionar un distrito'
                   })}
-                  className={`w-full px-3 py-2 border rounded-md ${
-                    errors.district ? 'border-red-500' : 'border-gray-300'
-                  } ${!watch('department') ? 'bg-gray-100' : ''}`}
+                  className={`w-full px-3 py-2 border rounded-md ${errors.district ? 'border-red-500' : 'border-gray-300'
+                    } ${!watch('department') ? 'bg-gray-100' : ''}`}
                 >
                   <option value="">
                     {watch('department')

@@ -30,7 +30,7 @@
       "@common/*": ["./src/features/common/*"],
       "@home/*": ["./src/features/home/*"],
       "@events/*": ["./src/features/events/*"],
-      "@news/*": ["./src/features/news/*"],
+      "@publications/*": ["./src/features/publications/*"],
       "@projects/*": ["./src/features/projects/*"],
       "@groups/*": ["./src/features/groups/*"],
       "@auth/*": ["./src/features/auth/*"],

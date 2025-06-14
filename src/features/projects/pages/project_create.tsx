@@ -13,8 +13,8 @@ import { Info } from 'lucide-react';
 import { useAuthStore } from '@auth/store/auth_store';
 import { type MDXEditorMethods } from '@mdxeditor/editor'; // Importación type-only
 
-import { 
-  MDXEditor, 
+import {
+  MDXEditor,
   toolbarPlugin,
   UndoRedo,
   BoldItalicUnderlineToggles,
@@ -54,7 +54,7 @@ const ERROR_MESSAGES = {
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
-export default function ProjectsCreatePage() {
+export function ProjectsCreatePage() {
   const {
     register,
     handleSubmit,
@@ -114,32 +114,32 @@ export default function ProjectsCreatePage() {
       alert(`Error: ${errorMessage}`);
     }
   };
-const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
-// Extraemos las propiedades del register para el input file
-const { ref: fileRef, onChange: hookFormOnChange, ...fileRegisterProps } = 
-  register('coverImage', {
-    required: ERROR_MESSAGES.IMAGE_REQUIRED,
-    validate: {
-      fileType: (files) => 
-        files[0]?.type?.startsWith('image/') || ERROR_MESSAGES.IMAGE_TYPE,
-      fileSize: (files) => 
-        files[0]?.size <= MAX_FILE_SIZE || ERROR_MESSAGES.IMAGE_SIZE
+  // Extraemos las propiedades del register para el input file
+  const { ref: fileRef, onChange: hookFormOnChange, ...fileRegisterProps } =
+    register('coverImage', {
+      required: ERROR_MESSAGES.IMAGE_REQUIRED,
+      validate: {
+        fileType: (files) =>
+          files[0]?.type?.startsWith('image/') || ERROR_MESSAGES.IMAGE_TYPE,
+        fileSize: (files) =>
+          files[0]?.size <= MAX_FILE_SIZE || ERROR_MESSAGES.IMAGE_SIZE
+      }
+    });
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // 1. Manejar previsualización
+    const file = e.target.files?.[0];
+    if (file) {
+      setPreviewImage(URL.createObjectURL(file));
     }
-  });
 
-const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  // 1. Manejar previsualización
-  const file = e.target.files?.[0];
-  if (file) {
-    setPreviewImage(URL.createObjectURL(file));
-  }
-  
-  // 2. Propagamos el evento al hook form
-  hookFormOnChange(e);
-  trigger('coverImage');
-};
-  
+    // 2. Propagamos el evento al hook form
+    hookFormOnChange(e);
+    trigger('coverImage');
+  };
+
   useEffect(() => {
     document.title = 'Crear Proyecto';
   }, []);
@@ -159,9 +159,9 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         />
         <div className="w-full max-w-4xl bg-white p-8 rounded-lg">
           {!user && (
-              <Admonition 
-                title="Debes iniciar sesión para crear proyectos" 
-                icon={<Info />} />
+            <Admonition
+              title="Debes iniciar sesión para crear proyectos"
+              icon={<Info />} />
           )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -180,9 +180,8 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                     message: ERROR_MESSAGES.MAX_LENGTH
                   }
                 })}
-                className={`w-full px-3 py-2 border rounded-md ${
-                  errors.projectName ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full px-3 py-2 border rounded-md ${errors.projectName ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 placeholder="Mi proyecto innovador"
               />
               {errors.projectName && (
@@ -210,14 +209,14 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                           <ListsToggle />
                           {/* <Separator />
                           <CreateLink /> */}
-                          
+
                         </>
                       )
                     }),
                     listsPlugin(),
                     linkPlugin(),
                     quotePlugin(),
-                   
+
                   ]}
                   contentEditableClassName={`
                     [&_ul]:list-disc 
@@ -266,17 +265,17 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
               <span className="block font-medium text-gray-700 mb-1">
                 Imagen de portada <span className="text-red-500">*</span>
               </span>
-              
+
               {previewImage && (
                 <div className="mb-4">
-                  <img 
-                    src={previewImage} 
-                    alt="Previsualización" 
+                  <img
+                    src={previewImage}
+                    alt="Previsualización"
                     className="max-h-60 w-auto rounded-md object-contain border border-gray-200"
                   />
                 </div>
               )}
-              
+
               <div className="mt-1 flex items-center">
                 <button
                   type="button"
@@ -301,7 +300,7 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
               {errors.coverImage && (
                 <p className="mt-1 text-sm text-red-600">{errors.coverImage.message}</p>
               )}
-            </div>        
+            </div>
 
             {/* Ubicación - Departamento, Ciudad, Distrito */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -315,9 +314,8 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                   {...register('department', {
                     required: 'El departamento es obligatorio'
                   })}
-                  className={`w-full px-3 py-2 border rounded-md ${
-                    errors.department ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full px-3 py-2 border rounded-md ${errors.department ? 'border-red-500' : 'border-gray-300'
+                    }`}
                 >
                   <option value="">Seleccione un departamento</option>
                   {DEPARTMENT_OPTIONS.map(option => (
@@ -342,9 +340,8 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                   {...register('district', {
                     required: 'Debe seleccionar un distrito'
                   })}
-                  className={`w-full px-3 py-2 border rounded-md ${
-                    errors.district ? 'border-red-500' : 'border-gray-300'
-                  } ${!watch('department') ? 'bg-gray-100' : ''}`}
+                  className={`w-full px-3 py-2 border rounded-md ${errors.district ? 'border-red-500' : 'border-gray-300'
+                    } ${!watch('department') ? 'bg-gray-100' : ''}`}
                 >
                   <option value="">
                     {watch('department')
