@@ -1,18 +1,13 @@
 import { db } from '@db/client';
 
 export async function checkGroupMembership(groupId: string, userId: string): Promise<boolean> {
-  const { data, error } = await db
+  const { count } = await db
     .from('group_members')
-    .select('group_id')
+    .select('*', { count: 'exact', head: true })
     .eq('group_id', groupId)
-    .eq('user_id', userId)
-    .single();
+    .eq('user_id', userId);
 
-  if (error && error.code !== 'PGRST116') { 
-    throw new Error(`Error checking membership: ${error.message}`);
-  }
-
-  return !!data;
+  return count != null && count == 1;
 }
 
 export async function joinGroup(groupId: string, userId: string): Promise<void> {
