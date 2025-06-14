@@ -54,72 +54,44 @@ export function PublicationDetail({ id }: Props) {
   const [isUpvoted, setIsUpvoted] = useState(false);
   const [isDownvoted, setIsDownvoted] = useState(false);
   const [votes, setVotes] = useState(0);
-  const [isvoted, setIsVoted] = useState(false);
-
-
-
 
   function handleUpVote() {
     if (!user) {
       alert('Debes iniciar sesión para votar.');
       return;
     }
-    if (!isUpvoted) {
-      setIsUpvoted(true);
+    if (isUpvoted) {
+      setIsUpvoted(false);
       setIsDownvoted(false);
-
-
-      if (!isvoted) {
-        db.from('publication_votes')
-          .insert({
-            publication_id: id,
-            user_id: user.id,
-            type: 'upvote',
-          })
-          .then(({ data, error }) => {
-            if (error) {
-              console.error('Error al registrar el voto:', error);
-              setIsUpvoted(false);
-            } else {
-              console.log('Voto registrado:', data);
-              setVotes((prev) => prev + 1);
-              setIsUpvoted(true);
-              setIsVoted(true);
-            }
-          });
-      } else {
-        db.from('publication_votes')
-          .update({ type: 'upvote' })
-          .eq('publication_id', id)
-          .eq('user_id', user.id)
-          .then(({ data, error }) => {
-            if (error) {
-              console.error('Error al actualizar el voto:', error);
-              setIsUpvoted(false);
-            } else {
-              console.log('Voto actualizado:', data);
-              //setVotes((prev) => prev + 1);
-            }
-          });
-      }
+      //eliminar el voto segun el id y user_id
+      db.from('publication_votes')
+        .delete()
+        .eq('publication_id', id)
+        .eq('user_id', user.id)
+        .then(({ error }) => {
+          if (error) {
+            console.error('Error al eliminar el voto:', error);
+            setIsUpvoted(true);
+            setIsDownvoted(false);
+          }
+        });
       return;
     }
-    //eliminar el voto segun el id y user_id
+    setIsUpvoted(true);
+    setIsDownvoted(false);
     db.from('publication_votes')
-      .delete()
-      .eq('publication_id', id)
-      .eq('user_id', user.id)
-      .then(({ data, error }) => {
+      .upsert({
+        publication_id: id,
+        user_id: user.id,
+        type: 'upvote',
+      })
+      .then(({ error }) => {
         if (error) {
-          console.error('Error al eliminar el voto:', error);
-          setIsDownvoted(true);
-        } else {
-          console.log('Voto eliminado:', data);
-          setVotes((prev) => prev - 1);
+          console.error('Error al registrar el voto:', error);
+          setIsUpvoted(false);
+          setIsDownvoted(false);
         }
       });
-    setIsVoted(false);
-    setIsUpvoted(false);
   }
 
   function handleDownVote() {
@@ -127,63 +99,38 @@ export function PublicationDetail({ id }: Props) {
       alert('Debes iniciar sesión para votar.');
       return;
     }
-    if (!isDownvoted) {
-      setIsDownvoted(true);
+    if (isDownvoted) {
+      setIsDownvoted(false);
       setIsUpvoted(false);
-
-
-      if (!isvoted) {
-        db.from('publication_votes')
-          .insert({
-            publication_id: id,
-            user_id: user.id,
-            type: 'downvote',
-          })
-          .then(({ data, error }) => {
-            if (error) {
-              console.error('Error al registrar el voto:', error);
-              setIsDownvoted(false);
-            } else {
-              console.log('Voto registrado:', data);
-              setVotes((prev) => prev - 1);
-              setIsDownvoted(true);
-              setIsVoted(true);
-            }
-          });
-      } else {
-        db.from('publication_votes')
-          .update({ type: 'downvote' })
-          .eq('publication_id', id)
-          .eq('user_id', user.id)
-          .then(({ data, error }) => {
-            if (error) {
-              console.error('Error al actualizar el voto:', error);
-              setIsDownvoted(false);
-            } else {
-              console.log('Voto actualizado:', data);
-              //setVotes((prev) => prev - 1);
-            }
-          });
-      }
-
+      //eliminar el voto segun el id y user_id
+      db.from('publication_votes')
+        .delete()
+        .eq('publication_id', id)
+        .eq('user_id', user.id)
+        .then(({ error }) => {
+          if (error) {
+            console.error('Error al eliminar el voto:', error);
+            setIsDownvoted(true);
+            setIsUpvoted(false);
+          }
+        });
       return;
     }
-    //eliminar el voto segun el id y user_id
+
+    setIsDownvoted(true);
+    setIsUpvoted(false);
     db.from('publication_votes')
-      .delete()
-      .eq('publication_id', id)
-      .eq('user_id', user.id)
-      .then(({ data, error }) => {
+      .upsert({
+        publication_id: id,
+        user_id: user.id,
+        type: 'downvote',
+      })
+      .then(({ error }) => {
         if (error) {
-          console.error('Error al eliminar el voto:', error);
-          setIsDownvoted(true);
-        } else {
-          console.log('Voto eliminado:', data);
-          setVotes((prev) => prev + 1);
+          console.error('Error al registrar el voto:', error);
+          setIsDownvoted(false);
         }
       });
-    setIsVoted(false);
-    setIsDownvoted(false);
   }
 
 
@@ -197,8 +144,6 @@ export function PublicationDetail({ id }: Props) {
   const [randomContent, setRandomContent] = useState<ContentSidebarPreview[]>([]);
 
   useEffect(() => {
-
-
     db.from('publication_votes')
       .select('id, publication_id, user_id, type')
       .eq('publication_id', id)
@@ -217,8 +162,6 @@ export function PublicationDetail({ id }: Props) {
         }
       });
 
-
-
     // Check if the user has already voted
     if (user) {
       db.from('publication_votes')
@@ -231,7 +174,6 @@ export function PublicationDetail({ id }: Props) {
           } else {
             console.log('User vote data:', data);
             if (data && data.length > 0) {
-              setIsVoted(true);
               const userVote = data[0];
               if (userVote.type === 'upvote') {
                 setIsUpvoted(true);
@@ -239,14 +181,12 @@ export function PublicationDetail({ id }: Props) {
                 setIsDownvoted(true);
               }
             } else {
-              setIsVoted(false);
               setIsUpvoted(false);
               setIsDownvoted(false);
             }
           }
         });
     } else {
-      setIsVoted(false);
       setIsUpvoted(false);
       setIsDownvoted(false);
     }
@@ -272,6 +212,8 @@ export function PublicationDetail({ id }: Props) {
   }, [randomContent]);
 
   if (isError) return <div className="text-center py-10 text-red-600">Error al cargar la noticia.</div>;
+
+  const totalVotes = votes + (isUpvoted ? 1 : 0) - (isDownvoted ? 1 : 0);
 
   return (
     <Layout>
@@ -366,7 +308,7 @@ export function PublicationDetail({ id }: Props) {
                       <button onClick={handleUpVote} className={`cursor-pointer transition-colors duration-300 ${isUpvoted ? 'text-red-600' : 'text-black'}`} >
                         <CircleArrowUp size={24} />
                       </button>
-                      <h1>{votes}</h1>
+                      <h1>{totalVotes}</h1>
                       <button onClick={handleDownVote} className={`cursor-pointer transition-colors duration-300 ${isDownvoted ? 'text-red-600' : 'text-black'}`}>
                         <CircleArrowDown size={24} />
                       </button>
