@@ -227,6 +227,18 @@ export type Database = {
         }
         Relationships: []
       }
+      golden_votes: {
+        Row: {
+          coalesce: number | null
+        }
+        Insert: {
+          coalesce?: number | null
+        }
+        Update: {
+          coalesce?: number | null
+        }
+        Relationships: []
+      }
       group_members: {
         Row: {
           group_id: string
@@ -406,21 +418,24 @@ export type Database = {
           id: string
           project_id: string
           user_id: string
-          vote_type: Database['public']['Enums']['project_vote_type'] | null
+          vote_type: Database['public']['Enums']['project_vote_type']
+          votes_count: number
         }
         Insert: {
           created_at?: string
           id?: string
           project_id: string
           user_id: string
-          vote_type?: Database['public']['Enums']['project_vote_type'] | null
+          vote_type: Database['public']['Enums']['project_vote_type']
+          votes_count?: number
         }
         Update: {
           created_at?: string
           id?: string
           project_id?: string
           user_id?: string
-          vote_type?: Database['public']['Enums']['project_vote_type'] | null
+          vote_type?: Database['public']['Enums']['project_vote_type']
+          votes_count?: number
         }
         Relationships: [
           {
@@ -664,6 +679,18 @@ export type Database = {
           },
         ]
       }
+      silver_votes: {
+        Row: {
+          sum: number | null
+        }
+        Insert: {
+          sum?: number | null
+        }
+        Update: {
+          sum?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       random_groups: {
@@ -886,7 +913,7 @@ export type Database = {
         Returns: {
           golden_votes: number
           silver_votes: number
-          user_has_voted: boolean
+          times_user_has_votes: number
         }[]
       }
       get_votes_left: {
@@ -898,7 +925,7 @@ export type Database = {
         Returns: undefined
       }
       vote_for_project: {
-        Args: { project_id: string }
+        Args: { project_id: string; votes_count: number }
         Returns: undefined
       }
     }
