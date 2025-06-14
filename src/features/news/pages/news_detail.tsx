@@ -265,7 +265,7 @@ export function PublicationDetail({ id }: Props) {
         return mergeAndShuffle(prev, projects);
       });
     });
-  }, [id, seed]);
+  }, [id, seed, user]);
 
   const randomContentElements = useMemo(() => {
     return <RandomPublications publications={randomContent} />;

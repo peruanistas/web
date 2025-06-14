@@ -1,13 +1,17 @@
 import { Modal } from '@common/components/modal';
 import { PE_DEPARTMENTS, PE_DISTRICTS } from '@common/data/geo';
 import type { ProjectPreview } from '@projects/types';
-import { formatIoaarType, getVotesLeft, voteForProject } from '@projects/utils';
+import { formatIoaarType, getVotesLeft, voteForProject, votesEffectivePoints } from '@projects/utils';
 import { LucideInfo, MapPin, Star } from 'lucide-react';
 import ProjectDetailButton from './project_detail_button';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@auth/store/auth_store';
 import { Button } from '@common/components/button';
 import { useLocation } from 'wouter';
+import { db } from '@db/client';
+import { VotesCounter } from './votes_counter';
+import { useState, useEffect } from 'react';
+import ContentLoader from 'react-content-loader';
 
 type VoteConfirmationModalProps = {
   open: boolean;
@@ -18,8 +22,17 @@ type VoteConfirmationModalProps = {
 export function VoteConfirmationModal({ open, onClose, project }: VoteConfirmationModalProps) {
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
+  const [votesCount, setVotesCount] = useState(1);
 
   const [, navigate] = useLocation();
+
+  const { data: votesSummary } = useQuery({
+    queryKey: ['project_vote_summary', project.id],
+    queryFn: async () => {
+      return db.rpc('get_project_vote_summary', { project_id: project.id }).then((rows) => rows.data![0]);
+    },
+    enabled: !!project,
+  });
 
   const {
     data: votesLeft,
@@ -35,13 +48,33 @@ export function VoteConfirmationModal({ open, onClose, project }: VoteConfirmati
     staleTime: 60 * 1000, // 1 minute
   });
 
+  // Reset votes count when modal opens or when user votes left changes
+  useEffect(() => {
+    const userVotesLeft = votesLeft ?? 0;
+    if (open && userVotesLeft > 0) {
+      setVotesCount(Math.min(1, userVotesLeft));
+    }
+  }, [open, votesLeft]);
+
   if (!open) return null;
 
   if (isVotesLoading || isVotesError) {
     return (
       <Modal open={open} onClose={onClose}>
-        <div className='flex flex-col items-center justify-center h-full'>
-          <p className='loader'></p>
+        <div className='flex flex-col items-center justify-center p-8'>
+          <ContentLoader
+            speed={2}
+            width={400}
+            height={200}
+            viewBox="0 0 400 200"
+            backgroundColor="#ededed"
+            foregroundColor="#ecebeb"
+          >
+            <rect x="0" y="20" rx="6" ry="6" width="300" height="20" />
+            <rect x="0" y="60" rx="4" ry="4" width="200" height="16" />
+            <rect x="0" y="90" rx="4" ry="4" width="250" height="16" />
+            <rect x="0" y="130" rx="8" ry="8" width="150" height="40" />
+          </ContentLoader>
         </div>
       </Modal>
     );
@@ -98,7 +131,9 @@ export function VoteConfirmationModal({ open, onClose, project }: VoteConfirmati
             <h2 className='text-xl mb-0.5 font-semibold'>{project?.title}</h2>
             <div className='flex gap-2'>
               <span className='text-primary font-bold mb-2'>{formatIoaarType(project?.ioarr_type)}</span> ·
-              <span>0 puntos</span>
+              {
+                votesSummary && <span>{votesEffectivePoints(votesSummary!)} puntos</span>
+              }
             </div>
             <div className='flex flex-row gap-2 items-center'>
               <MapPin size={15} />
@@ -113,7 +148,7 @@ export function VoteConfirmationModal({ open, onClose, project }: VoteConfirmati
         <div className='flex gap-3 text-lg items-center bg-orange-100 p-2 mb-4 font-normal!'>
           <Star color='#f7865d' fill={'#f7865d'} size={40} />
           <p>
-            Como este proyecto pertenece a tu distrito ({userDistrictName}), tu voto contará&nbsp;
+            Este proyecto pertenece a tu distrito ({userDistrictName}). Cada voto contará&nbsp;
             <span className='font-bold'>2 puntos</span>
           </p>
         </div>
@@ -122,17 +157,49 @@ export function VoteConfirmationModal({ open, onClose, project }: VoteConfirmati
         <div className='flex gap-3 text-lg items-center bg-gray-200 p-2 mb-4 font-normal!'>
           <Star color='#a0a0a0' fill={'#a0a0a0'} size={40} />
           <p>
-            Como este proyecto <b>no</b> pertenece a tu distrito ({userDistrictName}), tu voto contará&nbsp;
+            Este proyecto <b>no</b> pertenece a tu distrito ({userDistrictName}). Cada voto contará&nbsp;
             <span className='font-bold'>1 punto</span>
           </p>
         </div>
       )}
+
+      {/* Votes Counter */}
+      {userVotesLeft > 0 && (
+        <div className='mb-4'>
+          <div className='flex items-center justify-between mb-3'>
+            <label className='text-lg font-semibold'>
+              ¿Cuántos votos quieres usar?
+            </label>
+            <VotesCounter
+              value={votesCount}
+              onChange={setVotesCount}
+              min={1}
+              max={Math.min(userVotesLeft, 10)}
+              disabled={noVotesLeft}
+            />
+          </div>
+          <div className='bg-blue-50 p-3 rounded-lg'>
+            <p className='text-sm text-blue-800'>
+              {isGolden ? (
+                <>
+                  Sumarás <strong>{votesCount * 2}</strong> puntos al proyecto.
+                </>
+              ) : (
+                <>
+                  Sumarás <strong>{votesCount}</strong> {votesCount === 1 ? 'punto' : 'puntos'} al proyecto.
+                </>
+              )}
+            </p>
+          </div>
+        </div>
+      )}
+
       <ProjectDetailButton
-        title={'Votar'}
+        title={votesCount === 1 ? 'Votar' : `Usar ${votesCount} votos`}
         disabled={noVotesLeft}
         onClick={async () => {
           try {
-            await voteForProject(project.id);
+            await voteForProject(project.id, votesCount);
             // sucess message
             await queryClient.invalidateQueries({ queryKey: ['votes_left'] });
             await queryClient.invalidateQueries({ queryKey: ['project_vote_summary', project.id] });
@@ -146,7 +213,7 @@ export function VoteConfirmationModal({ open, onClose, project }: VoteConfirmati
       />
       {
         noVotesLeft && (
-          <div className='mt-2 flex gap-2 items-center'>
+          <div className='mt-4 flex gap-2 items-center'>
             <LucideInfo size={18} color='#222' />
             <p>No te quedan votos disponibles. Podrás votar la siguiente semana.</p>
           </div>
@@ -154,7 +221,7 @@ export function VoteConfirmationModal({ open, onClose, project }: VoteConfirmati
       }
       {
         userVotesLeft > 0 && (
-          <div className='mt-2 flex gap-2 items-center'>
+          <div className='mt-4 flex gap-2 items-center'>
             <LucideInfo size={18} color='#222' />
             <p>Te quedan <span className='font-bold'>{userVotesLeft}</span> {userVotesLeft === 1 ? 'voto' : 'votos'} disponibles.</p>
           </div>

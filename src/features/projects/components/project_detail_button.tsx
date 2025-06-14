@@ -1,7 +1,7 @@
 import { Loader } from '@common/components/loader';
 import { useState } from 'react';
 
-type ProjectDetailButtonProps = {
+type ProjectDetailButtonProps = React.HTMLAttributes<HTMLButtonElement> & {
   title: string;
   disabled?: boolean;
   loading?: boolean;
@@ -14,7 +14,8 @@ export default function ProjectDetailButton({
   disabled = false,
   loading = false,
   theme = 'main',
-  onClick = async () => { }
+  onClick = async () => { },
+  ...buttonProps
 }: ProjectDetailButtonProps) {
   const [isLoading, setLoading] = useState(false);
 
@@ -25,7 +26,11 @@ export default function ProjectDetailButton({
 
   if (disabled) {
     return (
-      <button className={`${buttonClass} cursor-not-allowed flex items-center justify-center h-14 bg-gray-300! text-gray-600!`} disabled>
+      <button
+        className={`${buttonClass} cursor-not-allowed flex items-center justify-center h-14 bg-gray-300! text-gray-600!`}
+        disabled
+        {...buttonProps}
+      >
         {
           isLoading || loading ? (
             <Loader />
@@ -38,17 +43,20 @@ export default function ProjectDetailButton({
   }
 
   return (
-    <button className={`${buttonClass} cursor-pointer flex items-center justify-center h-14`} onClick={async () => {
-      try {
-        setLoading(true);
-        await onClick();
-      } catch (error) {
-        console.error(error);
-        setLoading(false);
-      } finally {
-        setLoading(false);
-      }
-    }}>
+    <button
+      className={`${buttonClass} cursor-pointer flex items-center justify-center h-14`}
+      {...buttonProps}
+      onClick={async () => {
+        try {
+          setLoading(true);
+          await onClick();
+        } catch (error) {
+          console.error(error);
+          setLoading(false);
+        } finally {
+          setLoading(false);
+        }
+      }}>
       {
         isLoading || loading ? (
           <Loader variant='white' />

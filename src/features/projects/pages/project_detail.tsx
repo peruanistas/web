@@ -2,6 +2,7 @@ import { Header } from '@common/components/header';
 import { Layout } from '@common/components/layout';
 import ProjectDetailButton from '@projects/components/project_detail_button';
 import ProjectUserCard from '@projects/components/project_user_card';
+import SlotCounter from 'react-slot-counter';
 import { CalendarDays, MapPin, Star, Trophy, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import '@projects/styles/styles.css';
@@ -12,12 +13,14 @@ import { PE_DEPARTMENTS, PE_DISTRICTS } from '@common/data/geo';
 import { Modal } from '@common/components/modal';
 import { Share } from '@common/components/share';
 import { ContentLayout } from '@common/components/content_layout';
-import { formatIoaarType } from '@projects/utils';
 import { MarkdownViewer } from '@common/components/md_viewer';
 import { useQuery } from '@tanstack/react-query';
 import type { ProjectFull } from '@projects/types';
 import { VoteConfirmationModal } from '@projects/components/vote_confirmation_modal';
 import { Link } from 'wouter';
+import { Loader } from '@common/components/loader';
+import { votesEffectivePoints } from '@projects/utils';
+import ContentLoader from 'react-content-loader';
 
 type ProjectsDetailsPageProps = {
   id: string;
@@ -65,19 +68,23 @@ export default function ProjectsDetailsPage({ id }: ProjectsDetailsPageProps) {
   return (
     <Layout>
       <Header />
-      {loading && <div className='flex justify-center items-center w-full h-[1000px] bg-white'>
-        <div className="loader">
+      {loading && (
+        <div className='flex justify-center items-center w-full h-[1000px] bg-white'>
+          <Loader />
         </div>
-      </div>}
+      )}
       {project && <ContentLayout>
-        <div className='gap-[16px] flex flex-col-reverse lg:flex-row justify-center h-fit py-2'>
+        <div className='lg:gap-5 gap-1 flex flex-col-reverse lg:flex-row justify-center h-fit py-2'>
           <div>
             <div className='flex justify-center items-center w-full'>
               <div className="project_detail_layout__img_container">
                 <img src={project.image_url || undefined} />
               </div>
             </div>
-            <div className='flex flex-row flex-wrap bg-red-100 justify-center items-center w-full px-8 py-6 gap-6 text-sm h-fit my-10'>
+            <Link to={`/u/${project.author_id.id}`}>
+              <ProjectUserCard author={project.author_id} />
+            </Link>
+            <div className='flex flex-row flex-wrap bg-red-100 justify-center items-center w-full px-8 py-6 gap-6 text-sm h-fit mb-8 mt-8'>
               <div
                 className='flex flex-row gap-4 items-center w-full'
               >
@@ -112,56 +119,120 @@ export default function ProjectsDetailsPage({ id }: ProjectsDetailsPageProps) {
               <CommentsSection project_id={project.id} handleRefresh={() => { }} />
             </div>
           </div>
-          <div className="flex flex-col justify-center p-2 w-full max-w-lg lg:sticky lg:top-40 self-start min-w-full lg:min-w-md">
-            <h1 className="project_detail_layout__title my-3">{project.title}</h1>
+          <div className="flex flex-col justify-center p-2 w-full max-w-lg lg:sticky lg:top-24 self-start min-w-full lg:min-w-md">
+            <h1 className="project_detail_layout__title mt-3 mb-2 leading-9">{project.title}</h1>
             <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'row', gap: '8px', alignContent: 'center' }} >
               <MapPin size={15} />
-              <p style={{ fontSize: '14px' }}>
+              <p style={{ fontSize: '15px' }}>
                 {PE_DEPARTMENTS[project.geo_department].name}, {PE_DISTRICTS[project.geo_district].name}
               </p>
             </div>
             <div className='project_detail_layout__score_content '>
-              <div className='project_detail_layout__score_title'>
+              <div className='project_detail_layout__score_title h-[80px]'>
                 <p style={{ fontSize: '42px' }}>
                   {votesSummary &&
-                    <strong>
-                      {votesSummary.golden_votes * 2 + votesSummary.silver_votes}
-                    </strong>
+                    <SlotCounter
+                      charClassName='font-bold'
+                      containerClassName='pb-2'
+                      autoAnimationStart={false}
+                      value={votesEffectivePoints(votesSummary)}
+                    />
                   }
-                  {!votesSummary && <label className='loader'></label>}
+                  {!votesSummary && (
+                    <ContentLoader
+                      speed={2}
+                      width={70}
+                      height={60}
+                      viewBox="0 0 70 60"
+                      backgroundColor="#ededed"
+                      foregroundColor="#ecebeb"
+                      style={{ fontSize: '42px' }}
+                    >
+                      <rect x="0" y="5" rx="6" ry="6" width="120" height="50" />
+                    </ContentLoader>
+                  )}
                 </p>
                 <p>puntos</p>
               </div>
-              <div className='project_detail_layout__score_stars' >
+              <div className='project_detail_layout__score_stars h-5'>
                 <div style={{ display: 'flex', flexDirection: 'row', gap: '8px' }}>
-                  <p>{votesSummary ? votesSummary.golden_votes : <span className='loader'></span>}</p>
+                  <p>
+                    {votesSummary ? (
+                      votesSummary.golden_votes
+                    ) : (
+                      <ContentLoader
+                        speed={2}
+                        width={40}
+                        height={24}
+                        viewBox="0 0 40 24"
+                        backgroundColor="#ededed"
+                        foregroundColor="#ecebeb"
+                      >
+                        <rect x="0" y="6" rx="4" ry="4" width="40" height="12" />
+                      </ContentLoader>
+                    )}
+                  </p>
                   <Star color='#f7865d' fill={'#f7865d'} size={24} />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'row', gap: '8px' }}>
-                  <p>{votesSummary ? votesSummary.silver_votes : <span className='loader'></span>}</p>
+                  <p>
+                    {votesSummary ? (
+                      votesSummary.silver_votes
+                    ) : (
+                      <ContentLoader
+                        speed={2}
+                        width={40}
+                        height={24}
+                        viewBox="0 0 40 24"
+                        backgroundColor="#ededed"
+                        foregroundColor="#ecebeb"
+                      >
+                        <rect x="0" y="6" rx="4" ry="4" width="40" height="12" />
+                      </ContentLoader>
+                    )}
+                  </p>
                   <Star color='#b2b2b2' fill={'#b2b2b2'} size={24} />
                 </div>
               </div>
             </div>
-            <p className='my-2' style={{ color: 'var(--main-color-bt-bg)', fontSize: '20px' }}><strong>#12</strong> en {formatIoaarType(project!.ioarr_type)}</p>
-            <div className='mb-3'>
+            {/* <p
+              className='my-2'
+              style={{ color: 'var(--main-color-bt-bg)', fontSize: '20px' }}
+            >
+              <strong>#12</strong> en {formatIoaarType(project!.ioarr_type)}
+              Categoría: {formatIoaarType(project!.ioarr_type)}
+            </p> */}
+            <div className='mt-3'>
               <ProjectDetailButton
-                title={
-                  votesSummary?.user_has_voted ? 'Ya has votado' : 'Vota por este proyecto'
-                }
+                style={{
+                  marginBottom: 10,
+                }}
+                title={'Vota por este proyecto'}
                 onClick={async () => {
                   if (loading) return;
                   setVoteModalOpen(true);
                 }}
                 loading={votesSummaryLoading}
-                disabled={votesSummary?.user_has_voted}
-                theme={votesSummary?.user_has_voted ? 'secondary' : undefined}
               />
               <ProjectDetailButton title='Compartir' theme='secondary' onClick={async () => { setShareOpen(true); }} />
+
+              {/* User voting info section */}
+              {votesSummary && votesSummary.times_user_has_votes > 0 && (
+                <div className='bg-red-50 border border-red-200 rounded-lg p-4 mt-4'>
+                  <div className='space-y-2'>
+                    <div className='flex items-center gap-2'>
+                      <Trophy size={18} className='text-red-600' />
+                      <span className='font-semibold text-red-800'>Tu participación</span>
+                    </div>
+                    <div className='text-sm text-red-700'>
+                      <p className='mb-1'>
+                        Has votado <strong>{votesSummary.times_user_has_votes}</strong> {votesSummary.times_user_has_votes === 1 ? 'vez' : 'veces'} por este proyecto
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
-            <Link to={`/u/${project.author_id.id}`}>
-              <ProjectUserCard author={project.author_id} />
-            </Link>
           </div>
           {/*
             <div className='project_detail_subtitle'>
@@ -189,15 +260,21 @@ export default function ProjectsDetailsPage({ id }: ProjectsDetailsPageProps) {
       }
 
       {
-        project && <VoteConfirmationModal
+        (project && voteModalOpen) && <VoteConfirmationModal
           onClose={() => setVoteModalOpen(false)}
-          open={voteModalOpen}
+          open={true}
           project={project}
         />
       }
 
       <Modal open={shareOpen} onClose={() => setShareOpen(false)}>
-        <Share url={url} title={project?.title} location={project?.geo_department && PE_DEPARTMENTS[project.geo_department]?.name} content={project?.content} />
+        <Share
+          url={url}
+          shareTitle={'Comparte este proyecto'}
+          title={project?.title}
+          location={project?.geo_department && PE_DEPARTMENTS[project.geo_department]?.name}
+          content={project?.content}
+        />
       </Modal>
       <Footer />
     </Layout>

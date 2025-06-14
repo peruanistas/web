@@ -23,7 +23,16 @@ export async function getVotesLeft(): Promise<number> {
     return 0;
 }
 
-export async function voteForProject(project_id: string) {
+export async function voteForProject(project_id: string, votes_count: number) {
     // Note: the database function automatically handles the vote type
-    return db.rpc('vote_for_project', { project_id });
+    return db.rpc('vote_for_project', { project_id, votes_count });
+}
+
+type VotesSummary = {
+    golden_votes: number;
+    silver_votes: number;
+};
+
+export function votesEffectivePoints(votesSummary: VotesSummary) {
+    return votesSummary.golden_votes * 2 + votesSummary.silver_votes;
 }
