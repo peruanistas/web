@@ -8,7 +8,7 @@ import type { GroupPreview } from '../types';
 import { Button } from '@common/components/button';
 import { joinGroup, leaveGroup } from './group-membership-functions';
 import { useAuthStore } from '@auth/store/auth_store';
-import { useQueryClient } from '@tanstack/react-query'; 
+import { useQueryClient } from '@tanstack/react-query';
 
 type GroupCardProps = GroupPreview & {};
 
@@ -17,41 +17,43 @@ export function GroupCard(group: GroupCardProps & { isMember?: boolean }) {
   const [isMember, setIsMember] = useState(group.isMember ?? false);
 
   useEffect(() => {
-  setIsMember(group.isMember ?? false);
+    setIsMember(group.isMember ?? false);
   }, [group.isMember]);
-  
+
   const [isLoading, setIsLoading] = useState(false);
 
   const queryClient = useQueryClient();
 
   const handleMembershipAction = async (e: React.MouseEvent) => {
-  e.preventDefault();
-  e.stopPropagation();
+    e.preventDefault();
+    e.stopPropagation();
 
-  if (!user) return;
-
-  setIsLoading(true);
-  try {
-    if (isMember) {
-      await leaveGroup(group.id, user.id);
-      setIsMember(false);
-    } else {
-      await joinGroup(group.id, user.id);
-      setIsMember(true);
+    if (!user) {
+      alert('Inicia sesión para unirte a los grupos');
+      return;
     }
 
-    queryClient.invalidateQueries({ queryKey: ['group_memberships', user.id] });
+    setIsLoading(true);
+    try {
+      if (isMember) {
+        await leaveGroup(group.id, user.id);
+        setIsMember(false);
+      } else {
+        await joinGroup(group.id, user.id);
+        setIsMember(true);
+      }
 
-  } catch (error) {
-    console.error('Error updating membership:', error);
-  } finally {
-    setIsLoading(false);
-  }
-};
+      queryClient.invalidateQueries({ queryKey: ['group_memberships', user.id] });
+
+    } catch (error) {
+      console.error('Error updating membership:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const getButtonText = () => {
     if (isLoading) return 'Cargando...';
-    if (!user) return 'Inicia sesión';
     return isMember ? 'Salirse' : 'Unirse';
   };
 
@@ -62,38 +64,38 @@ export function GroupCard(group: GroupCardProps & { isMember?: boolean }) {
 
   return (
     <Link href={`/grupos/${group.id}`}>
-     <article className='flex flex-col border border-border rounded-sm bg-white'>
+      <article className='flex flex-col border border-border rounded-sm bg-white'>
 
-  <img
-    height={240}
-    className='object-cover h-[240px] rounded-t-sm bg-[#ededed]'
-    alt={group.name}
-    src={group.image_url ?? NO_IMAGE_URL}
-  />
+        <img
+          height={240}
+          className='object-cover h-[240px] rounded-t-sm bg-[#ededed]'
+          alt={group.name}
+          src={group.image_url ?? NO_IMAGE_URL}
+        />
 
-  <Link href={`/grupos/${group.id}`} className='p-3 min-h-[108px] h-[108px] block hover:cursor-pointer'>
-    <h2 className='font-semibold mb-1 line-clamp-1 break-words'>{group.name}</h2>
-    <span className='mt-1 line-clamp-2 break-words'>{group.description}</span>
-  </Link>
+        <Link href={`/grupos/${group.id}`} className='p-3 min-h-[108px] h-[108px] block hover:cursor-pointer'>
+          <h2 className='font-semibold mb-1 line-clamp-1 break-words'>{group.name}</h2>
+          <span className='mt-1 line-clamp-2 break-words'>{group.description}</span>
+        </Link>
 
-  <div className='flex justify-between items-center h-12 bg-gray-100 px-3 py-2 rounded-b-sm border-t border-border'>
-    <div className='flex items-center gap-2'>
-      <span><FaLocationDot color='#6e6e6e' size={16} /></span>
-      <span className='text-sm'>
-        {PE_DEPARTMENTS[group.geo_department].name}, {PE_DISTRICTS[group.geo_district].name}
-      </span>
-    </div>
-    <div className='flex text-sm items-center justify-center gap-2'>
-      <Button
-        variant={getButtonVariant()}
-        onClick={handleMembershipAction}
-        disabled={isLoading || !user}
-      >
-        {getButtonText()}
-      </Button>
-    </div>
-  </div>
-</article>
+        <div className='flex justify-between items-center h-12 bg-gray-100 px-3 py-2 rounded-b-sm border-t border-border'>
+          <div className='flex items-center gap-2'>
+            <span><FaLocationDot color='#6e6e6e' size={16} /></span>
+            <span className='text-sm'>
+              {PE_DEPARTMENTS[group.geo_department].name}, {PE_DISTRICTS[group.geo_district].name}
+            </span>
+          </div>
+          <div className='flex text-sm items-center justify-center gap-2'>
+            <Button
+              variant={getButtonVariant()}
+              onClick={handleMembershipAction}
+              disabled={isLoading || !user}
+            >
+              {getButtonText()}
+            </Button>
+          </div>
+        </div>
+      </article>
 
     </Link>
   );
