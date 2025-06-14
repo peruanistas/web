@@ -16,15 +16,16 @@ import {
 
 type ShareProps = {
   title?: string,
+  shareTitle?: string,
   location?: string,
   url: string,
   content?: string,
 }
 
-export function Share({ title, location, url, content }: ShareProps) {
+export function Share({ title, shareTitle, location, url, content }: ShareProps) {
   return (
     <div className='text-2xl font-bold'>
-      <h1 className='my-1 mb-3'>Compartir una publicacion</h1>
+      <h1 className='my-1 mb-3'>{shareTitle ?? 'Comparte este contenido'}</h1>
       <div className='flex flex-col'>
         <textarea
           className='w-full h-20 bg-gray-200 focus:outline-border rounded-md p-2 font-normal text-lg overflow-auto resize-none'

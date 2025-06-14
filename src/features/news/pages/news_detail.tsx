@@ -54,13 +54,13 @@ export function PublicationDetail({ id }: Props) {
   const [isUpvoted, setIsUpvoted] = useState(false);
   const [isDownvoted, setIsDownvoted] = useState(false);
   const [votes, setVotes] = useState(0);
-  const [isvoted, setIsVoted] = useState(false);  
+  const [isvoted, setIsVoted] = useState(false);
 
 
-  
 
-  function handleUpVote(){
-    if(!user){
+
+  function handleUpVote() {
+    if (!user) {
       alert('Debes iniciar sesión para votar.');
       return;
     }
@@ -72,20 +72,20 @@ export function PublicationDetail({ id }: Props) {
       if (!isvoted) {
         db.from('publication_votes')
           .insert({
-        publication_id: id,
-        user_id: user.id,
-        type: 'upvote',
+            publication_id: id,
+            user_id: user.id,
+            type: 'upvote',
           })
           .then(({ data, error }) => {
-        if (error) {
-          console.error('Error al registrar el voto:', error);
-          setIsUpvoted(false);
-        } else {
-          console.log('Voto registrado:', data);
-          setVotes((prev) => prev + 1);
-          setIsUpvoted(true);
-          setIsVoted(true);
-        }
+            if (error) {
+              console.error('Error al registrar el voto:', error);
+              setIsUpvoted(false);
+            } else {
+              console.log('Voto registrado:', data);
+              setVotes((prev) => prev + 1);
+              setIsUpvoted(true);
+              setIsVoted(true);
+            }
           });
       } else {
         db.from('publication_votes')
@@ -93,13 +93,13 @@ export function PublicationDetail({ id }: Props) {
           .eq('publication_id', id)
           .eq('user_id', user.id)
           .then(({ data, error }) => {
-        if (error) {
-          console.error('Error al actualizar el voto:', error);
-          setIsUpvoted(false);
-        } else {
-          console.log('Voto actualizado:', data);
-          //setVotes((prev) => prev + 1);
-        }
+            if (error) {
+              console.error('Error al actualizar el voto:', error);
+              setIsUpvoted(false);
+            } else {
+              console.log('Voto actualizado:', data);
+              //setVotes((prev) => prev + 1);
+            }
           });
       }
       return;
@@ -116,38 +116,39 @@ export function PublicationDetail({ id }: Props) {
         } else {
           console.log('Voto eliminado:', data);
           setVotes((prev) => prev - 1);
-        }});
+        }
+      });
     setIsVoted(false);
     setIsUpvoted(false);
   }
 
-  function handleDownVote(){
-    if(!user){
+  function handleDownVote() {
+    if (!user) {
       alert('Debes iniciar sesión para votar.');
       return;
     }
-    if (!isDownvoted){
+    if (!isDownvoted) {
       setIsDownvoted(true);
       setIsUpvoted(false);
 
-      
-      if(!isvoted) {
+
+      if (!isvoted) {
         db.from('publication_votes')
           .insert({
-        publication_id: id,
-        user_id: user.id,
-        type: 'downvote',
+            publication_id: id,
+            user_id: user.id,
+            type: 'downvote',
           })
           .then(({ data, error }) => {
-        if (error) {
-          console.error('Error al registrar el voto:', error);
-          setIsDownvoted(false);
-        } else {
-          console.log('Voto registrado:', data);
-          setVotes((prev) => prev - 1);
-          setIsDownvoted(true);
-          setIsVoted(true);
-        }
+            if (error) {
+              console.error('Error al registrar el voto:', error);
+              setIsDownvoted(false);
+            } else {
+              console.log('Voto registrado:', data);
+              setVotes((prev) => prev - 1);
+              setIsDownvoted(true);
+              setIsVoted(true);
+            }
           });
       } else {
         db.from('publication_votes')
@@ -155,13 +156,13 @@ export function PublicationDetail({ id }: Props) {
           .eq('publication_id', id)
           .eq('user_id', user.id)
           .then(({ data, error }) => {
-        if (error) {
-          console.error('Error al actualizar el voto:', error);
-          setIsDownvoted(false);
-        } else {
-          console.log('Voto actualizado:', data);
-          //setVotes((prev) => prev - 1);
-        }
+            if (error) {
+              console.error('Error al actualizar el voto:', error);
+              setIsDownvoted(false);
+            } else {
+              console.log('Voto actualizado:', data);
+              //setVotes((prev) => prev - 1);
+            }
           });
       }
 
@@ -179,7 +180,8 @@ export function PublicationDetail({ id }: Props) {
         } else {
           console.log('Voto eliminado:', data);
           setVotes((prev) => prev + 1);
-        }});
+        }
+      });
     setIsVoted(false);
     setIsDownvoted(false);
   }
@@ -201,20 +203,20 @@ export function PublicationDetail({ id }: Props) {
       .select('id, publication_id, user_id, type')
       .eq('publication_id', id)
       .then(({ data, error }) => {
-      if (error) {
-        console.error('Error fetching votes:', error);
-        setVotes(0);
-      } else {
-        if (data && data.length > 0) {
-        const upvotes = data.filter(vote => vote.type === 'upvote').length;
-        const downvotes = data.filter(vote => vote.type === 'downvote').length;
-        setVotes(upvotes - downvotes);
+        if (error) {
+          console.error('Error fetching votes:', error);
+          setVotes(0);
         } else {
-        setVotes(0);
+          if (data && data.length > 0) {
+            const upvotes = data.filter(vote => vote.type === 'upvote').length;
+            const downvotes = data.filter(vote => vote.type === 'downvote').length;
+            setVotes(upvotes - downvotes);
+          } else {
+            setVotes(0);
+          }
         }
-      }
       });
-    
+
 
 
     // Check if the user has already voted
@@ -248,7 +250,7 @@ export function PublicationDetail({ id }: Props) {
       setIsUpvoted(false);
       setIsDownvoted(false);
     }
-    
+
 
     // We fetch 3 projects and 3 publications
     fetchRandomNews(3, seed.current, [id]).then((news) => {
@@ -335,9 +337,9 @@ export function PublicationDetail({ id }: Props) {
                                 <User size={32} strokeWidth={1} className='text-[#c5c5c5]' />
                               </div>
                             )}
-                          <span className="font-medium text-gray-700 hover:text-primary">
-                            {publication.author_id.nombres} {publication.author_id.apellido_paterno} {publication.author_id.apellido_materno}
-                          </span>
+                            <span className="font-medium text-gray-700 hover:text-primary">
+                              {publication.author_id.nombres} {publication.author_id.apellido_paterno} {publication.author_id.apellido_materno}
+                            </span>
                           </Link>
                         </>
                       )}
@@ -366,7 +368,7 @@ export function PublicationDetail({ id }: Props) {
                       </button>
                       <h1>{votes}</h1>
                       <button onClick={handleDownVote} className={`cursor-pointer transition-colors duration-300 ${isDownvoted ? 'text-red-600' : 'text-black'}`}>
-                        <CircleArrowDown size={24}  />
+                        <CircleArrowDown size={24} />
                       </button>
                     </div>
                     <div>
@@ -398,7 +400,7 @@ export function PublicationDetail({ id }: Props) {
                       </a>
                     </div>
                   )}
-                  <CommentsSection publication_id={publication.id} handleRefresh={() => {}} />
+                  <CommentsSection publication_id={publication.id} handleRefresh={() => { }} />
                   <div className='flex flex-col justify-start py-4 mt-6 bg-white border-t-1 border-border' />
                   <aside className="w-[36rem] lg:hidden block" style={{
                     top: HEADER_FULL_HEIGHT + 24
@@ -417,7 +419,12 @@ export function PublicationDetail({ id }: Props) {
         </div>
       </ContentLayout>
       <Modal open={shareOpen} onClose={() => setShareOpen(false)}>
-        <Share url={window.location.href} title={publication?.title} content={publication?.content} />
+        <Share
+          url={window.location.href}
+          title={publication?.title}
+          shareTitle={'Comparte esta publicación'}
+          content={publication?.content}
+        />
       </Modal>
       <Footer />
     </Layout>
