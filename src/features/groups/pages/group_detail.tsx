@@ -47,7 +47,6 @@ export function GroupDetail({ id }: GroupDetailProps) {
     enabled: !!id,
   });
 
-  // Obtener usuario actual y verificar membresía
   useEffect(() => {
     const getCurrentUser = async () => {
       if (user && group) {

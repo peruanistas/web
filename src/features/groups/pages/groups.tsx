@@ -17,6 +17,9 @@ import { CreateButton } from '@common/components/create_button';
 import type { GroupPreview } from '@groups/types';
 import { GroupCard } from '@groups/components/group_card';
 import { useScrollReset } from '@common/hooks/useScrollReset';
+import { useAuthStore } from '@auth/store/auth_store'; 
+import { useQuery} from '@tanstack/react-query';
+
 
 const PROJECTS_ORDER_OPTIONS = [
   { value: 'event_date_asc', label: 'Por fecha (antiguos)' },
@@ -33,7 +36,23 @@ export function GroupsPage() {
   const [orderBy, setOrderBy] = useState('created_at_asc');
   const [, setLocation] = useLocation();
 
-  // Infinite Query
+  const { user } = useAuthStore();
+
+  const { data: membershipData, isLoading: membershipsLoading } = useQuery({
+  queryKey: ['group_memberships', user?.id],
+  queryFn: async () => {
+    if (!user) return [];
+    const { data, error } = await db
+      .from('group_members')
+      .select('group_id')
+      .eq('user_id', user.id);
+
+    if (error) throw new Error(error.message);
+    return data.map((item: { group_id: string }) => item.group_id);
+  },
+  enabled: !!user, 
+});
+
   const {
     data: projectsPages,
     fetchNextPage,
@@ -50,7 +69,6 @@ export function GroupsPage() {
       lastPage.length === PROJECTS_RESULTS_PER_PAGE ? allPages.length : undefined,
   });
 
-  // Intersection Observer
   const observerTarget = useRef<HTMLDivElement>(null);
 
   const handleObserver = useCallback(
@@ -138,13 +156,19 @@ export function GroupsPage() {
               {!isLoading && !isError && (
                 <>
                   {projectsPages?.pages.flat().map((project) => (
-                    <GroupCard key={project.id} {...project} />
+                    <GroupCard
+                      key={project.id}
+                      {...project}
+                      isMember={membershipData?.includes(project.id)}
+                    />
                   ))}
-                  {projectsPages && projectsPages.pages.flat().length === 0 && <NoResults title='No se encontraron proyectos' />}
+                  {projectsPages && projectsPages.pages.flat().length === 0 && (
+                    <NoResults title='No se encontraron proyectos' />
+                  )}
                 </>
               )}
 
-              {(isFetchingNextPage) && (
+              {isFetchingNextPage && (
                 <>
                   {Array.from({ length: 3 }).map((_, i) => (
                     <ProjectCardSkeleton key={`skeleton-next-${i}`} />
@@ -152,7 +176,6 @@ export function GroupsPage() {
                 </>
               )}
 
-              {/* Intersection observer target */}
               <div ref={observerTarget} style={{ height: 1 }} />
             </section>
           </div>
@@ -218,5 +241,6 @@ async function fetchGroupsPaginated({
   if (response.error) {
     throw new Error(response.error.message);
   }
+
   return response.data;
 }
