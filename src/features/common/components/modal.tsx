@@ -1,3 +1,5 @@
+import { LucideX } from 'lucide-react';
+
 export function Modal({ open, onClose, children }: { open: boolean, onClose: () => void, children: React.ReactNode }) {
   if (!open) return null;
   return (
@@ -11,7 +13,9 @@ export function Modal({ open, onClose, children }: { open: boolean, onClose: () 
         style={{ maxWidth: 800, width: '100%', pointerEvents: 'auto' }}
         onClick={e => e.stopPropagation()}
       >
-        <button className="absolute top-2 right-2" onClick={onClose}>✕</button>
+        <button className="absolute top-4 right-4 cursor-pointer" onClick={onClose}>
+          <LucideX size={32} strokeWidth={1} />
+        </button>
         {children}
       </div>
     </div>
