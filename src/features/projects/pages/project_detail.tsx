@@ -59,7 +59,7 @@ export default function ProjectsDetailsPage({ id }: ProjectsDetailsPageProps) {
       });
 
   } // eslint-disable-next-line react-hooks/exhaustive-deps
-  , []);
+    , []);
 
 
   return (
@@ -123,12 +123,12 @@ export default function ProjectsDetailsPage({ id }: ProjectsDetailsPageProps) {
             <div className='project_detail_layout__score_content '>
               <div className='project_detail_layout__score_title'>
                 <p style={{ fontSize: '42px' }}>
-                  { votesSummary &&
+                  {votesSummary &&
                     <strong>
                       {votesSummary.golden_votes * 2 + votesSummary.silver_votes}
                     </strong>
                   }
-                  { !votesSummary && <label className='loader'></label> }
+                  {!votesSummary && <label className='loader'></label>}
                 </p>
                 <p>puntos</p>
               </div>
