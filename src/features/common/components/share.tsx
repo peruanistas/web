@@ -66,7 +66,7 @@ export function Share({ title, location, url, content }: ShareProps) {
           title={title} >
           <WhatsappIcon size={50} round />
         </WhatsappShareButton>
-        <button onClick={() => {
+        <button className='cursor-pointer' onClick={() => {
           window.open(`https://www.reddit.com/submit?url=${url}&title=${title}`, '_blank');
         }
         }>
