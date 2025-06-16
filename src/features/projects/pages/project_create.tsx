@@ -11,22 +11,7 @@ import { Admonition } from '@common/components/admonition';
 import { SuccessModal } from '@common/components/modal_create';
 import { Info } from 'lucide-react';
 import { useAuthStore } from '@auth/store/auth_store';
-import { type MDXEditorMethods } from '@mdxeditor/editor'; // Importación type-only
-
-import {
-  MDXEditor,
-  toolbarPlugin,
-  UndoRedo,
-  BoldItalicUnderlineToggles,
-  ListsToggle,
-  Separator,
-  CreateLink,
-  headingsPlugin, //Mejora proxima
-  listsPlugin,
-  linkPlugin,
-  quotePlugin,
-} from '@mdxeditor/editor';
-import '@mdxeditor/editor/style.css';
+import { MDXEditorComponent } from '@common/components/mxEditorComponent';
 
 type ProjectFormData = {
   projectName: string;
@@ -143,7 +128,6 @@ export function ProjectsCreatePage() {
   useEffect(() => {
     document.title = 'Crear Proyecto';
   }, []);
-  const editorRef = useRef<MDXEditorMethods>(null);
   const handleDescriptionChange = (markdown: string) => {
     setValue('description', markdown, { shouldValidate: true });
     trigger('description');
@@ -195,40 +179,10 @@ export function ProjectsCreatePage() {
                 Descripción <span className="text-red-500">*</span>
               </label>
               <div id="description" aria-describedby="description-error">
-                <MDXEditor
-                  ref={editorRef}
+                <MDXEditorComponent
                   markdown={watch('description') || ''}
                   onChange={handleDescriptionChange}
-                  plugins={[
-                    toolbarPlugin({
-                      toolbarContents: () => (
-                        <>
-                          <UndoRedo />
-                          <BoldItalicUnderlineToggles />
-                          <Separator />
-                          <ListsToggle />
-                          {/* <Separator />
-                          <CreateLink /> */}
-
-                        </>
-                      )
-                    }),
-                    listsPlugin(),
-                    linkPlugin(),
-                    quotePlugin(),
-
-                  ]}
-                  contentEditableClassName={`
-                    [&_ul]:list-disc 
-                    [&_ul]:pl-6 
-                    [&_ol]:list-decimal 
-                    [&_ol]:pl-6
-                    [&_li]:my-1
-                    [&_em]:italic
-                    [&_p]:pt-2
-                    [&_i]:italic
-                    font-[Inter] text-gray-900 border 
-                    ${errors.description ? 'border-red-500' : 'border-gray-200'} min-h-[200px] rounded-md p-2`}
+                  error={!!errors.description}
                 />
               </div>
               {errors.description && (
