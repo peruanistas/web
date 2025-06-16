@@ -33,6 +33,15 @@
   padding-top: 0.5rem; /* pt-2 */
 }
 
+.mdx-editor a {
+  color: #2563eb;  /* Equivalente a text-blue-600 */
+  text-decoration: underline;
+}
+
+.mdx-editor a:hover {
+  color: #1e40af;  /* Equivalente a hover:text-blue-800 */
+}
+
 .mdx-editor--error {
   border-color: #ef4444; /* border-red-500 */
 }

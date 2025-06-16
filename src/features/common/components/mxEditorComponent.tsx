@@ -8,6 +8,8 @@ import {
   Separator,
   listsPlugin,
   linkPlugin,
+  linkDialogPlugin,
+  CreateLink,
   quotePlugin,
 } from '@mdxeditor/editor';
 import '@mdxeditor/editor/style.css';
@@ -39,12 +41,15 @@ export function MDXEditorComponent({
                 <UndoRedo />
                 <BoldItalicUnderlineToggles />
                 <Separator />
-                <ListsToggle />
+                <ListsToggle options={['bullet', 'number']}/>
+                <Separator />
+                <CreateLink/>
               </>
             ),
           }),
           listsPlugin(),
           linkPlugin(),
+          linkDialogPlugin(),
           quotePlugin(),
         ]}
         contentEditableClassName={`
