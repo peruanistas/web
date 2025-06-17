@@ -1,16 +1,18 @@
-import { useForm } from 'react-hook-form';
-import { db } from '@db/client';
-import { Button } from '@common/components/button';
-import { Link, useLocation } from 'wouter';
-import { useState } from 'react';
-import { Check, X, Eye, EyeOff } from 'lucide-react';
-import { useAuthStore } from '@auth/store/auth_store';
-import { getRedirectURL } from '@common/utils';
+"use client"
+
+import { useForm } from "react-hook-form"
+import { db } from "@db/client"
+import { Button } from "@common/components/button"
+import { Link, useLocation } from "wouter"
+import { useState, useEffect } from "react"
+import { Check, X, Eye, EyeOff } from "lucide-react"
+import { useAuthStore } from "@auth/store/auth_store"
+import { getRedirectURL } from "@common/utils"
 
 type Inputs = {
-  email: string;
-  password: string;
-};
+  email: string
+  password: string
+}
 
 export const SignUpForm = () => {
   const {
@@ -18,55 +20,57 @@ export const SignUpForm = () => {
     handleSubmit,
     formState: { errors, isSubmitting },
     watch,
-  } = useForm<Inputs>();
+  } = useForm<Inputs>()
 
-  const password = watch('password') || '';
+  const password = watch("password") || ""
 
-  const [hasTyped, setHasTyped] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+  const [hasTyped, setHasTyped] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
-  const validation = validatePassword(password);
+  const validation = validatePassword(password)
 
-  const [, navigate] = useLocation();
+  const [, navigate] = useLocation()
 
-  const { setUser } = useAuthStore();
+  const { setUser } = useAuthStore()
+
+  // Use useEffect to detect when user starts typing instead of manual onChange
+  useEffect(() => {
+    if (password.length > 0 && !hasTyped) {
+      setHasTyped(true)
+    }
+  }, [password, hasTyped])
 
   const signUpEmail = async (formData: Inputs) => {
-    const { email, password } = formData;
+    const { email, password } = formData
 
-    const { data, error } = await db.auth.signUp({ email, password });
+    const { data, error } = await db.auth.signUp({ email, password })
 
     if (error) {
-      console.error(error.message);
+      console.error(error.message)
     } else {
-      console.log('Cuenta creada');
-      const user = data.user;
-      setUser(user);
+      console.log("Cuenta creada")
+      const user = data.user
+      setUser(user)
 
       if (!user?.confirmed_at) {
-        navigate('/confirmar-correo');
+        navigate("/confirmar-correo")
       } else {
-        navigate('/completar-registro');
+        navigate("/completar-registro")
       }
     }
-  };
+  }
 
   const signUpGoogle = async () => {
     const { error } = await db.auth.signInWithOAuth({
-      provider: 'google',
+      provider: "google",
       options: {
         redirectTo: getRedirectURL(),
-      }
-    });
+      },
+    })
     if (error) {
-      console.error(error.message);
+      console.error(error.message)
     }
-  };
-
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!hasTyped) setHasTyped(true);
-    register('password').onChange?.(e);
-  };
+  }
 
   return (
     <div className="w-full max-w-md mx-auto">
@@ -84,8 +88,10 @@ export const SignUpForm = () => {
             onClick={() => signUpGoogle()}
           >
             <img
-              src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google"
-              className="h-[18px] w-[18px] "/>
+              src="https://www.svgrepo.com/show/475656/google-color.svg"
+              alt="Google"
+              className="h-[18px] w-[18px] "
+            />
             Continuar con Google
           </button>
           <div className="flex items-center my-4">
@@ -100,20 +106,19 @@ export const SignUpForm = () => {
             type="email"
             placeholder="Email"
             className="border border-[#D9D9D9] rounded-lg p-2 mb-4 w-full text-[#404040]"
-            {...register('email', { required: 'Campo requerido', })}
+            {...register("email", { required: "Campo requerido" })}
           />
           {errors.email && <p className="text-red-500 text-sm mb-2">{errors.email.message}</p>}
 
           <label className="text-[#404040] mb-2">Contraseña</label>
           <div className="relative mb-2">
             <input
-              type={showPassword ? 'text' : 'password'}
+              type={showPassword ? "text" : "password"}
               placeholder="Contraseña"
-              className="border border-[#D9D9D9] rounded-lg p-2 w-full text-[] pr-10 text-[#404040]"
-              {...register('password', {
-                required: 'Campo requerido',
-                minLength: { value: 8, message: 'La contraseña debe tener al menos 8 caracteres' },
-                onChange: handlePasswordChange,
+              className="border border-[#D9D9D9] rounded-lg p-2 w-full text-[#404040] pr-10"
+              {...register("password", {
+                required: "Campo requerido",
+                minLength: { value: 8, message: "La contraseña debe tener al menos 8 caracteres" },
               })}
             />
             <button
@@ -129,17 +134,17 @@ export const SignUpForm = () => {
 
           <ul
             className={`text-xs space-y-1 mb-4 transform transition-all duration-300 ease-in-out origin-top ${
-              hasTyped ? 'opacity-100 max-h-40' : 'opacity-0 max-h-0 pointer-events-none'
+              hasTyped ? "opacity-100 max-h-40" : "opacity-0 max-h-0 pointer-events-none"
             }`}
           >
             <PasswordRule passed={validation.length} text="Debe tener al menos 8 caracteres" />
             <PasswordRule passed={validation.hasUpperLowerNumber} text="Mayúsculas, minúsculas y números" />
           </ul>
           <Button type="submit" variant="red" className="font-semibold w-full mb-4" disabled={isSubmitting}>
-              Crear cuenta
+            Crear cuenta
           </Button>
           <label className="text-[#757575] text-[14px] text-center">
-            ¿Ya tienes una cuenta?{' '}
+            ¿Ya tienes una cuenta?{" "}
             <Link to="/login" className="underline cursor-pointer">
               Inicia sesión
             </Link>
@@ -147,26 +152,26 @@ export const SignUpForm = () => {
         </form>
       </div>
     </div>
-  );
-};
+  )
+}
 
 function validatePassword(password: string) {
-  const length = password.length >= 8;
-  const hasUpper = /[A-Z]/.test(password);
-  const hasLower = /[a-z]/.test(password);
-  const hasNumber = /[0-9]/.test(password);
+  const length = password.length >= 8
+  const hasUpper = /[A-Z]/.test(password)
+  const hasLower = /[a-z]/.test(password)
+  const hasNumber = /[0-9]/.test(password)
 
   return {
     length,
     hasUpperLowerNumber: hasUpper && hasLower && hasNumber,
-  };
+  }
 }
 
 function PasswordRule({ passed, text }: { passed: boolean; text: string }) {
   return (
-    <li className={`flex items-center gap-2 ${passed ? 'text-green-600' : 'text-red-500'}`}>
+    <li className={`flex items-center gap-2 ${passed ? "text-green-600" : "text-red-500"}`}>
       {passed ? <Check size={16} /> : <X size={16} />}
       <span>{text}</span>
     </li>
-  );
+  )
 }
