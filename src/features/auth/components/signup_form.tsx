@@ -1,4 +1,4 @@
-"use client"
+// perdón paolo
 
 import { useForm } from "react-hook-form"
 import { db } from "@db/client"
