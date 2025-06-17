@@ -5,7 +5,7 @@ import { ConfirmEmailNotice } from '@auth/components/confirm_email_notice';
 
 export function ConfirmEmailPage() {
   return (
-    <main className="signup-wrapper">
+    <main>
       <Header />
       <ConfirmEmailNotice />
       <Footer />
