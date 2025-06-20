@@ -31,6 +31,7 @@ import { GroupsPage } from '@groups/pages/groups';
 import { GroupDetail } from '@groups/pages/group_detail';
 import { ProfilePage } from '@profile/pages/profile';
 import { UserProfileDetail } from '@profile/pages/user_profile';
+import { AylluPage } from './features/ayllu/pages/ayllu';
 
 export function PeruanistasRouter() {
   useQueryFavicon();
@@ -73,6 +74,8 @@ export function PeruanistasRouter() {
       <Route path='/megaproyectos/:id'>
         {({ id }) => <MegaprojectsDetailsPage id={id} />}
       </Route>
+
+      <Route path='/ayllu' component={AylluPage} />
 
       <Route path='/feed/crear' component={NewCreatePage} />
       <Route path='/feed/:id'>
