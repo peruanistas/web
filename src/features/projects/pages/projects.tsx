@@ -86,6 +86,7 @@ export function ProjectsPage() {
       <PageBanner
         title='Proyectos'
         description='Explora todos los proyectos disponibles, y participa con tus votos y comentarios.'
+        variant='project'
       />
       <ContentLayout>
         <main className='py-6'>
@@ -177,7 +178,8 @@ async function fetchProjectsPaginated({
 
   let query = db
     .from('projects')
-    .select('id, title, image_url, created_at, geo_department, geo_district, impression_count, ioarr_type');
+    .select('id, title, image_url, created_at, geo_department, geo_district, impression_count, ioarr_type')
+    .eq('is_megaproject', false);
 
   if (department) {
     query = query.eq('geo_department', department);

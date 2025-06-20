@@ -1,0 +1,114 @@
+:root {
+    --main-color-bt-bg: #d42117;
+}
+
+.project_detail_layout__container{
+    width: 80%;
+    height: auto;
+    display: flex;
+    margin : 0 auto;
+    gap: 24px;
+    padding: 12px;
+    display: flex;
+}
+
+.project_detail_layout__img_container{
+    margin-top: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    width: 100%;
+    height: fit-content;
+}
+
+.project_detail_layout__content{
+    justify-content: center;
+    align-items: center;
+    position: sticky;
+    top: 12%;
+    flex-direction: column;
+    padding: 10px;
+    width: 30%;
+    height: fit-content;
+    margin: 10px;
+    background-color: #ffffff;
+}
+
+.project_detail_layout__content p{
+    font-size: 16px;
+}
+
+.project_detail_layout__title{
+    font-size: 26px;
+    font-weight: 600;
+    color: #000;
+    overflow: auto;
+}
+
+.project_detail_button{
+    margin: 0 auto;
+    color: #fafafa;
+    width: 100%;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-radius: 5px;
+    font-weight: 600;
+    font-size: 20px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.project_detail_button.main {
+    background-color: var(--main-color-bt-bg);
+}
+
+.project_detail_button.secondary {
+    background-color: #fafafa;
+    color: black;
+    border: 1px solid #b5b5b5;
+}
+
+.project_detail_layout__score_title{
+    display: flex;
+    align-items: center; /* Centra verticalmente los textos */
+    gap: 10px;
+    flex-direction: row;
+    font-size: 20px;
+    overflow: auto;
+}
+
+.project_detail_layout__score_stars{
+    font-weight: bold;
+    font-size: 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+}
+
+.project_user_card__container{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 10px;
+}
+
+.project_user_card__img_container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgb(197, 197, 197);
+    border-radius: 8px;
+    width: 50px;
+    height: 50px;
+}
+
+.project_user_card__content{
+    font-size: 18px;
+}
+
+.project_detail_subtitle{
+    border-bottom: 4px solid #dd4242;
+    width: fit-content;
+    padding: 0 10px;
+}

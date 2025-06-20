@@ -11,9 +11,9 @@ import { FaLocationDot } from 'react-icons/fa6';
 import { Link } from 'wouter';
 import { VoteConfirmationModal } from '@projects/components/vote_confirmation_modal';
 
-type ProjectCardProps = ProjectPreview & {};
+type MegaprojectCardProps = ProjectPreview & {};
 
-export function ProjectCard(project: ProjectCardProps) {
+export function MegaprojectCard(project: MegaprojectCardProps) {
   const [voteModalOpen, setVoteModalOpen] = useState(false);
 
   return (
@@ -25,7 +25,7 @@ export function ProjectCard(project: ProjectCardProps) {
           project={project}
         />
       }
-      <Link href={`/proyectos/${project.id}`}>
+      <Link href={`/megaproyectos/${project.id}`}>
         <article className='flex flex-col border border-border rounded-sm bg-white'>
           {/* Project image */}
           <img
@@ -78,7 +78,7 @@ export function ProjectCard(project: ProjectCardProps) {
 }
 
 // From https://skeletonreact.com/
-export function ProjectCardSkeleton() {
+export function MegaprojectCardSkeleton() {
   return (
     <article className='flex gap-4 border border-border rounded-sm'>
       <ContentLoader

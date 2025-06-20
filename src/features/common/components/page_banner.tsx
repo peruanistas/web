@@ -1,22 +1,26 @@
 import bannerProject from '@assets/images/banner_project.webp';
 import bannerGroup from '@assets/images/banner_group.webp';
 import bannerEvent from '@assets/images/banner_event.webp';
+import bannerMegaproject from '@assets/images/banner_megaproject.webp';
 import { ContentLayout } from './content_layout';
 
 type PageBannerProps = {
   title: string,
   description: string,
   trailing?: React.ReactNode,
-  variant?: 'project' | 'group' | 'event',
+  variant?: 'project' | 'megaproject' | 'group' | 'event',
 };
 
 export function PageBanner({ title, description, trailing, variant }: PageBannerProps) {
 
-  const bannerImage = variant === 'group'
-  ? bannerGroup
-  : variant === 'event'
-  ? bannerEvent
-  : bannerProject;
+  const bannerImage = (
+    variant === 'group'
+      ? bannerGroup
+      : variant === 'event'
+        ? bannerEvent
+        : variant === 'megaproject'
+          ? bannerMegaproject : bannerProject
+  );
 
   return (
     <ContentLayout style={{

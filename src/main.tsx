@@ -14,6 +14,8 @@ import { EventDetailBasic } from '@events/pages/event_detail';
 import { NotFoundPage } from '@common/pages/404';
 import { CompleteRegisterPage } from '@auth/pages/complete_register';
 import { AuthProvider } from '@auth/providers/auth_provider';
+import { MegaprojectsPage } from '@megaprojects/pages/megaprojects';
+import { MegaprojectsDetailsPage } from '@megaprojects/pages/megaproject_detail';
 import { ProjectsPage } from '@projects/pages/projects';
 import { useQueryFavicon } from '@hooks/query_favicon';
 import { NewCreatePage } from '@publications/pages/publication_create';
@@ -66,6 +68,12 @@ export function PeruanistasRouter() {
       <Route path='/proyectos/:id'>
         {({ id }) => <ProjectsDetailsPage id={id} />}
       </Route>
+
+      <Route path='/megaproyectos' component={MegaprojectsPage} />
+      <Route path='/megaproyectos/:id'>
+        {({ id }) => <MegaprojectsDetailsPage id={id} />}
+      </Route>
+
       <Route path='/feed/crear' component={NewCreatePage} />
       <Route path='/feed/:id'>
         {({ id }) => <PublicationDetail id={id} />}

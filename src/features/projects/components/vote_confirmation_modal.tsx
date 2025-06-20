@@ -9,7 +9,7 @@ import { useAuthStore } from '@auth/store/auth_store';
 import { Button } from '@common/components/button';
 import { useLocation } from 'wouter';
 import { db } from '@db/client';
-import { VotesCounter } from './votes_counter';
+import { VotesCounter } from '@projects/components/votes_counter';
 import { useState, useEffect } from 'react';
 import ContentLoader from 'react-content-loader';
 

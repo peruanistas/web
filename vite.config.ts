@@ -15,6 +15,7 @@ export default defineConfig({
       '@home': fileURLToPath(new URL('./src/features/home', import.meta.url)),
       '@events': fileURLToPath(new URL('./src/features/events', import.meta.url)),
       '@publications': fileURLToPath(new URL('./src/features/publications', import.meta.url)),
+      '@megaprojects': fileURLToPath(new URL('./src/features/megaprojects', import.meta.url)),
       '@projects': fileURLToPath(new URL('./src/features/projects', import.meta.url)),
       '@groups': fileURLToPath(new URL('./src/features/groups', import.meta.url)),
       '@auth': fileURLToPath(new URL('./src/features/auth', import.meta.url)),

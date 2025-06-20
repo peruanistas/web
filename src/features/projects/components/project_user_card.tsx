@@ -15,9 +15,13 @@ export default function ProjectUserCard({ author }: ProjectUserCardProps) {
             </div>
             <div className="project_user_card__content">
                 <h1><strong>{author.nombres} {author.apellido_paterno} {author.apellido_materno}</strong></h1>
-                <p style={{fontSize:'16px'}}>
-                    {PE_DEPARTMENTS[author.geo_department].name} | {PE_DISTRICTS[author.geo_district].name}
-                </p>
+                {
+                    author.geo_department && author.geo_district && (
+                        <p style={{ fontSize: '16px' }}>
+                            {PE_DEPARTMENTS[author.geo_department].name} | {PE_DISTRICTS[author.geo_district].name}
+                        </p>
+                    )
+                }
             </div>
         </div>
     );

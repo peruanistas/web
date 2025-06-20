@@ -9,66 +9,44 @@ import { Footer } from '@common/components/footer';
 import { SearchBar } from '@events/components/search_bar';
 import { OrderByDropdown } from '@events/components/order_by_dropdown';
 import { NoResults } from '@common/components/no_results';
-import { ProjectCardSkeleton } from '@projects/components/project_card';
-import { useLocation } from 'wouter';
+import type { ProjectPreview } from '@projects/types';
 import { ProjectFilters } from '@projects/components/projects_filters';
 import '@projects/styles/projects_list.scss';
-import { CreateButton } from '@common/components/create_button';
-import type { GroupPreview } from '@groups/types';
-import { GroupCard } from '@groups/components/group_card';
 import { useScrollReset } from '@common/hooks/useScrollReset';
-import { useAuthStore } from '@auth/store/auth_store';
-import { useQuery } from '@tanstack/react-query';
+import { MegaprojectCard, MegaprojectCardSkeleton } from '@megaprojects/components/megaproject_card';
 
-
-const PROJECTS_ORDER_OPTIONS = [
+const MEGAPROJECTS_ORDER_OPTIONS = [
   { value: 'event_date_asc', label: 'Por fecha (antiguos)' },
   { value: 'event_date_desc', label: 'Por fecha (nuevos)' },
 ] as const;
 
-const PROJECTS_RESULTS_PER_PAGE = 6;
+const MEGAPROJECTS_RESULTS_PER_PAGE = 6;
 
-export function GroupsPage() {
+export function MegaprojectsPage() {
   useScrollReset();
   const [department, setDepartment] = useState('');
   const [district, setDistrict] = useState('');
   const [search, setSearch] = useState('');
   const [orderBy, setOrderBy] = useState('created_at_asc');
-  const [, setLocation] = useLocation();
 
-  const { user } = useAuthStore();
-
-  const { data: membershipData, isLoading: membershipsLoading } = useQuery({
-    queryKey: ['group_memberships', user?.id],
-    queryFn: async () => {
-      if (!user) return [];
-      const { data, error } = await db
-        .from('group_members')
-        .select('group_id')
-        .eq('user_id', user.id);
-
-      if (error) throw new Error(error.message);
-      return data.map((item: { group_id: string }) => item.group_id);
-    },
-    enabled: !!user,
-  });
-
+  // Infinite Query
   const {
-    data: projectsPages,
+    data: megaprojectsPages,
     fetchNextPage,
     isLoading,
     isFetchingNextPage,
     hasNextPage,
     isError,
   } = useInfiniteQuery({
-    queryKey: ['groups_list', { department, district, search, orderBy }],
+    queryKey: ['megaprojects_list', { department, district, search, orderBy }],
     queryFn: ({ pageParam = 0 }) =>
-      fetchGroupsPaginated({ department, district, search, orderBy, page: pageParam }),
+      fetchProjectsPaginated({ department, district, search, orderBy, page: pageParam }),
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) =>
-      lastPage.length === PROJECTS_RESULTS_PER_PAGE ? allPages.length : undefined,
+      lastPage.length === MEGAPROJECTS_RESULTS_PER_PAGE ? allPages.length : undefined,
   });
 
+  // Intersection Observer
   const observerTarget = useRef<HTMLDivElement>(null);
 
   const handleObserver = useCallback(
@@ -103,27 +81,21 @@ export function GroupsPage() {
     <Layout>
       <Header />
       <PageBanner
-        title='Grupos'
-        description='Explora todos los grupos disponibles. Únete y comparte publicaciones con ellos.'
-        variant='group'
+        title='Megaproyectos'
+        description='Los megaproyectos son creados por nosotros, participa en estos proyectos de gran escala.'
+        variant='megaproject'
       />
       <ContentLayout>
         <main className='py-6'>
           <div className='flex flex-col md:items-center justify-between mb-4 gap-4 md:flex-row'>
             <SearchBar
               className='flex-1'
-              placeholder='Buscar grupos...'
+              placeholder='Buscar proyectos...'
               onChange={setSearch}
               value={search}
             />
             <div className='flex flex-wrap items-center gap-4'>
-              <OrderByDropdown value={orderBy} orderOptions={PROJECTS_ORDER_OPTIONS} onChange={setOrderBy} />
-              <CreateButton onClick={() => setLocation('#')}>
-                {
-                  // TODO: No hay creación de grupos
-                }
-                Crear grupo
-              </CreateButton>
+              <OrderByDropdown value={orderBy} orderOptions={MEGAPROJECTS_ORDER_OPTIONS} onChange={setOrderBy} />
             </div>
           </div>
           <div className='w-full flex-col md:flex-row md:gap-6'>
@@ -143,8 +115,8 @@ export function GroupsPage() {
             <section id='projects-grid' className='w-full'>
               {isLoading && (
                 <>
-                  {Array.from({ length: PROJECTS_RESULTS_PER_PAGE }).map((_, i) => (
-                    <ProjectCardSkeleton key={i} />
+                  {Array.from({ length: MEGAPROJECTS_RESULTS_PER_PAGE }).map((_, i) => (
+                    <MegaprojectCardSkeleton key={i} />
                   ))}
                 </>
               )}
@@ -155,27 +127,22 @@ export function GroupsPage() {
 
               {!isLoading && !isError && (
                 <>
-                  {projectsPages?.pages.flat().map((project) => (
-                    <GroupCard
-                      key={project.id}
-                      {...project}
-                      isMember={membershipData?.includes(project.id)}
-                    />
+                  {megaprojectsPages?.pages.flat().map((project) => (
+                    <MegaprojectCard key={project.id} {...project} />
                   ))}
-                  {projectsPages && projectsPages.pages.flat().length === 0 && (
-                    <NoResults title='No se encontraron proyectos' />
-                  )}
+                  {megaprojectsPages && megaprojectsPages.pages.flat().length === 0 && <NoResults title='No se encontraron proyectos' />}
                 </>
               )}
 
-              {isFetchingNextPage && (
+              {(isFetchingNextPage) && (
                 <>
                   {Array.from({ length: 3 }).map((_, i) => (
-                    <ProjectCardSkeleton key={`skeleton-next-${i}`} />
+                    <MegaprojectCardSkeleton key={`skeleton-next-${i}`} />
                   ))}
                 </>
               )}
 
+              {/* Intersection observer target */}
               <div ref={observerTarget} style={{ height: 1 }} />
             </section>
           </div>
@@ -186,7 +153,7 @@ export function GroupsPage() {
   );
 }
 
-type FetchGroupPaginatedParams = {
+type FetchProjectsPaginatedParams = {
   department?: string,
   district?: string,
   search?: string,
@@ -194,18 +161,19 @@ type FetchGroupPaginatedParams = {
   page: number,
 };
 
-async function fetchGroupsPaginated({
+async function fetchProjectsPaginated({
   department = '',
   district = '',
   search = '',
   orderBy = 'created_at_desc',
   page = 0,
-}: FetchGroupPaginatedParams): Promise<GroupPreview[]> {
-  const offset = page * PROJECTS_RESULTS_PER_PAGE;
+}: FetchProjectsPaginatedParams): Promise<ProjectPreview[]> {
+  const offset = page * MEGAPROJECTS_RESULTS_PER_PAGE;
 
   let query = db
-    .from('groups')
-    .select('id, name, description, owner_id(*), image_url, created_at, geo_department, geo_district');
+    .from('projects')
+    .select('id, title, image_url, created_at, geo_department, geo_district, impression_count, ioarr_type')
+    .eq('is_megaproject', true);
 
   if (department) {
     query = query.eq('geo_department', department);
@@ -214,7 +182,7 @@ async function fetchGroupsPaginated({
     query = query.eq('geo_district', district);
   }
   if (search) {
-    query = query.ilike('name', `%${search}%`);
+    query = query.ilike('title', `%${search}%`);
   }
 
   switch (orderBy) {
@@ -224,23 +192,22 @@ async function fetchGroupsPaginated({
     case 'created_at_desc':
       query = query.order('created_at', { ascending: false });
       break;
-    case 'name_asc':
-      query = query.order('name', { ascending: true });
+    case 'title_asc':
+      query = query.order('title', { ascending: true });
       break;
-    case 'name_desc':
-      query = query.order('name', { ascending: false });
+    case 'title_desc':
+      query = query.order('title', { ascending: false });
       break;
     default:
       query = query.order('created_at', { ascending: false });
   }
 
-  query = query.range(offset, offset + PROJECTS_RESULTS_PER_PAGE - 1);
+  query = query.range(offset, offset + MEGAPROJECTS_RESULTS_PER_PAGE - 1);
 
   const response = await query;
 
   if (response.error) {
     throw new Error(response.error.message);
   }
-
   return response.data;
 }
