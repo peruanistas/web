@@ -336,6 +336,49 @@ export type Database = {
           },
         ]
       }
+      preferences_hidden_publications: {
+        Row: {
+          created_at: string
+          id: string
+          publication_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          publication_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          publication_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'preferences_hidden_publications_publication_id_fkey'
+            columns: ['publication_id']
+            isOneToOne: false
+            referencedRelation: 'publications'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'preferences_hidden_publications_publication_id_fkey'
+            columns: ['publication_id']
+            isOneToOne: false
+            referencedRelation: 'random_publications'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'preferences_hidden_publications_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       profiles: {
         Row: {
           apellido_materno: string | null
