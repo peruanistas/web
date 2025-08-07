@@ -17,6 +17,7 @@ import { MdHomeWork } from 'react-icons/md';
 import { useScrollReset } from '@common/hooks/useScrollReset';
 import { ProjectFilters } from '@projects/components/projects_filters';
 import { useState } from 'react';
+import { useAuthStore } from '@auth/store/auth_store';
 
 const NEWS_RESULTS_PER_PAGE = 8;
 const PROJECTS_RESULTS_PER_PAGE = 3;
@@ -27,18 +28,18 @@ export function HomeFeed() {
   const [, setLocation] = useLocation();
   const [department, setDepartment] = useState('');
   const [district, setDistrict] = useState('');
+  const { user } = useAuthStore();
 
 const {
   data: contentPages,
   fetchNextPage,
   isLoading,
   isFetchingNextPage,
-  refetch,
 } = useInfiniteQuery({
-  queryKey: ['damero_paginated_list', department, district],
+  queryKey: ['damero_paginated_list', department, district, user?.id],
   queryFn: ({ pageParam }) => {
     const pages = Promise.all([
-      fetchMoreNews({ page: pageParam, department, district }),
+      fetchMoreNews({ page: pageParam, department, district, userId: user?.id }),
       fetchMoreProjects({ page: pageParam, department, district }),
       fetchMoreGroups({ page: pageParam, department, district }),
     ] as const);
@@ -197,16 +198,32 @@ type FetchPaginationParams = {
   page: number,
   department?: string;
   district?: string;
+  userId?: string;
 }
 
-async function fetchMoreNews({ page }: FetchPaginationParams): Promise<PublicationPreview[]> {
+async function fetchMoreNews({ page, userId }: FetchPaginationParams): Promise<PublicationPreview[]> {
   const offset = page * NEWS_RESULTS_PER_PAGE;
 
-  const { data, error } = await db
+  let query = db
     .from('publications')
     .select('*, source_id (id, name, image_icon_url)')
     .order('created_at', { ascending: false })
     .range(offset, offset + NEWS_RESULTS_PER_PAGE - 1);
+
+  // Exclude hidden publications if user is logged in
+  if (userId) {
+    const { data: hiddenPublications } = await db
+      .from('preferences_hidden_publications')
+      .select('publication_id')
+      .eq('user_id', userId);
+
+    if (hiddenPublications && hiddenPublications.length > 0) {
+      const hiddenIds = hiddenPublications.map(h => h.publication_id);
+      query = query.not('id', 'in', `(${hiddenIds.join(',')})`);
+    }
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     throw new Error(error.message);

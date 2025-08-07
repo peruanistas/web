@@ -193,7 +193,7 @@ export function PublicationDetail({ id }: Props) {
 
 
     // We fetch 3 projects and 3 publications
-    fetchRandomNews(3, seed.current, [id]).then((news) => {
+    fetchRandomNews(3, seed.current, [id], user?.id).then((news) => {
       setRandomContent((prev) => {
         if (prev.length + news.length > 6) return prev;
         return mergeAndShuffle(prev, news);
@@ -435,17 +435,33 @@ function RandomPublications({ publications }: { publications: ContentSidebarPrev
   );
 }
 
-async function fetchRandomNews(amount: number, seed: number, exclude: string[]): Promise<ContentSidebarPreview[]> {
+async function fetchRandomNews(amount: number, seed: number, exclude: string[], userId?: string): Promise<ContentSidebarPreview[]> {
   function seededRandom(seed: number) {
     const x = Math.sin(seed++) * 10000;
     return x - Math.floor(x);
   }
 
-  const { data, error } = await db
+  let query = db
     .from('random_publications')
     .select('id, title, image_url, published_at')
     .not('id', 'in', `(${exclude.join(',')})`)
     .limit(amount);
+
+  // Exclude hidden publications if user is logged in
+  if (userId) {
+    const { data: hiddenPublications } = await db
+      .from('preferences_hidden_publications')
+      .select('publication_id')
+      .eq('user_id', userId);
+
+    if (hiddenPublications && hiddenPublications.length > 0) {
+      const hiddenIds = hiddenPublications.map(h => h.publication_id);
+      const allExcluded = [...exclude, ...hiddenIds];
+      query = query.not('id', 'in', `(${allExcluded.join(',')})`);
+    }
+  }
+
+  const { data, error } = await query;
 
   if (error || !data) return [];
 

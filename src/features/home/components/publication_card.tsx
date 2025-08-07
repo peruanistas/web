@@ -5,6 +5,9 @@ import { Eye, MessageSquare, ThumbsUp, MoreVertical } from 'lucide-react';
 import ContentLoader from 'react-content-loader';
 import { Link } from 'wouter';
 import { useState, useRef, useEffect } from 'react';
+import { db } from '@db/client';
+import { useAuthStore } from '@auth/store/auth_store';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 type PublicationCardProps = PublicationPreview & {};
 
@@ -12,6 +15,55 @@ export function PublicationCard(publication: PublicationCardProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuthStore();
+  const queryClient = useQueryClient();
+
+  // Mutation to hide publication
+  const hidePublicationMutation = useMutation({
+    mutationFn: async () => {
+      if (!user?.id) throw new Error('User not authenticated');
+
+      const { error } = await db
+        .from('preferences_hidden_publications')
+        .insert({
+          user_id: user.id,
+          publication_id: publication.id
+        });
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      // Invalidate queries to refresh the feed
+      // queryClient.invalidateQueries({ queryKey: ['damero_paginated_list'] });
+    },
+    onError: (error) => {
+      console.error('Error hiding publication:', error);
+      setIsHidden(false); // Revert the optimistic update
+    }
+  });
+
+  // Mutation to unhide publication
+  const unhidePublicationMutation = useMutation({
+    mutationFn: async () => {
+      if (!user?.id) throw new Error('User not authenticated');
+
+      const { error } = await db
+        .from('preferences_hidden_publications')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('publication_id', publication.id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      // Invalidate queries to refresh the feed
+      // queryClient.invalidateQueries({ queryKey: ['damero_paginated_list'] });
+    },
+    onError: (error) => {
+      console.error('Error unhiding publication:', error);
+      setIsHidden(true); // Revert the optimistic update
+    }
+  });
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -27,12 +79,24 @@ export function PublicationCard(publication: PublicationCardProps) {
   }, []);
 
   const handleNotInterested = () => {
-    setIsHidden(true);
+    if (!user?.id) {
+      console.warn('User not authenticated, cannot hide publication');
+      return;
+    }
+
+    setIsHidden(true); // Optimistic update
     setIsDropdownOpen(false);
+    hidePublicationMutation.mutate();
   };
 
   const handleUndo = () => {
-    setIsHidden(false);
+    if (!user?.id) {
+      console.warn('User not authenticated, cannot unhide publication');
+      return;
+    }
+
+    setIsHidden(false); // Optimistic update
+    unhidePublicationMutation.mutate();
   };
 
   // Hidden state view
