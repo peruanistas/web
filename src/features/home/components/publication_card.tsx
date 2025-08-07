@@ -1,16 +1,102 @@
 import { NO_IMAGE_URL } from '@common/constants';
 import { formatDate2 } from '@common/utils';
 import type { PublicationPreview } from '@home/types';
-import { Eye, MessageSquare, ThumbsUp } from 'lucide-react';
+import { Eye, MessageSquare, ThumbsUp, MoreVertical } from 'lucide-react';
 import ContentLoader from 'react-content-loader';
 import { Link } from 'wouter';
+import { useState, useRef, useEffect } from 'react';
 
 type PublicationCardProps = PublicationPreview & {};
 
 export function PublicationCard(publication: PublicationCardProps) {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isHidden, setIsHidden] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleNotInterested = () => {
+    setIsHidden(true);
+    setIsDropdownOpen(false);
+  };
+
+  const handleUndo = () => {
+    setIsHidden(false);
+  };
+
+  // Hidden state view
+  if (isHidden) {
+    return (
+      <article className='flex flex-col border border-border items-center justify-center rounded-sm bg-gray-50'>
+        <div className='flex flex-col items-center justify-center p-4 gap-4'>
+          <div className='flex flex-row items-center gap-5'>
+            <div className='w-12 h-12 bg-gray-200 rounded-sm flex items-center justify-center'>
+              <Eye size={20} className='text-gray-400' />
+            </div>
+            <div className='flex flex-col'>
+              <h3 className='font-medium text-gray-700'>Publicación ocultada</h3>
+              <p className='text-sm text-gray-500'>
+                Esta publicación ha sido marcada como "No me interesa"
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={handleUndo}
+            className='px-3 py-1.5 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded transition-colors'
+          >
+            Deshacer
+          </button>
+        </div>
+      </article>
+    );
+  }
+
   return (
-    <Link href={`/feed/${publication.id}`}>
-      <article className='flex flex-col border border-border rounded-sm'>
+    <article className='flex flex-col border border-border rounded-sm relative group'>
+      {/* Triple dot menu button */}
+      <div className='absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-200'>
+        <div className='relative' ref={dropdownRef}>
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsDropdownOpen(!isDropdownOpen);
+            }}
+            className='p-1 bg-white/90 hover:bg-white rounded-full shadow-sm border border-gray-200 transition-colors'
+          >
+            <MoreVertical size={16} className='text-gray-600' />
+          </button>
+
+          {/* Dropdown menu */}
+          {isDropdownOpen && (
+            <div className='absolute top-full right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg min-w-[140px] z-20'>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleNotInterested();
+                }}
+                className='w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors'
+              >
+                No me interesa
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <Link href={`/feed/${publication.id}`}>
         {/* Project image */}
         <img
           height={200}
@@ -57,8 +143,8 @@ export function PublicationCard(publication: PublicationCardProps) {
             0
           </div>
         </div>
-      </article>
-    </Link>
+      </Link>
+    </article>
   );
 }
 
