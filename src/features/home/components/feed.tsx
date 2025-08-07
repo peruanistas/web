@@ -30,24 +30,24 @@ export function HomeFeed() {
   const [district, setDistrict] = useState('');
   const { user } = useAuthStore();
 
-const {
-  data: contentPages,
-  fetchNextPage,
-  isLoading,
-  isFetchingNextPage,
-} = useInfiniteQuery({
-  queryKey: ['damero_paginated_list', department, district, user?.id],
-  queryFn: ({ pageParam }) => {
-    const pages = Promise.all([
-      fetchMoreNews({ page: pageParam, department, district, userId: user?.id }),
-      fetchMoreProjects({ page: pageParam, department, district }),
-      fetchMoreGroups({ page: pageParam, department, district }),
-    ] as const);
-    return pages;
-  },
-  initialPageParam: 0,
-  getNextPageParam: (_, pages) => pages.length,
-});
+  const {
+    data: contentPages,
+    fetchNextPage,
+    isLoading,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ['damero_paginated_list', department, district, user?.id],
+    queryFn: ({ pageParam }) => {
+      const pages = Promise.all([
+        fetchMoreNews({ page: pageParam, department, district, userId: user?.id }),
+        fetchMoreProjects({ page: pageParam, department, district }),
+        fetchMoreGroups({ page: pageParam, department, district }),
+      ] as const);
+      return pages;
+    },
+    initialPageParam: 0,
+    getNextPageParam: (_, pages) => pages.length,
+  });
 
   // Intersection Observer for infinite scrolling
   const observerTarget = useRef<HTMLDivElement>(null);
@@ -85,25 +85,25 @@ const {
   return (
     <section>
       <ContentLayout variant='wide'>
-      <div className='flex justify-between items-center mb-4 gap-4 flex-wrap'>
-      <div className='flex-grow'>
-        <ProjectFilters
-          department={department}
-          district={district}
-          onDepartmentChange={code => {
-          setDepartment(code);
-          setDistrict('');
-          }}
-          onDistrictChange={setDistrict}/>
-      </div>
-      <div className='shrink-0'>
-      <CreateButton onClick={() => setLocation('/feed/crear')}>
-      Crear publicación
-      </CreateButton>
-      </div>
-      </div>
-      
-        </ContentLayout>
+        <div className='flex justify-between items-center mb-4 gap-4 flex-wrap'>
+          <div className='flex-grow'>
+            <ProjectFilters
+              department={department}
+              district={district}
+              onDepartmentChange={code => {
+                setDepartment(code);
+                setDistrict('');
+              }}
+              onDistrictChange={setDistrict} />
+          </div>
+          <div className='shrink-0'>
+            <CreateButton onClick={() => setLocation('/feed/crear')}>
+              Crear publicación
+            </CreateButton>
+          </div>
+        </div>
+
+      </ContentLayout>
       {
         contentPages?.pages.map(([publications, projects, groups], i) => (
           <React.Fragment key={i}>
