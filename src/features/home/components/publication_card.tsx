@@ -7,7 +7,7 @@ import { Link } from 'wouter';
 import { useState, useRef, useEffect } from 'react';
 import { db } from '@db/client';
 import { useAuthStore } from '@auth/store/auth_store';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 
 type PublicationCardProps = PublicationPreview & {};
 
@@ -16,7 +16,7 @@ export function PublicationCard(publication: PublicationCardProps) {
   const [isHidden, setIsHidden] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { user } = useAuthStore();
-  const queryClient = useQueryClient();
+  // const queryClient = useQueryClient();
 
   // Mutation to hide publication
   const hidePublicationMutation = useMutation({
