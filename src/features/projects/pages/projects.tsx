@@ -1,35 +1,38 @@
-import { db } from '@db/client';
-import { useInfiniteQuery } from '@tanstack/react-query';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Header } from '@common/components/header';
-import { Layout } from '@common/components/layout';
-import { PageBanner } from '@common/components/page_banner';
-import { ContentLayout } from '@common/components/content_layout';
-import { Footer } from '@common/components/footer';
-import { SearchBar } from '@events/components/search_bar';
-import { OrderByDropdown } from '@events/components/order_by_dropdown';
-import { NoResults } from '@common/components/no_results';
-import type { ProjectPreview } from '@projects/types';
-import { ProjectCard, ProjectCardSkeleton } from '@projects/components/project_card';
-import { useLocation } from 'wouter';
-import { ProjectFilters } from '@projects/components/projects_filters';
-import '@projects/styles/projects_list.scss';
-import { CreateButton } from '@common/components/create_button';
-import { useScrollReset } from '@common/hooks/useScrollReset';
+import { db } from "@db/client";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Header } from "@common/components/header";
+import { Layout } from "@common/components/layout";
+import { PageBanner } from "@common/components/page_banner";
+import { ContentLayout } from "@common/components/content_layout";
+import { Footer } from "@common/components/footer";
+import { SearchBar } from "@events/components/search_bar";
+import { OrderByDropdown } from "@events/components/order_by_dropdown";
+import { NoResults } from "@common/components/no_results";
+import type { ProjectPreview } from "@projects/types";
+import {
+  ProjectCard,
+  ProjectCardSkeleton,
+} from "@projects/components/project_card";
+import { useLocation } from "wouter";
+import { ProjectFilters } from "@projects/components/projects_filters";
+import "@projects/styles/projects_list.scss";
+import { CreateButton } from "@common/components/create_button";
+import { useScrollReset } from "@common/hooks/useScrollReset";
 
 const PROJECTS_ORDER_OPTIONS = [
-  { value: 'event_date_asc', label: 'Por fecha (antiguos)' },
-  { value: 'event_date_desc', label: 'Por fecha (nuevos)' },
+  { value: "event_date_asc", label: "Por fecha (antiguos)" },
+  { value: "event_date_desc", label: "Por fecha (nuevos)" },
 ] as const;
 
 const PROJECTS_RESULTS_PER_PAGE = 6;
 
 export function ProjectsPage() {
   useScrollReset();
-  const [department, setDepartment] = useState('');
-  const [district, setDistrict] = useState('');
-  const [search, setSearch] = useState('');
-  const [orderBy, setOrderBy] = useState('created_at_asc');
+  const [department, setDepartment] = useState("");
+  const [district, setDistrict] = useState("");
+  const [search, setSearch] = useState("");
+  const [orderBy, setOrderBy] = useState("created_at_asc");
   const [, setLocation] = useLocation();
 
   // Infinite Query
@@ -41,12 +44,20 @@ export function ProjectsPage() {
     hasNextPage,
     isError,
   } = useInfiniteQuery({
-    queryKey: ['projects_list', { department, district, search, orderBy }],
+    queryKey: ["projects_list", { department, district, search, orderBy }],
     queryFn: ({ pageParam = 0 }) =>
-      fetchProjectsPaginated({ department, district, search, orderBy, page: pageParam }),
+      fetchProjectsPaginated({
+        department,
+        district,
+        search,
+        orderBy,
+        page: pageParam,
+      }),
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) =>
-      lastPage.length === PROJECTS_RESULTS_PER_PAGE ? allPages.length : undefined,
+      lastPage.length === PROJECTS_RESULTS_PER_PAGE
+        ? allPages.length
+        : undefined,
   });
 
   // Intersection Observer
@@ -68,7 +79,7 @@ export function ProjectsPage() {
 
     const options = {
       root: null,
-      rootMargin: '0px',
+      rootMargin: "0px",
       threshold: 0.1,
     };
 
@@ -84,63 +95,79 @@ export function ProjectsPage() {
     <Layout>
       <Header />
       <PageBanner
-        title='Proyectos'
-        description='Explora todos los proyectos disponibles, y participa con tus votos y comentarios.'
-        variant='project'
+        title="Proyectos"
+        description="Explora todos los proyectos disponibles, y participa con tus votos y comentarios."
+        variant="project"
+        trailing={
+          <a
+            href="/src/assets/docs/Sistema de votación y evaluación.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-white text-sm bg-black/40 rounded m-3 p-2 hover:bg-black/60 transition"
+          >
+            ¿Cómo podemos votar?
+          </a>
+        }
       />
       <ContentLayout>
-        <main className='py-6'>
-          <div className='flex flex-col md:items-center justify-between mb-4 gap-4 md:flex-row'>
+        <main className="py-6">
+          <div className="flex flex-col md:items-center justify-between mb-4 gap-4 md:flex-row">
             <SearchBar
-              className='flex-1'
-              placeholder='Buscar proyectos...'
+              className="flex-1"
+              placeholder="Buscar proyectos..."
               onChange={setSearch}
               value={search}
             />
-            <div className='flex flex-wrap items-center gap-4'>
-              <OrderByDropdown value={orderBy} orderOptions={PROJECTS_ORDER_OPTIONS} onChange={setOrderBy} />
-              <CreateButton onClick={() => setLocation('/proyectos/crear')}>
+            <div className="flex flex-wrap items-center gap-4">
+              <OrderByDropdown
+                value={orderBy}
+                orderOptions={PROJECTS_ORDER_OPTIONS}
+                onChange={setOrderBy}
+              />
+              <CreateButton onClick={() => setLocation("/proyectos/crear")}>
                 Crear proyecto
               </CreateButton>
             </div>
           </div>
-          <div className='w-full flex-col md:flex-row md:gap-6'>
+          <div className="w-full flex-col md:flex-row md:gap-6">
             {/* Left side */}
-            <div className='flex flex-col gap-2'>
+            <div className="flex flex-col gap-2">
               <ProjectFilters
                 department={department}
                 district={district}
-                onDepartmentChange={val => {
+                onDepartmentChange={(val) => {
                   setDepartment(val);
-                  setDistrict('');
+                  setDistrict("");
                 }}
                 onDistrictChange={setDistrict}
               />
             </div>
             {/* Right side */}
-            <section id='projects-grid' className='w-full'>
+            <section id="projects-grid" className="w-full">
               {isLoading && (
                 <>
-                  {Array.from({ length: PROJECTS_RESULTS_PER_PAGE }).map((_, i) => (
-                    <ProjectCardSkeleton key={i} />
-                  ))}
+                  {Array.from({ length: PROJECTS_RESULTS_PER_PAGE }).map(
+                    (_, i) => (
+                      <ProjectCardSkeleton key={i} />
+                    )
+                  )}
                 </>
               )}
 
-              {isError && (
-                <p>Ups! Hubo un error</p>
-              )}
+              {isError && <p>Ups! Hubo un error</p>}
 
               {!isLoading && !isError && (
                 <>
                   {projectsPages?.pages.flat().map((project) => (
                     <ProjectCard key={project.id} {...project} />
                   ))}
-                  {projectsPages && projectsPages.pages.flat().length === 0 && <NoResults title='No se encontraron proyectos' />}
+                  {projectsPages && projectsPages.pages.flat().length === 0 && (
+                    <NoResults title="No se encontraron proyectos" />
+                  )}
                 </>
               )}
 
-              {(isFetchingNextPage) && (
+              {isFetchingNextPage && (
                 <>
                   {Array.from({ length: 3 }).map((_, i) => (
                     <ProjectCardSkeleton key={`skeleton-next-${i}`} />
@@ -160,52 +187,54 @@ export function ProjectsPage() {
 }
 
 type FetchProjectsPaginatedParams = {
-  department?: string,
-  district?: string,
-  search?: string,
-  orderBy?: string,
-  page: number,
+  department?: string;
+  district?: string;
+  search?: string;
+  orderBy?: string;
+  page: number;
 };
 
 async function fetchProjectsPaginated({
-  department = '',
-  district = '',
-  search = '',
-  orderBy = 'created_at_desc',
+  department = "",
+  district = "",
+  search = "",
+  orderBy = "created_at_desc",
   page = 0,
 }: FetchProjectsPaginatedParams): Promise<ProjectPreview[]> {
   const offset = page * PROJECTS_RESULTS_PER_PAGE;
 
   let query = db
-    .from('projects')
-    .select('id, title, image_url, created_at, geo_department, geo_district, impression_count, ioarr_type')
-    .eq('is_megaproject', false);
+    .from("projects")
+    .select(
+      "id, title, image_url, created_at, geo_department, geo_district, impression_count, ioarr_type"
+    )
+    .eq("is_megaproject", false);
 
   if (department) {
-    query = query.eq('geo_department', department);
+    query = query.eq("geo_department", department);
   }
   if (district) {
-    query = query.eq('geo_district', district);
+    query = query.eq("geo_district", district);
   }
   if (search) {
-    query = query.ilike('title', `%${search}%`);
+    query = query.ilike("title", `%${search}%`);
   }
 
   switch (orderBy) {
-    case 'created_at_asc':
-      query = query.order('created_at', { ascending: true });
+    case "created_at_asc":
+      query = query.order("created_at", { ascending: true });
       break;
-    case 'created_at_desc':
-      query = query.order('created_at', { ascending: false });
+    case "created_at_desc":
+      query = query.order("created_at", { ascending: false });
       break;
-    case 'title_asc':
-      query = query.order('title', { ascending: true });
+    case "title_asc":
+      query = query.order("title", { ascending: true });
       break;
-    case 'title_desc':
-      query = query.order('title', { ascending: false });
+    case "title_desc":
+      query = query.order("title", { ascending: false });
       break;
     default:
-      query = query.order('created_at', { ascending: false });
+      query = query.order("created_at", { ascending: false });
   }
 
   query = query.range(offset, offset + PROJECTS_RESULTS_PER_PAGE - 1);
