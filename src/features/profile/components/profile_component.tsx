@@ -1,37 +1,37 @@
-import { MapPin, Mail, Calendar, Users, Star, Eye, Pencil, User } from "lucide-react"
-import { Button } from "@common/components/button"
-import { useAuthStore } from "@auth/store/auth_store"
-import { PE_DEPARTMENTS, PE_DISTRICTS } from "@common/data/geo"
-import { useState, useEffect, useRef } from "react"
-import { db } from "@db/client"
-import { useLocation } from "wouter"
-import { Card } from "@profile/components/ui/card"
-import { Badge } from "@profile/components/ui/badge"
-import { Avatar } from "@profile/components/ui/avatar"
-import { pushBlobToStorage } from "@common/utils"
-import type { Tables } from "@db/schema"
+import { MapPin, Mail, Calendar, Users, Star, Eye, Pencil, User } from 'lucide-react';
+import { Button } from '@common/components/button';
+import { useAuthStore } from '@auth/store/auth_store';
+import { PE_DEPARTMENTS, PE_DISTRICTS } from '@common/data/geo';
+import { useState, useEffect, useRef } from 'react';
+import { db } from '@db/client';
+import { useLocation } from 'wouter';
+import { Card } from '@profile/components/ui/card';
+import { Badge } from '@profile/components/ui/badge';
+import { Avatar } from '@profile/components/ui/avatar';
+import { pushBlobToStorage } from '@common/utils';
+import type { Tables } from '@db/schema';
 
 // Hook to read query parameters
 const useQueryParams = () => {
-  const [search] = useState(() => new URLSearchParams(window.location.search))
-  return search
-}
+  const [search] = useState(() => new URLSearchParams(window.location.search));
+  return search;
+};
 
 // Hook to update URL with query parameters
 const useUpdateUrl = () => {
-  const [, navigate] = useLocation()
+  const [, navigate] = useLocation();
 
   return (tab: string) => {
-    const currentPath = window.location.pathname
-    const newUrl = `${currentPath}?tab=${tab}`
-    navigate(newUrl)
-  }
-}
+    const currentPath = window.location.pathname;
+    const newUrl = `${currentPath}?tab=${tab}`;
+    navigate(newUrl);
+  };
+};
 
-type Project = Tables<"projects">
-type Publication = Tables<"publications">
-type Event = Tables<"events">
-type Profile = Tables<"profiles">
+type Project = Tables<'projects'>
+type Publication = Tables<'publications'>
+type Event = Tables<'events'>
+type Profile = Tables<'profiles'>
 
 interface ProfileComponentProps {
   userId?: string
@@ -41,110 +41,110 @@ interface ProfileComponentProps {
 }
 
 export default function ProfileComponent({ userId, isOwnProfile, initialTab, onTabChange }: ProfileComponentProps) {
-  const currentUser = useAuthStore((state) => state.user)
-  const [, navigate] = useLocation()
-  const [projects, setProjects] = useState<Project[]>([])
-  const [publications, setPublications] = useState<Publication[]>([])
-  const [events, setEvents] = useState<Event[]>([])
-  const [externalProfile, setExternalProfile] = useState<Profile | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [profileLoading, setProfileLoading] = useState(false)
-  const [isEditing, setIsEditing] = useState(isOwnProfile || false)
-  const [tempBio, setTempBio] = useState("")
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
-  const [isUpdating, setIsUpdating] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const currentUser = useAuthStore((state) => state.user);
+  const [, navigate] = useLocation();
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [publications, setPublications] = useState<Publication[]>([]);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [externalProfile, setExternalProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(isOwnProfile || false);
+  const [tempBio, setTempBio] = useState('');
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const queryParams = useQueryParams()
-  const updateUrl = useUpdateUrl()
+  const queryParams = useQueryParams();
+  const updateUrl = useUpdateUrl();
 
   // Mapping from URL tabs to internal tabs
   const urlToInternalTab = {
-    proyectos: "projects",
-    eventos: "events",
-    publicaciones: "publications",
-  } as const
+    proyectos: 'projects',
+    eventos: 'events',
+    publicaciones: 'publications',
+  } as const;
 
   const internalToUrlTab = {
-    projects: "proyectos",
-    events: "eventos",
-    publications: "publicaciones",
-  } as const
+    projects: 'proyectos',
+    events: 'eventos',
+    publications: 'publicaciones',
+  } as const;
 
-  const [activeTab, setActiveTab] = useState<"projects" | "events" | "publications">(() => {
-    if (!initialTab) return "projects"
-    return urlToInternalTab[initialTab as keyof typeof urlToInternalTab] || "projects"
-  })
+  const [activeTab, setActiveTab] = useState<'projects' | 'events' | 'publications'>(() => {
+    if (!initialTab) return 'projects';
+    return urlToInternalTab[initialTab as keyof typeof urlToInternalTab] || 'projects';
+  });
 
-  const isOwn = isOwnProfile ?? (!userId || userId === currentUser?.id)
-  const targetUserId = userId || currentUser?.id
-  const displayProfile = isOwn ? currentUser?.profile : externalProfile
+  const isOwn = isOwnProfile ?? (!userId || userId === currentUser?.id);
+  const targetUserId = userId || currentUser?.id;
+  const displayProfile = isOwn ? currentUser?.profile : externalProfile;
 
   useEffect(() => {
     if (!isOwn && userId) {
-      fetchExternalProfile()
+      fetchExternalProfile();
     }
-  }, [userId, isOwn])
+  }, [userId, isOwn]);
 
   const fetchExternalProfile = async () => {
-    if (!userId) return
+    if (!userId) return;
 
-    setProfileLoading(true)
+    setProfileLoading(true);
     try {
       const { data, error } = await db
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .single()
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
 
-      if (error) throw error
-      setExternalProfile(data)
+      if (error) throw error;
+      setExternalProfile(data);
     } catch (error) {
-      console.error("Error fetching external profile:", error)
-      navigate("/404")
+      console.error('Error fetching external profile:', error);
+      navigate('/404');
     } finally {
-      setProfileLoading(false)
+      setProfileLoading(false);
     }
-  }
+  };
 
   const handleEditClick = () => {
-    setTempBio(displayProfile?.bio || '')
-    setIsEditing(true)
-  }
+    setTempBio(displayProfile?.bio || '');
+    setIsEditing(true);
+  };
 
   const handleCancelEdit = () => {
-    setIsEditing(false)
-    setAvatarPreview(null)
-  }
+    setIsEditing(false);
+    setAvatarPreview(null);
+  };
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+    const file = e.target.files?.[0];
     if (file) {
-      setAvatarPreview(URL.createObjectURL(file))
+      setAvatarPreview(URL.createObjectURL(file));
     }
-  }
+  };
 
   const handleSaveProfile = async () => {
-    if (!currentUser?.id || !isOwn) return
+    if (!currentUser?.id || !isOwn) return;
 
-    setIsUpdating(true)
+    setIsUpdating(true);
     try {
-      let avatarUrl = currentUser.profile?.avatar_url || null
+      let avatarUrl = currentUser.profile?.avatar_url || null;
 
       if (fileInputRef.current?.files?.[0]) {
-        const bucketPath = await pushBlobToStorage(db, "multimedia", fileInputRef.current.files[0])
-        avatarUrl = bucketPath
+        const bucketPath = await pushBlobToStorage(db, 'multimedia', fileInputRef.current.files[0]);
+        avatarUrl = bucketPath;
       }
 
       const { error } = await db
-        .from("profiles")
+        .from('profiles')
         .update({
           bio: tempBio,
           ...(avatarUrl && { avatar_url: avatarUrl }),
         })
-        .eq("id", currentUser.id)
+        .eq('id', currentUser.id);
 
-      if (error) throw error
+      if (error) throw error;
 
       if (currentUser) {
         useAuthStore.getState().setUser({
@@ -158,132 +158,132 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
             apellido_materno: currentUser.profile?.apellido_materno || '',
             profile_completed: currentUser.profile?.profile_completed || false,
           } as Required<Tables<'profiles'>>,
-        })
+        });
       }
 
-      setIsEditing(false)
-      setAvatarPreview(null)
+      setIsEditing(false);
+      setAvatarPreview(null);
     } catch (error) {
-      console.error('Error updating profile: ', error)
-      alert('Error al actualizar el perfil')
+      console.error('Error updating profile: ', error);
+      alert('Error al actualizar el perfil');
     } finally {
-      setIsUpdating(false)
+      setIsUpdating(false);
     }
-  }
+  };
 
-  const handleTabChange = (newTab: "projects" | "events" | "publications") => {
-    setActiveTab(newTab)
+  const handleTabChange = (newTab: 'projects' | 'events' | 'publications') => {
+    setActiveTab(newTab);
 
     if (onTabChange) {
-      onTabChange(internalToUrlTab[newTab])
+      onTabChange(internalToUrlTab[newTab]);
     } else {
-      updateUrl(internalToUrlTab[newTab])
+      updateUrl(internalToUrlTab[newTab]);
     }
-  }
+  };
 
   useEffect(() => {
     if (targetUserId && displayProfile) {
-      fetchUserData()
+      fetchUserData();
     }
-  }, [targetUserId, activeTab, displayProfile])
+  }, [targetUserId, activeTab, displayProfile]);
 
   const fetchUserData = async () => {
-    if (!targetUserId) return
+    if (!targetUserId) return;
 
-    setLoading(true)
+    setLoading(true);
     try {
       switch (activeTab) {
-        case "projects":
-          await fetchProjects()
-          break
-        case "publications":
-          await fetchPublications()
-          break
-        case "events":
-          await fetchEvents()
-          break
+        case 'projects':
+          await fetchProjects();
+          break;
+        case 'publications':
+          await fetchPublications();
+          break;
+        case 'events':
+          await fetchEvents();
+          break;
       }
     } catch (error) {
-      console.error(`Error fetching ${activeTab}:`, error)
+      console.error(`Error fetching ${activeTab}:`, error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const fetchProjects = async () => {
-    if (!targetUserId) return
+    if (!targetUserId) return;
 
     const query = db
-      .from("projects")
-      .select("*")
-      .eq("author_id", targetUserId)
-      .eq("active", true)
-      .order("created_at", { ascending: false })
+      .from('projects')
+      .select('*')
+      .eq('author_id', targetUserId)
+      .eq('active', true)
+      .order('created_at', { ascending: false });
 
     // If not own profile, only show public ones
     if (!isOwn) {
-      query.eq("visibility", "public")
+      query.eq('visibility', 'public');
     }
 
-    const { data, error } = await query
+    const { data, error } = await query;
 
     if (error) {
-      console.error("Error fetching projects:", error)
-      setProjects([])
+      console.error('Error fetching projects:', error);
+      setProjects([]);
     } else {
-      setProjects(data || [])
+      setProjects(data || []);
     }
-  }
+  };
 
   const fetchPublications = async () => {
-    if (!targetUserId) return
+    if (!targetUserId) return;
 
     const query = db
-      .from("publications")
-      .select("*")
-      .eq("author_id", targetUserId)
-      .eq("active", true)
-      .order("created_at", { ascending: false })
+      .from('publications')
+      .select('*')
+      .eq('author_id', targetUserId)
+      .eq('active', true)
+      .order('created_at', { ascending: false });
 
     // If not own profile, only show public ones
     if (!isOwn) {
-      query.eq("visibility", "public")
+      query.eq('visibility', 'public');
     }
 
-    const { data, error } = await query
+    const { data, error } = await query;
 
     if (error) {
-      console.error("Error fetching publications:", error)
-      setPublications([])
+      console.error('Error fetching publications:', error);
+      setPublications([]);
     } else {
-      setPublications(data || [])
+      setPublications(data || []);
     }
-  }
+  };
 
   const fetchEvents = async () => {
-    if (!targetUserId) return
+    if (!targetUserId) return;
 
     const query = db
-      .from("events")
-      .select("*")
-      .eq("author_id", targetUserId)
-      .eq("active", true)
-      .order("created_at", { ascending: false })
+      .from('events')
+      .select('*')
+      .eq('author_id', targetUserId)
+      .eq('active', true)
+      .order('created_at', { ascending: false });
 
     // If not own profile, only show public ones
     if (!isOwn) {
-      query.eq("visibility", "public")
+      query.eq('visibility', 'public');
     }
 
-    const { data, error } = await query
+    const { data, error } = await query;
 
     if (error) {
-      console.error("Error fetching events:", error)
-      setEvents([])
+      console.error('Error fetching events:', error);
+      setEvents([]);
     } else {
-      setEvents(data || [])
+      setEvents(data || []);
     }
-  }
+  };
 
   const renderProjects = () => {
     if (projects.length === 0) {
@@ -292,18 +292,18 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
           <Card className="p-8 text-center">
             <h3 className="text-lg font-medium text-gray-900 mb-2">No tienes proyectos aún</h3>
             <p className="text-gray-600 mb-4">Comienza creando tu primer proyecto</p>
-            <Button variant="red" onClick={() => navigate("/proyectos/crear")}>
+            <Button variant="red" onClick={() => navigate('/proyectos/crear')}>
               Crear proyecto
             </Button>
           </Card>
-        )
+        );
       } else {
         return (
           <Card className="p-8 text-center">
             <h3 className="text-lg font-medium text-gray-900 mb-2">No hay proyectos públicos</h3>
             <p className="text-gray-600">Este usuario no ha publicado proyectos aún</p>
           </Card>
-        )
+        );
       }
     }
 
@@ -318,7 +318,7 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
             <div className="p-4 sm:p-6">
               <div className="flex flex-col sm:flex-row items-start gap-4">
                 <img
-                  src={project.image_url || "/placeholder.svg?height=80&width=80"}
+                  src={project.image_url || '/placeholder.svg?height=80&width=80'}
                   alt="Proyecto"
                   className="w-full sm:w-20 h-48 sm:h-20 rounded-lg object-cover flex-shrink-0"
                 />
@@ -330,14 +330,14 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
                       </h4>
                       {isOwn && (
                         <Badge
-                          variant={project.visibility === "public" ? "outline" : "secondary"}
+                          variant={project.visibility === 'public' ? 'outline' : 'secondary'}
                           className="flex-shrink-0"
                         >
-                          {project.visibility === "public"
-                            ? "Publicado"
-                            : project.visibility === "private"
-                              ? "Privado"
-                              : "Borrador"}
+                          {project.visibility === 'public'
+                            ? 'Publicado'
+                            : project.visibility === 'private'
+                              ? 'Privado'
+                              : 'Borrador'}
                         </Badge>
                       )}
                     </div>
@@ -358,7 +358,7 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
                       {project.ioarr_type}
                     </Badge>
                     <span className="whitespace-nowrap">
-                      Creado {new Date(project.created_at).toLocaleDateString("es-PE")}
+                      Creado {new Date(project.created_at).toLocaleDateString('es-PE')}
                     </span>
                   </div>
                 </div>
@@ -367,8 +367,8 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
           </Card>
         ))}
       </div>
-    )
-  }
+    );
+  };
 
   const renderPublications = () => {
     if (publications.length === 0) {
@@ -377,18 +377,18 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
           <Card className="p-8 text-center">
             <h3 className="text-lg font-medium text-gray-900 mb-2">No tienes publicaciones aún</h3>
             <p className="text-gray-600 mb-4">Comparte tu conocimiento con la comunidad</p>
-            <Button variant="red" onClick={() => navigate("/feed/crear")}>
+            <Button variant="red" onClick={() => navigate('/feed/crear')}>
               Crear publicación
             </Button>
           </Card>
-        )
+        );
       } else {
         return (
           <Card className="p-8 text-center">
             <h3 className="text-lg font-medium text-gray-900 mb-2">No hay publicaciones públicas</h3>
             <p className="text-gray-600">Este usuario no ha publicado contenido aún</p>
           </Card>
-        )
+        );
       }
     }
 
@@ -404,7 +404,7 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
               <div className="flex flex-col sm:flex-row items-start gap-4">
                 {publication.image_url && (
                   <img
-                    src={publication.image_url || "/placeholder.svg"}
+                    src={publication.image_url || '/placeholder.svg'}
                     alt="Publicación"
                     className="w-full sm:w-20 h-48 sm:h-20 rounded-lg object-cover flex-shrink-0"
                   />
@@ -417,14 +417,14 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
                       </h4>
                       {isOwn && (
                         <Badge
-                          variant={publication.visibility === "public" ? "outline" : "secondary"}
+                          variant={publication.visibility === 'public' ? 'outline' : 'secondary'}
                           className="flex-shrink-0"
                         >
-                          {publication.visibility === "public"
-                            ? "Publicado"
-                            : publication.visibility === "private"
-                              ? "Privado"
-                              : "Borrador"}
+                          {publication.visibility === 'public'
+                            ? 'Publicado'
+                            : publication.visibility === 'private'
+                              ? 'Privado'
+                              : 'Borrador'}
                         </Badge>
                       )}
                     </div>
@@ -444,7 +444,7 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
                       <span>{publication.impression_count}</span>
                     </div>
                     <span className="whitespace-nowrap">
-                      Publicado {new Date(publication.published_at).toLocaleDateString("es-PE")}
+                      Publicado {new Date(publication.published_at).toLocaleDateString('es-PE')}
                     </span>
                   </div>
                 </div>
@@ -453,8 +453,8 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
           </Card>
         ))}
       </div>
-    )
-  }
+    );
+  };
 
   const renderEvents = () => {
     if (events.length === 0) {
@@ -463,18 +463,18 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
           <Card className="p-8 text-center">
             <h3 className="text-lg font-medium text-gray-900 mb-2">No tienes eventos aún</h3>
             <p className="text-gray-600 mb-4">Organiza eventos para conectar con la comunidad</p>
-            <Button variant="red" onClick={() => navigate("/eventos/crear")}>
+            <Button variant="red" onClick={() => navigate('/eventos/crear')}>
               Crear evento
             </Button>
           </Card>
-        )
+        );
       } else {
         return (
           <Card className="p-8 text-center">
             <h3 className="text-lg font-medium text-gray-900 mb-2">No hay eventos públicos</h3>
             <p className="text-gray-600">Este usuario no ha publicado eventos aún</p>
           </Card>
-        )
+        );
       }
     }
 
@@ -489,7 +489,7 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
             <div className="p-4 sm:p-6">
               <div className="flex flex-col sm:flex-row items-start gap-4">
                 <img
-                  src={event.image_url || "/placeholder.svg?height=80&width=80"}
+                  src={event.image_url || '/placeholder.svg?height=80&width=80'}
                   alt="Evento"
                   className="w-full sm:w-20 h-48 sm:h-20 rounded-lg object-cover flex-shrink-0"
                 />
@@ -500,19 +500,19 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
                       {isOwn && (
                         <Badge
                           variant={
-                            event.visibility === "public"
-                              ? "outline"
-                              : event.visibility === "private"
-                                ? "secondary"
-                                : "outline"
+                            event.visibility === 'public'
+                              ? 'outline'
+                              : event.visibility === 'private'
+                                ? 'secondary'
+                                : 'outline'
                           }
                           className="flex-shrink-0"
                         >
-                          {event.visibility === "public"
-                            ? "Publicado"
-                            : event.visibility === "private"
-                              ? "Privado"
-                              : "Borrador"}
+                          {event.visibility === 'public'
+                            ? 'Publicado'
+                            : event.visibility === 'private'
+                              ? 'Privado'
+                              : 'Borrador'}
                         </Badge>
                       )}
                     </div>
@@ -522,7 +522,7 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
                     <div className="flex items-center gap-1">
                       <Calendar className="w-4 h-4 flex-shrink-0" />
                       <span className="whitespace-nowrap">
-                        {new Date(event.event_date).toLocaleDateString("es-PE")}
+                        {new Date(event.event_date).toLocaleDateString('es-PE')}
                       </span>
                     </div>
                     <div className="flex items-center gap-1 min-w-0">
@@ -546,8 +546,8 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
           </Card>
         ))}
       </div>
-    )
-  }
+    );
+  };
 
   const renderContent = () => {
     if (loading) {
@@ -555,32 +555,32 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
         <div className="text-center py-10">
           <p>Cargando...</p>
         </div>
-      )
+      );
     }
 
     switch (activeTab) {
-      case "projects":
-        return renderProjects()
-      case "publications":
-        return renderPublications()
-      case "events":
-        return renderEvents()
+      case 'projects':
+        return renderProjects();
+      case 'publications':
+        return renderPublications();
+      case 'events':
+        return renderEvents();
       default:
-        return null
+        return null;
     }
-  }
+  };
 
   // Loading states
   if (profileLoading) {
-    return <p className="text-center py-10">Cargando perfil...</p>
+    return <p className="text-center py-10">Cargando perfil...</p>;
   }
 
   // Early return if profile doesn't exist
   if (!displayProfile) {
     if (isOwn) {
-      return <p className="text-center py-10">Cargando perfil...</p>
+      return <p className="text-center py-10">Cargando perfil...</p>;
     } else {
-      return <p className="text-center py-10">Usuario no encontrado</p>
+      return <p className="text-center py-10">Usuario no encontrado</p>;
     }
   }
 
@@ -593,12 +593,12 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
             <p className="text-gray-600 mb-6">
               Necesitas completar tu información de perfil para acceder a esta página.
             </p>
-            <Button variant="red" onClick={() => navigate("/completar-registro")}>
+            <Button variant="red" onClick={() => navigate('/completar-registro')}>
               Completar perfil
             </Button>
           </Card>
         </div>
-      )
+      );
     } else {
       return (
         <div className="min-h-screen flex items-center justify-center">
@@ -607,7 +607,7 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
             <p className="text-gray-600">Este usuario no ha completado su perfil aún.</p>
           </Card>
         </div>
-      )
+      );
     }
   }
 
@@ -678,7 +678,7 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
                             className="w-1/2 flex items-center justify-center gap-2 text-sm"
                           >
                             {isUpdating ? (
-                              "Guardando..."
+                              'Guardando...'
                             ) : (
                               <>
                                 <span>Guardar</span>
@@ -695,7 +695,7 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
                           </div>
                         ) : (
                           <p className="text-gray-400 text-left text-sm italic">
-                            {isOwn ? "No hay descripción aún" : null}
+                            {isOwn ? 'No hay descripción aún' : null}
                           </p>
                         )}
                         {isOwn && (
@@ -717,8 +717,8 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                       <MapPin className="w-4 h-4 flex-shrink-0" />
                       <span className="truncate">
-                        {PE_DISTRICTS[displayProfile.geo_district as string]?.name || "Distrito desconocido"},{" "}
-                        {PE_DEPARTMENTS[displayProfile.geo_department as string]?.name || "Departamento desconocido"}
+                        {PE_DISTRICTS[displayProfile.geo_district as string]?.name || 'Distrito desconocido'},{' '}
+                        {PE_DEPARTMENTS[displayProfile.geo_department as string]?.name || 'Departamento desconocido'}
                       </span>
                     </div>
                     {isOwn && currentUser && (
@@ -730,10 +730,10 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                       <Calendar className="w-4 h-4 flex-shrink-0" />
                       <span>
-                        Se unió en{" "}
-                        {new Date(displayProfile.created_at).toLocaleDateString("es-PE", {
-                          month: "long",
-                          year: "numeric",
+                        Se unió en{' '}
+                        {new Date(displayProfile.created_at).toLocaleDateString('es-PE', {
+                          month: 'long',
+                          year: 'numeric',
                         })}
                       </span>
                     </div>
@@ -764,32 +764,29 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
               {/* Navegación del feed */}
               <div className="flex gap-4 border-b border-gray-200 overflow-x-auto">
                 <button
-                  className={`pb-3 px-1 transition-colors whitespace-nowrap ${
-                    activeTab === "projects"
-                      ? "border-b-2 border-primary text-primary font-medium"
-                      : "text-gray-600 hover:text-gray-900"
-                  }`}
-                  onClick={() => handleTabChange("projects")}
+                  className={`pb-3 px-1 transition-colors whitespace-nowrap ${activeTab === 'projects'
+                      ? 'border-b-2 border-primary text-primary font-medium'
+                      : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                  onClick={() => handleTabChange('projects')}
                 >
                   Proyectos
                 </button>
                 <button
-                  className={`pb-3 px-1 transition-colors whitespace-nowrap ${
-                    activeTab === "events"
-                      ? "border-b-2 border-primary text-primary font-medium"
-                      : "text-gray-600 hover:text-gray-900"
-                  }`}
-                  onClick={() => handleTabChange("events")}
+                  className={`pb-3 px-1 transition-colors whitespace-nowrap ${activeTab === 'events'
+                      ? 'border-b-2 border-primary text-primary font-medium'
+                      : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                  onClick={() => handleTabChange('events')}
                 >
                   Eventos
                 </button>
                 <button
-                  className={`pb-3 px-1 transition-colors whitespace-nowrap ${
-                    activeTab === "publications"
-                      ? "border-b-2 border-primary text-primary font-medium"
-                      : "text-gray-600 hover:text-gray-900"
-                  }`}
-                  onClick={() => handleTabChange("publications")}
+                  className={`pb-3 px-1 transition-colors whitespace-nowrap ${activeTab === 'publications'
+                      ? 'border-b-2 border-primary text-primary font-medium'
+                      : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                  onClick={() => handleTabChange('publications')}
                 >
                   Publicaciones
                 </button>
@@ -802,5 +799,5 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
         </div>
       </div>
     </div>
-  )
+  );
 }
