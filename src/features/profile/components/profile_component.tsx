@@ -1,14 +1,20 @@
 import { MapPin, Mail, Calendar, Users, Star, Eye, Pencil, User } from 'lucide-react';
 import { Button } from '@common/components/button';
 import { useAuthStore } from '@auth/store/auth_store';
-import { PE_DEPARTMENTS, PE_DISTRICTS } from '@common/data/geo';
+import { PE_DEPARTMENTS, PE_DISTRICTS, DEPARTMENT_OPTIONS, DISTRICTS_BY_DEPARTMENT } from '@common/data/geo';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { db } from '@db/client';
 import { useLocation } from 'wouter';
 import { Card } from '@profile/components/ui/card';
 import { Badge } from '@profile/components/ui/badge';
 import { Avatar } from '@profile/components/ui/avatar';
-import { pushBlobToStorage } from '@common/utils';
+import {
+  pushBlobToStorage,
+  canUpdateGeoLocation,
+  setGeoUpdateTimestamp,
+  getDaysUntilNextGeoUpdate,
+  getNextGeoUpdateDate
+} from '@common/utils';
 import type { Tables } from '@db/schema';
 
 // Hook to update URL with query parameters
@@ -47,6 +53,11 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
   const [tempBio, setTempBio] = useState('');
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isEditingGeo, setIsEditingGeo] = useState(false);
+  const [tempDepartment, setTempDepartment] = useState('');
+  const [tempDistrict, setTempDistrict] = useState('');
+  const [geoUpdateError, setGeoUpdateError] = useState<string | null>(null);
+  const [isUpdatingGeo, setIsUpdatingGeo] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const updateUrl = useUpdateUrl();
@@ -163,6 +174,78 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
       alert('Error al actualizar el perfil');
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  const handleEditGeoClick = () => {
+    if (!currentUser?.id) return;
+
+    if (!canUpdateGeoLocation(currentUser.id)) {
+      const daysLeft = getDaysUntilNextGeoUpdate(currentUser.id);
+      const nextDate = getNextGeoUpdateDate(currentUser.id);
+      setGeoUpdateError(
+        `Solo puedes actualizar tu ubicación cada 6 meses. Podrás actualizar nuevamente en ${daysLeft} días (${nextDate?.toLocaleDateString('es-PE')}).`
+      );
+      return;
+    }
+
+    setTempDepartment(displayProfile?.geo_department || '');
+    setTempDistrict(displayProfile?.geo_district || '');
+    setGeoUpdateError(null);
+    setIsEditingGeo(true);
+  };
+
+  const handleCancelGeoEdit = () => {
+    setIsEditingGeo(false);
+    setGeoUpdateError(null);
+    setTempDepartment('');
+    setTempDistrict('');
+  };
+
+  const handleSaveGeolocation = async () => {
+    if (!currentUser?.id || !isOwn) return;
+    if (!tempDepartment || !tempDistrict) {
+      setGeoUpdateError('Debes seleccionar tanto departamento como distrito');
+      return;
+    }
+
+    setIsUpdatingGeo(true);
+    setGeoUpdateError(null);
+
+    try {
+      const { error } = await db
+        .from('profiles')
+        .update({
+          geo_department: tempDepartment,
+          geo_district: tempDistrict,
+        })
+        .eq('id', currentUser.id);
+
+      if (error) throw error;
+
+      // Update timestamp in localStorage
+      setGeoUpdateTimestamp(currentUser.id);
+
+      // Update auth store
+      if (currentUser.profile) {
+        useAuthStore.getState().setUser({
+          ...currentUser,
+          profile: {
+            ...currentUser.profile,
+            geo_department: tempDepartment,
+            geo_district: tempDistrict,
+          } as Required<Tables<'profiles'>>,
+        });
+      }
+
+      setIsEditingGeo(false);
+      setTempDepartment('');
+      setTempDistrict('');
+    } catch (error) {
+      console.error('Error updating geolocation:', error);
+      setGeoUpdateError('Error al actualizar la ubicación');
+    } finally {
+      setIsUpdatingGeo(false);
     }
   };
 
@@ -712,13 +795,106 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
 
                   {/* contacto */}
                   <div className="space-y-2 py-5">
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <MapPin className="w-4 h-4 flex-shrink-0" />
-                      <span className="truncate">
-                        {PE_DISTRICTS[displayProfile.geo_district as string]?.name || 'Distrito desconocido'},{' '}
-                        {PE_DEPARTMENTS[displayProfile.geo_department as string]?.name || 'Departamento desconocido'}
-                      </span>
-                    </div>
+                    {isEditingGeo && isOwn ? (
+                      <div className="space-y-3">
+                        <div className="bg-blue-50 border border-blue-200 text-blue-700 px-3 py-2 rounded-md text-xs">
+                          <strong>⚠️ Importante:</strong> Solo puedes actualizar tu ubicación cada 6 meses. Asegúrate de que la información sea correcta antes de guardar.
+                        </div>
+
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-gray-700">
+                            Departamento
+                          </label>
+                          <select
+                            value={tempDepartment}
+                            onChange={(e) => {
+                              setTempDepartment(e.target.value);
+                              setTempDistrict(''); // Reset district when department changes
+                            }}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                          >
+                            <option value="">Selecciona departamento</option>
+                            {DEPARTMENT_OPTIONS.map(option => (
+                              <option key={option.value} value={option.value}>
+                                {option.label}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-gray-700">
+                            Distrito
+                          </label>
+                          <select
+                            value={tempDistrict}
+                            onChange={(e) => setTempDistrict(e.target.value)}
+                            disabled={!tempDepartment}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                          >
+                            <option value="">
+                              {!tempDepartment ? 'Selecciona departamento primero' : 'Selecciona distrito'}
+                            </option>
+                            {tempDepartment && DISTRICTS_BY_DEPARTMENT[tempDepartment]?.map((option: { value: string; label: string }) => (
+                              <option key={option.value} value={option.value}>
+                                {option.label}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {geoUpdateError && (
+                          <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-md text-xs">
+                            {geoUpdateError}
+                          </div>
+                        )}
+
+                        <div className="flex gap-2">
+                          <Button
+                            variant="white"
+                            onClick={handleCancelGeoEdit}
+                            disabled={isUpdatingGeo}
+                            className="flex-1 text-xs py-2"
+                          >
+                            Cancelar
+                          </Button>
+                          <Button
+                            variant="red"
+                            onClick={handleSaveGeolocation}
+                            disabled={isUpdatingGeo || !tempDepartment || !tempDistrict}
+                            className="flex-1 text-xs py-2"
+                          >
+                            {isUpdatingGeo ? 'Guardando...' : 'Guardar'}
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-2 mb-4">
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <MapPin className="w-4 h-4 flex-shrink-0" />
+                          <span className="truncate">
+                            {PE_DISTRICTS[displayProfile.geo_district as string]?.name || 'Distrito desconocido'},{' '}
+                            {PE_DEPARTMENTS[displayProfile.geo_department as string]?.name || 'Departamento desconocido'}
+                          </span>
+                        </div>
+                        {isOwn && (
+                          <Button
+                            variant="white"
+                            onClick={handleEditGeoClick}
+                            className="w-full flex items-center justify-center gap-2 text-xs py-2 mt-2 border border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-colors"
+                          >
+                            <Pencil className="w-3 h-3" />
+                            <span>Editar ubicación</span>
+                          </Button>
+                        )}
+                      </div>
+                    )}
+
+                    {geoUpdateError && !isEditingGeo && (
+                      <div className="bg-amber-50 border border-amber-200 text-amber-700 px-3 py-2 rounded-md text-xs">
+                        {geoUpdateError}
+                      </div>
+                    )}
                     {isOwn && currentUser && (
                       <div className="flex items-center gap-2 text-sm text-gray-600">
                         <Mail className="w-4 h-4 flex-shrink-0" />

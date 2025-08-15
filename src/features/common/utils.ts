@@ -76,3 +76,12 @@ export function getRedirectURL() {
   url = url.endsWith('/') ? url : `${url}/`;
   return url;
 };
+
+// Re-export geo update tracker utilities
+export {
+  canUpdateGeoLocation,
+  setGeoUpdateTimestamp,
+  getDaysUntilNextGeoUpdate,
+  getNextGeoUpdateDate,
+  getGeoUpdateTimestamp
+} from './utils/geo_update_tracker';
