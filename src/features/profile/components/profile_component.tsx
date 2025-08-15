@@ -2,7 +2,7 @@ import { MapPin, Mail, Calendar, Users, Star, Eye, Pencil, User } from 'lucide-r
 import { Button } from '@common/components/button';
 import { useAuthStore } from '@auth/store/auth_store';
 import { PE_DEPARTMENTS, PE_DISTRICTS } from '@common/data/geo';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { db } from '@db/client';
 import { useLocation } from 'wouter';
 import { Card } from '@profile/components/ui/card';
@@ -10,12 +10,6 @@ import { Badge } from '@profile/components/ui/badge';
 import { Avatar } from '@profile/components/ui/avatar';
 import { pushBlobToStorage } from '@common/utils';
 import type { Tables } from '@db/schema';
-
-// Hook to read query parameters
-const useQueryParams = () => {
-  const [search] = useState(() => new URLSearchParams(window.location.search));
-  return search;
-};
 
 // Hook to update URL with query parameters
 const useUpdateUrl = () => {
@@ -55,7 +49,6 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
   const [isUpdating, setIsUpdating] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const queryParams = useQueryParams();
   const updateUrl = useUpdateUrl();
 
   // Mapping from URL tabs to internal tabs
@@ -80,13 +73,7 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
   const targetUserId = userId || currentUser?.id;
   const displayProfile = isOwn ? currentUser?.profile : externalProfile;
 
-  useEffect(() => {
-    if (!isOwn && userId) {
-      fetchExternalProfile();
-    }
-  }, [userId, isOwn]);
-
-  const fetchExternalProfile = async () => {
+  const fetchExternalProfile = useCallback(async () => {
     if (!userId) return;
 
     setProfileLoading(true);
@@ -105,7 +92,15 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
     } finally {
       setProfileLoading(false);
     }
-  };
+  }, [navigate, userId]);
+
+  useEffect(() => {
+    if (!isOwn && userId) {
+      fetchExternalProfile();
+    }
+  }, [userId, isOwn, fetchExternalProfile]);
+
+
 
   const handleEditClick = () => {
     setTempBio(displayProfile?.bio || '');
@@ -181,36 +176,7 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
     }
   };
 
-  useEffect(() => {
-    if (targetUserId && displayProfile) {
-      fetchUserData();
-    }
-  }, [targetUserId, activeTab, displayProfile]);
-
-  const fetchUserData = async () => {
-    if (!targetUserId) return;
-
-    setLoading(true);
-    try {
-      switch (activeTab) {
-        case 'projects':
-          await fetchProjects();
-          break;
-        case 'publications':
-          await fetchPublications();
-          break;
-        case 'events':
-          await fetchEvents();
-          break;
-      }
-    } catch (error) {
-      console.error(`Error fetching ${activeTab}:`, error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     if (!targetUserId) return;
 
     const query = db
@@ -233,9 +199,9 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
     } else {
       setProjects(data || []);
     }
-  };
+  }, [isOwn, targetUserId]);
 
-  const fetchPublications = async () => {
+  const fetchPublications = useCallback(async () => {
     if (!targetUserId) return;
 
     const query = db
@@ -258,9 +224,9 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
     } else {
       setPublications(data || []);
     }
-  };
+  }, [isOwn, targetUserId]);
 
-  const fetchEvents = async () => {
+  const fetchEvents = useCallback(async () => {
     if (!targetUserId) return;
 
     const query = db
@@ -283,7 +249,39 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
     } else {
       setEvents(data || []);
     }
-  };
+  }, [isOwn, targetUserId]);
+
+  const fetchUserData = useCallback(async () => {
+    if (!targetUserId) return;
+
+    setLoading(true);
+    try {
+      switch (activeTab) {
+        case 'projects':
+          await fetchProjects();
+          break;
+        case 'publications':
+          await fetchPublications();
+          break;
+        case 'events':
+          await fetchEvents();
+          break;
+      }
+    } catch (error) {
+      console.error(`Error fetching ${activeTab}:`, error);
+    } finally {
+      setLoading(false);
+    }
+  }, [activeTab, fetchEvents, fetchProjects, fetchPublications, targetUserId]);
+
+  useEffect(() => {
+    if (targetUserId && displayProfile) {
+      fetchUserData();
+    }
+  }, [targetUserId, activeTab, displayProfile, fetchUserData]);
+
+
+
 
   const renderProjects = () => {
     if (projects.length === 0) {
@@ -765,8 +763,8 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
               <div className="flex gap-4 border-b border-gray-200 overflow-x-auto">
                 <button
                   className={`pb-3 px-1 transition-colors whitespace-nowrap ${activeTab === 'projects'
-                      ? 'border-b-2 border-primary text-primary font-medium'
-                      : 'text-gray-600 hover:text-gray-900'
+                    ? 'border-b-2 border-primary text-primary font-medium'
+                    : 'text-gray-600 hover:text-gray-900'
                     }`}
                   onClick={() => handleTabChange('projects')}
                 >
@@ -774,8 +772,8 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
                 </button>
                 <button
                   className={`pb-3 px-1 transition-colors whitespace-nowrap ${activeTab === 'events'
-                      ? 'border-b-2 border-primary text-primary font-medium'
-                      : 'text-gray-600 hover:text-gray-900'
+                    ? 'border-b-2 border-primary text-primary font-medium'
+                    : 'text-gray-600 hover:text-gray-900'
                     }`}
                   onClick={() => handleTabChange('events')}
                 >
@@ -783,8 +781,8 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
                 </button>
                 <button
                   className={`pb-3 px-1 transition-colors whitespace-nowrap ${activeTab === 'publications'
-                      ? 'border-b-2 border-primary text-primary font-medium'
-                      : 'text-gray-600 hover:text-gray-900'
+                    ? 'border-b-2 border-primary text-primary font-medium'
+                    : 'text-gray-600 hover:text-gray-900'
                     }`}
                   onClick={() => handleTabChange('publications')}
                 >
