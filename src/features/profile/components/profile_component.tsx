@@ -16,6 +16,7 @@ import {
   getNextGeoUpdateDate
 } from '@common/utils';
 import type { Tables } from '@db/schema';
+import VotesCountdownCard from './VotesCountdownCard';
 
 // Hook to update URL with query parameters
 const useUpdateUrl = () => {
@@ -32,6 +33,7 @@ type Project = Tables<'projects'>
 type Publication = Tables<'publications'>
 type Event = Tables<'events'>
 type Profile = Tables<'profiles'>
+type Votes = Tables<'project_votes'>
 
 interface ProfileComponentProps {
   userId?: string
@@ -45,6 +47,7 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
   const [, navigate] = useLocation();
   const [projects, setProjects] = useState<Project[]>([]);
   const [publications, setPublications] = useState<Publication[]>([]);
+  const [votes, setVotes] = useState<Votes[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
   const [externalProfile, setExternalProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(false);
@@ -67,15 +70,17 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
     proyectos: 'projects',
     eventos: 'events',
     publicaciones: 'publications',
+    votos: 'votes'
   } as const;
 
   const internalToUrlTab = {
     projects: 'proyectos',
     events: 'eventos',
     publications: 'publicaciones',
+    votes: 'votos', 
   } as const;
 
-  const [activeTab, setActiveTab] = useState<'projects' | 'events' | 'publications'>(() => {
+  const [activeTab, setActiveTab] = useState<'projects' | 'events' | 'publications' | 'votes'>(() => {
     if (!initialTab) return 'projects';
     return urlToInternalTab[initialTab as keyof typeof urlToInternalTab] || 'projects';
   });
@@ -249,7 +254,7 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
     }
   };
 
-  const handleTabChange = (newTab: 'projects' | 'events' | 'publications') => {
+  const handleTabChange = (newTab: 'projects' | 'events' | 'publications' | 'votes') => {
     setActiveTab(newTab);
 
     if (onTabChange) {
@@ -258,6 +263,23 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
       updateUrl(internalToUrlTab[newTab]);
     }
   };
+
+const fetchVotes = useCallback(async () => {
+  if (!targetUserId) return;
+  const query = db
+    .from('project_votes')
+    .select('*')
+    .eq('user_id', targetUserId)
+    .order('created_at', { ascending: false });
+  const { data, error } = await query;
+  console.log(data);
+  if (error) {
+    console.error('Error fetching votes:', error);
+    setVotes([]);
+  } else {
+    setVotes(data || []);
+  }
+}, [targetUserId]);
 
   const fetchProjects = useCallback(async () => {
     if (!targetUserId) return;
@@ -346,6 +368,9 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
         case 'publications':
           await fetchPublications();
           break;
+        case 'votes':
+          await fetchVotes();
+          break;
         case 'events':
           await fetchEvents();
           break;
@@ -355,7 +380,7 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
     } finally {
       setLoading(false);
     }
-  }, [activeTab, fetchEvents, fetchProjects, fetchPublications, targetUserId]);
+  }, [activeTab, fetchEvents, fetchProjects, fetchPublications,fetchVotes, targetUserId]);
 
   useEffect(() => {
     if (targetUserId && displayProfile) {
@@ -630,6 +655,63 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
     );
   };
 
+  // Componente auxiliar para mostrar el nombre del proyecto
+        function ProjectName({ projectId }: { projectId: string }) {
+          const [projectName, setProjectName] = useState<string>('Cargando...');
+          useEffect(() => {
+            let isMounted = true;
+            db.from('projects')
+              .select('title')
+              .eq('id', projectId)
+              .single()
+              .then(({ data, error }) => {
+                if (isMounted) {
+                  setProjectName(error ? 'Proyecto no encontrado' : data?.title || 'Sin nombre');
+                }
+              });
+            return () => { isMounted = false; };
+          }, [projectId]);
+          return (
+            <div className="text-sm text-gray-800 font-medium mb-1">
+              Proyecto: {projectName}
+            </div>
+          );
+        }
+
+const renderVotes = () => (
+  <>
+    <VotesCountdownCard />
+    <div className="space-y-4">
+      {votes.length === 0 ? (
+        <Card className="p-8 text-center">
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No has votado en ningún proyecto</h3>
+          <p className="text-gray-600">Participa en la comunidad votando por proyectos que te interesen</p>
+        </Card>
+      ) : (
+        votes.map((vote) => (
+          <Card key={vote.id} className="p-4 flex flex-col sm:flex-row items-center gap-4">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-2">
+                <Badge variant={vote.vote_type === 'golden' ? 'outline' : 'secondary'}>
+                  {vote.vote_type === 'golden' ? 'Voto Dorado' : 'Voto Plateado'}
+                </Badge>
+                <span className="text-sm text-gray-600">Cantidad: {vote.votes_count}</span>
+              </div>
+              <ProjectName projectId={vote.project_id} />
+              <span className="text-xs text-gray-500">
+                Votado el {new Date(vote.created_at).toLocaleDateString('es-PE')}
+              </span>
+            </div>
+          </Card>
+        ))
+
+        
+       )}
+      </div>
+  </>
+);
+// ...existing code...
+
   const renderContent = () => {
     if (loading) {
       return (
@@ -646,6 +728,8 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
         return renderPublications();
       case 'events':
         return renderEvents();
+      case 'votes':
+        return renderVotes();
       default:
         return null;
     }
@@ -964,6 +1048,17 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
                 >
                   Publicaciones
                 </button>
+
+                <button
+                  className={`pb-3 px-1 transition-colors whitespace-nowrap ${activeTab === 'votes'
+                    ? 'border-b-2 border-primary text-primary font-medium'
+                    : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                  onClick={() => handleTabChange('votes')}
+                >
+                  Mis Votos
+                </button>
+
               </div>
 
               {/* contenido dinámico según la tab activa */}
