@@ -195,7 +195,7 @@ export function PublicationCard(publication: PublicationCardProps) {
           <div className='flex gap-4'>
             <div className='flex gap-1 items-center'>
               <ThumbsUp color='#6e6e6e' size={14} />
-              {publication.upvotes}
+              {publication.upvotes - publication.downvotes}
             </div>
             <div className='flex gap-1 items-center'>
               <MessageSquare color='#6e6e6e' size={14} />

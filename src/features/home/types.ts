@@ -6,6 +6,7 @@ export type PublicationPreview = Pick<
   | 'title'
   | 'content'
   | 'upvotes'
+  | 'downvotes'
   | 'impression_count'
   | 'image_url'
   | 'created_at'
