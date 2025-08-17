@@ -79,7 +79,7 @@ export function PublicationDetail({ id }: Props) {
       .select('id, publication_id, user_id, type')
       .eq('publication_id', id)
       .eq('user_id', user.id)
-      .then(({ data, error }) => {
+      .then(({ data }) => {
         if (data && data.length > 0) {
           const userVote = data[0];
           setIsUpvoted(userVote.type === 'upvote');
