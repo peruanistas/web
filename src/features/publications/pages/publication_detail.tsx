@@ -17,12 +17,14 @@ import { ContentLayout } from '@common/components/content_layout';
 import { MarkdownViewer } from '@common/components/md_viewer';
 import { Link } from 'wouter';
 import { useAuthStore } from '@auth/store/auth_store';
+import type { PublicationPreview } from '@home/types';
 
 type Props = {
   id: string;
 };
 
-type Publication = Tables<'publications'> & {
+type Publication = PublicationPreview & {
+  external_sources_url: string | null;
   source_id: Tables<'publication_sources'> | null;
   author_id: Tables<'profiles'> | null;
 };
@@ -38,7 +40,7 @@ type ContentSidebarPreview = {
 async function fetchPublication(id: string): Promise<Publication | null> {
   const { data, error } = await db
     .from('publications')
-    .select('*, source_id (*), author_id (*)')
+    .select('id, title, content, external_sources_url, visibility, upvotes, downvotes, impression_count, image_url, published_at, created_at, source_id (*), author_id (*)')
     .eq('id', id)
     .single();
 
@@ -57,92 +59,94 @@ export function PublicationDetail({ id }: Props) {
   const [voteLoading, setVoteLoading] = useState(false);
 
   function refreshVotes() {
-  db.from('publication_votes')
-    .select('id, publication_id, user_id, type')
-    .eq('publication_id', id)
-    .then(({ data, error }) => {
-      if (error) {
-        setVotes(0);
-      } else {
-        if (data && data.length > 0) {
-          const upvotes = data.filter(vote => vote.type === 'upvote').length;
-          const downvotes = data.filter(vote => vote.type === 'downvote').length;
-          setVotes(upvotes - downvotes);
-        } else {
-          setVotes(0);
-        }
-      }
-    });
-
-  if (user) {
     db.from('publication_votes')
       .select('id, publication_id, user_id, type')
       .eq('publication_id', id)
-      .eq('user_id', user.id)
-      .then(({ data }) => {
-        if (data && data.length > 0) {
-          const userVote = data[0];
-          setIsUpvoted(userVote.type === 'upvote');
-          setIsDownvoted(userVote.type === 'downvote');
+      .then(({ data, error }) => {
+        if (error) {
+          setVotes(0);
         } else {
-          setIsUpvoted(false);
-          setIsDownvoted(false);
+          if (data && data.length > 0) {
+            const upvotes = data.filter(vote => vote.type === 'upvote').length;
+            const downvotes = data.filter(vote => vote.type === 'downvote').length;
+            setVotes(upvotes - downvotes);
+          } else {
+            setVotes(0);
+          }
         }
       });
-  } else {
-    setIsUpvoted(false);
-    setIsDownvoted(false);
+
+    if (user) {
+      db.from('publication_votes')
+        .select('id, publication_id, user_id, type')
+        .eq('publication_id', id)
+        .eq('user_id', user.id)
+        .then(({ data }) => {
+          if (data && data.length > 0) {
+            const userVote = data[0];
+            setIsUpvoted(userVote.type === 'upvote');
+            setIsDownvoted(userVote.type === 'downvote');
+          } else {
+            setIsUpvoted(false);
+            setIsDownvoted(false);
+          }
+        });
+    } else {
+      setIsUpvoted(false);
+      setIsDownvoted(false);
+    }
   }
-}
 
 
-async function handleUpVote() {
-  if (!user || voteLoading) return;
-  setVoteLoading(true);
-  try {
-    await db.from('publication_votes')
-      .delete()
-      .eq('publication_id', id)
-      .eq('user_id', user.id);
+  async function handleUpVote() {
+    if (!user || voteLoading) return;
+    setVoteLoading(true);
+    try {
+      await db.from('publication_votes')
+        .delete()
+        .eq('publication_id', id)
+        .eq('user_id', user.id);
 
-    await db.from('publication_votes')
-      .insert({
-        publication_id: id,
-        user_id: user.id,
-        type: 'upvote',
-      });
+      await db.from('publication_votes')
+        .insert({
+          publication_id: id,
+          user_id: user.id,
+          type: 'upvote',
+        });
 
-    refreshVotes();
-  } catch (error) {
-    // Optionally handle error
-  } finally {
-    setVoteLoading(false);
+      refreshVotes();
+    } catch (error) {
+      console.log({ error });
+      // Optionally handle error
+    } finally {
+      setVoteLoading(false);
+    }
   }
-}
 
-async function handleDownVote() {
-  if (!user || voteLoading) return;
-  setVoteLoading(true);
-  try {
-    await db.from('publication_votes')
-      .delete()
-      .eq('publication_id', id)
-      .eq('user_id', user.id);
+  async function handleDownVote() {
+    if (!user || voteLoading) return;
+    setVoteLoading(true);
+    try {
+      await db.from('publication_votes')
+        .delete()
+        .eq('publication_id', id)
+        .eq('user_id', user.id);
 
-    await db.from('publication_votes')
-      .insert({
-        publication_id: id,
-        user_id: user.id,
-        type: 'downvote',
-      });
+      await db.from('publication_votes')
+        .insert({
+          publication_id: id,
+          user_id: user.id,
+          type: 'downvote',
+        });
 
-    refreshVotes();
-  } catch (error) {
-    // Optionally handle error
-  } finally {
-    setVoteLoading(false);
+      refreshVotes();
+    } catch (error) {
+      console.log(error);
+      // Optionally handle error
+    } finally {
+      setVoteLoading(false);
+    }
   }
-}
 
 
   const { data: publication, isLoading, isError } = useQuery({
@@ -224,8 +228,8 @@ async function handleDownVote() {
 
   if (isError) return <div className="text-center py-10 text-red-600">Error al cargar la noticia.</div>;
 
-//  const totalVotes = votes + (isUpvoted ? 1 : 0) - (isDownvoted ? 1 : 0);
-const totalVotes = votes;
+  //  const totalVotes = votes + (isUpvoted ? 1 : 0) - (isDownvoted ? 1 : 0);
+  const totalVotes = votes;
   return (
     <Layout>
       <Header />

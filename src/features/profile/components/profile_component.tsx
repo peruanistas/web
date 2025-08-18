@@ -17,6 +17,7 @@ import {
 } from '@common/utils';
 import type { Tables } from '@db/schema';
 import VotesCountdownCard from './VotesCountdownCard';
+import type { PublicationPreview } from '@home/types';
 
 // Hook to update URL with query parameters
 const useUpdateUrl = () => {
@@ -30,7 +31,7 @@ const useUpdateUrl = () => {
 };
 
 type Project = Tables<'projects'>
-type Publication = Tables<'publications'>
+type Publication = Omit<PublicationPreview, 'source_id'>
 type Event = Tables<'events'>
 type Profile = Tables<'profiles'>
 type Votes = Tables<'project_votes'>
@@ -77,7 +78,7 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
     projects: 'proyectos',
     events: 'eventos',
     publications: 'publicaciones',
-    votes: 'votos', 
+    votes: 'votos',
   } as const;
 
   const [activeTab, setActiveTab] = useState<'projects' | 'events' | 'publications' | 'votes'>(() => {
@@ -264,22 +265,22 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
     }
   };
 
-const fetchVotes = useCallback(async () => {
-  if (!targetUserId) return;
-  const query = db
-    .from('project_votes')
-    .select('*')
-    .eq('user_id', targetUserId)
-    .order('created_at', { ascending: false });
-  const { data, error } = await query;
-  console.log(data);
-  if (error) {
-    console.error('Error fetching votes:', error);
-    setVotes([]);
-  } else {
-    setVotes(data || []);
-  }
-}, [targetUserId]);
+  const fetchVotes = useCallback(async () => {
+    if (!targetUserId) return;
+    const query = db
+      .from('project_votes')
+      .select('*')
+      .eq('user_id', targetUserId)
+      .order('created_at', { ascending: false });
+    const { data, error } = await query;
+    console.log(data);
+    if (error) {
+      console.error('Error fetching votes:', error);
+      setVotes([]);
+    } else {
+      setVotes(data || []);
+    }
+  }, [targetUserId]);
 
   const fetchProjects = useCallback(async () => {
     if (!targetUserId) return;
@@ -311,7 +312,7 @@ const fetchVotes = useCallback(async () => {
 
     const query = db
       .from('publications')
-      .select('*')
+      .select('id, title, content, visibility, upvotes, downvotes, impression_count, image_url, published_at, created_at')
       .eq('author_id', targetUserId)
       .eq('active', true)
       .order('created_at', { ascending: false });
@@ -380,7 +381,7 @@ const fetchVotes = useCallback(async () => {
     } finally {
       setLoading(false);
     }
-  }, [activeTab, fetchEvents, fetchProjects, fetchPublications,fetchVotes, targetUserId]);
+  }, [activeTab, fetchEvents, fetchProjects, fetchPublications, fetchVotes, targetUserId]);
 
   useEffect(() => {
     if (targetUserId && displayProfile) {
@@ -656,61 +657,61 @@ const fetchVotes = useCallback(async () => {
   };
 
   // Componente auxiliar para mostrar el nombre del proyecto
-        function ProjectName({ projectId }: { projectId: string }) {
-          const [projectName, setProjectName] = useState<string>('Cargando...');
-          useEffect(() => {
-            let isMounted = true;
-            db.from('projects')
-              .select('title')
-              .eq('id', projectId)
-              .single()
-              .then(({ data, error }) => {
-                if (isMounted) {
-                  setProjectName(error ? 'Proyecto no encontrado' : data?.title || 'Sin nombre');
-                }
-              });
-            return () => { isMounted = false; };
-          }, [projectId]);
-          return (
-            <div className="text-sm text-gray-800 font-medium mb-1">
-              Proyecto: {projectName}
-            </div>
-          );
-        }
-
-const renderVotes = () => (
-  <>
-    <VotesCountdownCard />
-    <div className="space-y-4">
-      {votes.length === 0 ? (
-        <Card className="p-8 text-center">
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No has votado en ningún proyecto</h3>
-          <p className="text-gray-600">Participa en la comunidad votando por proyectos que te interesen</p>
-        </Card>
-      ) : (
-        votes.map((vote) => (
-          <Card key={vote.id} className="p-4 flex flex-col sm:flex-row items-center gap-4">
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-2">
-                <Badge variant={vote.vote_type === 'golden' ? 'outline' : 'secondary'}>
-                  {vote.vote_type === 'golden' ? 'Voto Dorado' : 'Voto Plateado'}
-                </Badge>
-                <span className="text-sm text-gray-600">Cantidad: {vote.votes_count}</span>
-              </div>
-              <ProjectName projectId={vote.project_id} />
-              <span className="text-xs text-gray-500">
-                Votado el {new Date(vote.created_at).toLocaleDateString('es-PE')}
-              </span>
-            </div>
-          </Card>
-        ))
-
-        
-       )}
+  function ProjectName({ projectId }: { projectId: string }) {
+    const [projectName, setProjectName] = useState<string>('Cargando...');
+    useEffect(() => {
+      let isMounted = true;
+      db.from('projects')
+        .select('title')
+        .eq('id', projectId)
+        .single()
+        .then(({ data, error }) => {
+          if (isMounted) {
+            setProjectName(error ? 'Proyecto no encontrado' : data?.title || 'Sin nombre');
+          }
+        });
+      return () => { isMounted = false; };
+    }, [projectId]);
+    return (
+      <div className="text-sm text-gray-800 font-medium mb-1">
+        Proyecto: {projectName}
       </div>
-  </>
-);
-// ...existing code...
+    );
+  }
+
+  const renderVotes = () => (
+    <>
+      <VotesCountdownCard />
+      <div className="space-y-4">
+        {votes.length === 0 ? (
+          <Card className="p-8 text-center">
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No has votado en ningún proyecto</h3>
+            <p className="text-gray-600">Participa en la comunidad votando por proyectos que te interesen</p>
+          </Card>
+        ) : (
+          votes.map((vote) => (
+            <Card key={vote.id} className="p-4 flex flex-col sm:flex-row items-center gap-4">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-2">
+                  <Badge variant={vote.vote_type === 'golden' ? 'outline' : 'secondary'}>
+                    {vote.vote_type === 'golden' ? 'Voto Dorado' : 'Voto Plateado'}
+                  </Badge>
+                  <span className="text-sm text-gray-600">Cantidad: {vote.votes_count}</span>
+                </div>
+                <ProjectName projectId={vote.project_id} />
+                <span className="text-xs text-gray-500">
+                  Votado el {new Date(vote.created_at).toLocaleDateString('es-PE')}
+                </span>
+              </div>
+            </Card>
+          ))
+
+
+        )}
+      </div>
+    </>
+  );
+  // ...existing code...
 
   const renderContent = () => {
     if (loading) {

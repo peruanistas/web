@@ -206,7 +206,7 @@ async function fetchMoreNews({ page, userId }: FetchPaginationParams): Promise<P
 
   let query = db
     .from('publications')
-    .select('*, source_id (id, name, image_icon_url)')
+    .select('id, title, content, visibility, upvotes, downvotes, impression_count, image_url, published_at, created_at, source_id (id, name, image_icon_url)')
     .order('created_at', { ascending: false })
     .range(offset, offset + NEWS_RESULTS_PER_PAGE - 1);
 

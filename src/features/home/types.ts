@@ -5,10 +5,12 @@ export type PublicationPreview = Pick<
   | 'id'
   | 'title'
   | 'content'
+  | 'visibility'
   | 'upvotes'
   | 'downvotes'
   | 'impression_count'
   | 'image_url'
+  | 'published_at'
   | 'created_at'
 > & {
   source_id: { id: string, image_icon_url: string, name: string } | null
