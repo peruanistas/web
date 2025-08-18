@@ -1,28 +1,26 @@
-"use client"
-
-import { Header } from "@common/components/header"
-import { Footer } from "@common/components/footer"
-import { Layout } from "@common/components/layout"
-import { CommentsSection } from "@common/components/commentsSection"
-import { AuthorInfo } from "@events/components/author_info"
-import { Calendar, MapPin, Users, UserCheck, UserPlus } from "lucide-react"
-import InfoItem from "@events/components/infoitem"
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { db } from "@db/client"
-import type { Tables } from "@db/schema"
-import { useScrollReset } from "@common/hooks/useScrollReset"
-import { formatDate, formatDate2 } from "@common/utils"
-import { PE_DEPARTMENTS, PE_DISTRICTS } from "@common/data/geo"
-import { MarkdownViewer } from "@common/components/md_viewer"
-import ContentLoader from "react-content-loader"
-import { useState } from "react"
+import { Header } from '@common/components/header';
+import { Footer } from '@common/components/footer';
+import { Layout } from '@common/components/layout';
+import { CommentsSection } from '@common/components/commentsSection';
+import { AuthorInfo } from '@events/components/author_info';
+import { Calendar, MapPin, Users, UserCheck, UserPlus } from 'lucide-react';
+import InfoItem from '@events/components/infoitem';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { db } from '@db/client';
+import type { Tables } from '@db/schema';
+import { useScrollReset } from '@common/hooks/useScrollReset';
+import { formatDate, formatDate2 } from '@common/utils';
+import { PE_DEPARTMENTS, PE_DISTRICTS } from '@common/data/geo';
+import { MarkdownViewer } from '@common/components/md_viewer';
+import ContentLoader from 'react-content-loader';
+import { useState } from 'react';
 
 type Props = {
   id: string
 }
 
-type Event = Tables<"events"> & {
-  author_id: Tables<"profiles">
+type Event = Tables<'events'> & {
+  author_id: Tables<'profiles'>
 }
 
 type EventAttendanceSummary = {
@@ -31,58 +29,58 @@ type EventAttendanceSummary = {
 }
 
 async function fetchEvent(id: string): Promise<Event | null> {
-  const { data, error } = await db.from("events").select("*, author_id(*)").eq("id", id).single()
-  if (error) throw new Error(error.message)
-  return data
+  const { data, error } = await db.from('events').select('*, author_id(*)').eq('id', id).single();
+  if (error) throw new Error(error.message);
+  return data;
 }
 
 async function fetchEventAttendanceSummary(eventId: string): Promise<EventAttendanceSummary> {
-  const { data, error } = await db.rpc("get_event_attendance_summary", { event_id: eventId }).single()
+  const { data, error } = await db.rpc('get_event_attendance_summary', { event_id: eventId }).single();
 
   if (error) {
-    console.error("Fetch attendance error:", error)
-    throw new Error(error.message || "Error al obtener información de asistencia")
+    console.error('Fetch attendance error:', error);
+    throw new Error(error.message || 'Error al obtener información de asistencia');
   }
-  return data
+  return data;
 }
 
 async function toggleEventAttendance(eventId: string): Promise<void> {
-  const { error } = await db.rpc("toggle_event_attendance", { p_event_id: eventId })
+  const { error } = await db.rpc('toggle_event_attendance', { p_event_id: eventId });
 
   if (error) {
-    console.error("Toggle attendance error:", error)
-    throw new Error(error.message || "Error al cambiar estado de asistencia")
+    console.error('Toggle attendance error:', error);
+    throw new Error(error.message || 'Error al cambiar estado de asistencia');
   }
 }
 
 export function EventDetailBasic({ id }: Props) {
-  useScrollReset()
-  const queryClient = useQueryClient()
-  const [isToggling, setIsToggling] = useState(false)
+  useScrollReset();
+  const queryClient = useQueryClient();
+  const [isToggling, setIsToggling] = useState(false);
 
   const {
     data: event,
     isLoading: eventLoading,
     isError: eventError,
   } = useQuery({
-    queryKey: ["event_detail", id],
+    queryKey: ['event_detail', id],
     queryFn: () => fetchEvent(id),
     enabled: !!id,
-  })
+  });
 
   const { data: attendanceSummary, isLoading: attendanceLoading } = useQuery({
-    queryKey: ["event_attendance", id],
+    queryKey: ['event_attendance', id],
     queryFn: () => fetchEventAttendanceSummary(id),
     enabled: !!id,
-  })
+  });
 
   const toggleAttendanceMutation = useMutation({
     mutationFn: () => toggleEventAttendance(id),
     onMutate: async () => {
-      setIsToggling(true)
+      setIsToggling(true);
       // Optimistic update
-      await queryClient.cancelQueries({ queryKey: ["event_attendance", id] })
-      const previousData = queryClient.getQueryData(["event_attendance", id])
+      await queryClient.cancelQueries({ queryKey: ['event_attendance', id] });
+      const previousData = queryClient.getQueryData(['event_attendance', id]);
 
       if (previousData && attendanceSummary) {
         const newData = {
@@ -95,43 +93,43 @@ export function EventDetailBasic({ id }: Props) {
             : attendanceSummary.user_is_attending
               ? 0
               : 1,
-        }
-        queryClient.setQueryData(["event_attendance", id], newData)
+        };
+        queryClient.setQueryData(['event_attendance', id], newData);
       }
 
-      return { previousData }
+      return { previousData };
     },
     onError: (err, _newData, context) => {
-      console.error("Toggle attendance mutation error:", err)
+      console.error('Toggle attendance mutation error:', err);
       // Rollback on error
       if (context?.previousData) {
-        queryClient.setQueryData(["event_attendance", id], context.previousData)
+        queryClient.setQueryData(['event_attendance', id], context.previousData);
       }
       // You might want to show a toast notification here
-      alert("Error al cambiar estado de asistencia. Por favor intenta de nuevo.")
+      alert('Error al cambiar estado de asistencia. Por favor intenta de nuevo.');
     },
     onSuccess: () => {
       // Refetch to ensure data consistency
-      queryClient.invalidateQueries({ queryKey: ["event_attendance", id] })
+      queryClient.invalidateQueries({ queryKey: ['event_attendance', id] });
     },
     onSettled: () => {
-      setIsToggling(false)
+      setIsToggling(false);
     },
-  })
+  });
 
   const handleToggleAttendance = () => {
     if (!isToggling) {
-      toggleAttendanceMutation.mutate()
+      toggleAttendanceMutation.mutate();
     }
-  }
+  };
 
-  if (eventLoading) return <Skeleton />
+  if (eventLoading) return <Skeleton />;
 
-  if (eventError || !event) return <div className="text-center py-10 text-red-600">Error al cargar el evento.</div>
+  if (eventError || !event) return <div className="text-center py-10 text-red-600">Error al cargar el evento.</div>;
 
-  const isAttending = attendanceSummary?.user_is_attending || false
-  const attendeesCount = attendanceSummary?.attendees_count || 0
-  const showAttendanceButton = !attendanceLoading
+  const isAttending = attendanceSummary?.user_is_attending || false;
+  const attendeesCount = attendanceSummary?.attendees_count || 0;
+  const showAttendanceButton = !attendanceLoading;
 
   return (
     <Layout>
@@ -145,7 +143,7 @@ export function EventDetailBasic({ id }: Props) {
         {event.image_url && (
           <div className="mb-6">
             <img
-              src={event.image_url || "/placeholder.svg"}
+              src={event.image_url || '/placeholder.svg'}
               alt="Imagen del evento"
               className="w-full h-auto rounded-lg object-cover"
             />
@@ -164,8 +162,8 @@ export function EventDetailBasic({ id }: Props) {
                   <h3 className="font-semibold text-gray-900">Confirma tu asistencia</h3>
                   <p className="text-sm text-gray-600">
                     {attendeesCount === 0
-                      ? "Sé el primero en confirmar"
-                      : `${attendeesCount} ${attendeesCount === 1 ? "persona confirmada" : "personas confirmadas"}`}
+                      ? 'Sé el primero en confirmar'
+                      : `${attendeesCount} ${attendeesCount === 1 ? 'persona confirmada' : 'personas confirmadas'}`}
                   </p>
                 </div>
               </div>
@@ -174,14 +172,13 @@ export function EventDetailBasic({ id }: Props) {
                 disabled={isToggling}
                 className={`
                   flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-all duration-100 min-w-[160px] sm:min-w-[140px]
-                  ${
-                    isAttending
-                      ? "bg-green-600 text-white hover:bg-green-700 border-2 border-green-600"
-                      : "bg-primary text-white hover:bg-red-700 border-2 border-primary"
+                  ${isAttending
+                    ? 'bg-green-600 text-white hover:bg-green-700 border-2 border-green-600'
+                    : 'bg-primary text-white hover:bg-red-700 border-2 border-primary'
                   }
-                  ${isToggling ? "opacity-50 cursor-not-allowed" : "hover:shadow-lg"}
+                  ${isToggling ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-lg'}
                   focus:outline-none focus:ring-2 focus:ring-offset-2
-                  ${isAttending ? "focus:ring-green-500" : "focus:ring-primary"}
+                  ${isAttending ? 'focus:ring-green-500' : 'focus:ring-primary'}
                 `}
               >
                 {isToggling ? (
@@ -192,7 +189,7 @@ export function EventDetailBasic({ id }: Props) {
                   <UserPlus className="w-5 h-5" />
                 )}
                 <span className="font-semibold">
-                  {isToggling ? "Procesando..." : isAttending ? "Confirmado" : "Confirmar"}
+                  {isToggling ? 'Procesando...' : isAttending ? 'Confirmado' : 'Confirmar'}
                 </span>
               </button>
             </div>
@@ -212,12 +209,12 @@ export function EventDetailBasic({ id }: Props) {
 
         </div>
 
-        <CommentsSection handleRefresh={() => {}} event_id={event.id} />
+        <CommentsSection handleRefresh={() => { }} event_id={event.id} />
       </main>
 
       <Footer />
     </Layout>
-  )
+  );
 }
 
 function Skeleton() {
@@ -232,7 +229,7 @@ function Skeleton() {
           viewBox="0 0 700 320"
           backgroundColor="#ededed"
           foregroundColor="#ecebeb"
-          style={{ width: "100%", height: "auto", maxWidth: 700 }}
+          style={{ width: '100%', height: 'auto', maxWidth: 700 }}
         >
           {/* Date */}
           <rect x="0" y="0" rx="4" ry="4" width="120" height="18" />
@@ -250,5 +247,5 @@ function Skeleton() {
       </main>
       <Footer />
     </Layout>
-  )
+  );
 }

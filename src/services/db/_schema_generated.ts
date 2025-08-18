@@ -942,6 +942,29 @@ export type Database = {
           user_is_attending: boolean
         }[]
       }
+      get_fyp: {
+        Args: {
+          p_limit?: number
+          p_offset?: number
+          p_similarity_threshold?: number
+        }
+        Returns: {
+          content: string
+          created_at: string
+          downvotes: number
+          id: string
+          image_url: string
+          impression_count: number
+          published_at: string
+          similarity_score: number
+          source_id: string
+          source_image_icon_url: string
+          source_name: string
+          title: string
+          upvotes: number
+          visibility: Database['public']['Enums']['visibility']
+        }[]
+      }
       get_project_vote_summary: {
         Args: { project_id: string }
         Returns: {

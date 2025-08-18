@@ -1,6 +1,5 @@
 import { NO_IMAGE_URL } from '@common/constants';
 import { formatDate2 } from '@common/utils';
-import type { PublicationPreview } from '@home/types';
 import { Eye, MessageSquare, ThumbsUp, MoreVertical } from 'lucide-react';
 import ContentLoader from 'react-content-loader';
 import { Link } from 'wouter';
@@ -8,8 +7,9 @@ import { useState, useRef, useEffect } from 'react';
 import { db } from '@db/client';
 import { useAuthStore } from '@auth/store/auth_store';
 import { useMutation } from '@tanstack/react-query';
+import type { RecommendedPublication } from '@home/components/feed';
 
-type PublicationCardProps = PublicationPreview & {};
+type PublicationCardProps = RecommendedPublication & {};
 
 export function PublicationCard(publication: PublicationCardProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -80,7 +80,9 @@ export function PublicationCard(publication: PublicationCardProps) {
 
   const handleNotInterested = () => {
     if (!user?.id) {
-      console.warn('User not authenticated, cannot hide publication');
+      alert('Para ocultar publicaciones necesitas iniciar sesión. ¡Regístrate gratis para personalizar tu experiencia!');
+      // Optionally redirect to login/signup page
+      window.location.href = '/login';
       return;
     }
 
@@ -91,7 +93,9 @@ export function PublicationCard(publication: PublicationCardProps) {
 
   const handleUndo = () => {
     if (!user?.id) {
-      console.warn('User not authenticated, cannot unhide publication');
+      alert('Para gestionar publicaciones ocultas necesitas iniciar sesión. ¡Regístrate gratis!');
+      // Optionally redirect to login/signup page
+      window.location.href = '/login';
       return;
     }
 
@@ -164,6 +168,7 @@ export function PublicationCard(publication: PublicationCardProps) {
         {/* Project image */}
         <img
           height={200}
+          width={'100%'}
           className='object-cover h-[200px] rounded-t-sm bg-[#ededed]'
           alt={publication.title}
           src={publication.image_url ?? NO_IMAGE_URL}
@@ -182,8 +187,8 @@ export function PublicationCard(publication: PublicationCardProps) {
             {
               publication.source_id && (
                 <div className='flex gap-1 items-center text-sm'>
-                  <img width={14} height={14} src={publication.source_id?.image_icon_url} />
-                  {publication.source_id?.name}
+                  <img width={14} height={14} src={publication.source_image_icon_url} />
+                  {publication.source_name}
                 </div>
               )
             }

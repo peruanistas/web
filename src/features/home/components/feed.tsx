@@ -1,5 +1,4 @@
 import { db } from '@db/client';
-import type { PublicationPreview } from '@home/types';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import React, { useCallback, useEffect, useRef } from 'react';
 import { PublicationCard, PublicationCardSkeleton } from '@home/components/publication_card';
@@ -18,6 +17,7 @@ import { useScrollReset } from '@common/hooks/useScrollReset';
 import { ProjectFilters } from '@projects/components/projects_filters';
 import { useState } from 'react';
 import { useAuthStore } from '@auth/store/auth_store';
+import type { Tables } from '@db/schema';
 
 const NEWS_RESULTS_PER_PAGE = 8;
 const PROJECTS_RESULTS_PER_PAGE = 3;
@@ -39,7 +39,9 @@ export function HomeFeed() {
     queryKey: ['damero_paginated_list', department, district, user?.id],
     queryFn: ({ pageParam }) => {
       const pages = Promise.all([
-        fetchMoreNews({ page: pageParam, department, district, userId: user?.id }),
+        fetchMorePublications({ page: pageParam, department, district }),
+        // [],
+        // [],
         fetchMoreProjects({ page: pageParam, department, district }),
         fetchMoreGroups({ page: pageParam, department, district }),
       ] as const);
@@ -201,29 +203,51 @@ type FetchPaginationParams = {
   userId?: string;
 }
 
-async function fetchMoreNews({ page, userId }: FetchPaginationParams): Promise<PublicationPreview[]> {
+export type RecommendedPublication = Pick<
+  Tables<'publications'>,
+  | 'id'
+  | 'title'
+  | 'content'
+  | 'visibility'
+  | 'upvotes'
+  | 'downvotes'
+  | 'impression_count'
+  | 'image_url'
+  | 'published_at'
+  | 'created_at'
+> & {
+  source_id: string;
+  source_image_icon_url: string;
+  source_name: string;
+};
+
+async function fetchMorePublications({ page }: FetchPaginationParams): Promise<RecommendedPublication[]> {
   const offset = page * NEWS_RESULTS_PER_PAGE;
 
-  let query = db
-    .from('publications')
-    .select('id, title, content, visibility, upvotes, downvotes, impression_count, image_url, published_at, created_at, source_id (id, name, image_icon_url)')
-    .order('created_at', { ascending: false })
-    .range(offset, offset + NEWS_RESULTS_PER_PAGE - 1);
+  // let query = db
+  //   .from('publications')
+  //   .select('id, title, content, visibility, upvotes, downvotes, impression_count, image_url, published_at, created_at, source_id (id, name, image_icon_url)')
+  //   .order('created_at', { ascending: false })
+  //   .range(offset, offset + NEWS_RESULTS_PER_PAGE - 1)
+  const { data, error } = await db.rpc('get_fyp', {
+    p_limit: NEWS_RESULTS_PER_PAGE,
+    p_offset: offset,
+  });
 
   // Exclude hidden publications if user is logged in
-  if (userId) {
-    const { data: hiddenPublications } = await db
-      .from('preferences_hidden_publications')
-      .select('publication_id')
-      .eq('user_id', userId);
+  // if (userId) {
+  //   const { data: hiddenPublications } = await db
+  //     .from('preferences_hidden_publications')
+  //     .select('publication_id')
+  //     .eq('user_id', userId);
 
-    if (hiddenPublications && hiddenPublications.length > 0) {
-      const hiddenIds = hiddenPublications.map(h => h.publication_id);
-      query = query.not('id', 'in', `(${hiddenIds.join(',')})`);
-    }
-  }
+  //   if (hiddenPublications && hiddenPublications.length > 0) {
+  //     const hiddenIds = hiddenPublications.map(h => h.publication_id);
+  //     query = query.not('id', 'in', `(${hiddenIds.join(',')})`);
+  //   }
+  // }
 
-  const { data, error } = await query;
+  // const { data, error } = await query;
 
   if (error) {
     throw new Error(error.message);
