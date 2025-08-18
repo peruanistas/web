@@ -73,10 +73,10 @@ export function GroupCard(group: GroupCardProps & { isMember?: boolean }) {
           src={group.image_url ?? NO_IMAGE_URL}
         />
 
-        <Link href={`/grupos/${group.id}`} className='p-3 min-h-[108px] h-[108px] block hover:cursor-pointer'>
+        <div className='p-3 min-h-[108px] h-[108px] block hover:cursor-pointer'>
           <h2 className='font-semibold mb-1 line-clamp-1 break-words'>{group.name}</h2>
           <span className='mt-1 line-clamp-2 break-words'>{group.description}</span>
-        </Link>
+        </div>
 
         <div className='flex justify-between items-center h-12 bg-gray-100 px-3 py-2 rounded-b-sm border-t border-border'>
           <div className='flex items-center gap-2'>
