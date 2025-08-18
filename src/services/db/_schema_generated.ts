@@ -653,7 +653,7 @@ export type Database = {
           content: string
           created_at: string
           downvotes: number
-          embeddings_vector: string | null
+          embeddings: string | null
           external_sources_url: string | null
           feed_post_hash: string | null
           id: string
@@ -672,7 +672,7 @@ export type Database = {
           content: string
           created_at?: string
           downvotes?: number
-          embeddings_vector?: string | null
+          embeddings?: string | null
           external_sources_url?: string | null
           feed_post_hash?: string | null
           id?: string
@@ -691,7 +691,7 @@ export type Database = {
           content?: string
           created_at?: string
           downvotes?: number
-          embeddings_vector?: string | null
+          embeddings?: string | null
           external_sources_url?: string | null
           feed_post_hash?: string | null
           id?: string
