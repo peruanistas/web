@@ -946,6 +946,7 @@ export type Database = {
         Args: {
           p_limit?: number
           p_offset?: number
+          p_penalty_factor?: number
           p_similarity_threshold?: number
         }
         Returns: {
@@ -955,6 +956,7 @@ export type Database = {
           id: string
           image_url: string
           impression_count: number
+          penalty_score: number
           published_at: string
           similarity_score: number
           source_id: string
