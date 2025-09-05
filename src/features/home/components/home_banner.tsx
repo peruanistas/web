@@ -35,9 +35,9 @@ export function HomeBanner({ title, description, trailing }: MainBannerProps) {
         />
       </div>
 
-      <div className="absolute inset-0 z-15 bg-gradient-to-r from-[#A32929]/100 to-[#A32929]/40 md:from-[#A32929]/90 md:to-transparent" />
+      {/* <div className="absolute inset-0 z-15 bg-gradient-to-r from-[#A32929]/100 to-[#A32929]/40 md:from-[#A32929]/90 md:to-transparent" /> */}
 
-      <ContentLayout className="relative z-20 h-full">
+      {/* <ContentLayout className="relative z-20 h-full">
         <div className="flex h-full items-end place-content-between gap-4">
           <div className="flex flex-col justify-center gap-4 h-full w-full">
             <h1 className="text-3xl md:text-4xl font-bold text-white md:w-1/3">{title}</h1>
@@ -50,7 +50,7 @@ export function HomeBanner({ title, description, trailing }: MainBannerProps) {
           </div>
           {trailing}
         </div>
-      </ContentLayout>
+      </ContentLayout> */}
     </div>
   );
 }

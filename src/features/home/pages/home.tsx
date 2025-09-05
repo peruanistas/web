@@ -1,7 +1,6 @@
 import { Footer } from '@common/components/footer';
 import { Header } from '@common/components/header';
 import { Layout } from '@common/components/layout';
-import { PageBanner } from '@common/components/page_banner';
 import { HomeFeed } from '@home/components/feed';
 import { HomeBanner } from '@home/components/home_banner';
 
