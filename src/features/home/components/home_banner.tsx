@@ -18,6 +18,7 @@ const carouselImages = [
   bannerCarousel3,
 ];
 
+// @ts-expect-error temporarily unused
 export function HomeBanner({ title, description, trailing }: MainBannerProps) {
 
   return (
