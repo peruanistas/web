@@ -1,6 +1,9 @@
 import { Button } from '@common/components/button';
+import { Carousel } from '@common/components/carousel';
 import { Link } from 'wouter';
-import homeBanner from '@assets/images/hero_image.png';
+import bannerCarousel1 from '@assets/images/banner_carousel_1.png';
+import bannerCarousel2 from '@assets/images/banner_carousel_2.png';
+import bannerCarousel3 from '@assets/images/banner_carousel_3.png';
 import { ContentLayout } from '@common/components/content_layout';
 
 type MainBannerProps = {
@@ -9,19 +12,28 @@ type MainBannerProps = {
   trailing?: React.ReactNode;
 };
 
+const carouselImages = [
+  bannerCarousel1,
+  bannerCarousel2,
+  bannerCarousel3,
+];
+
 export function HomeBanner({ title, description, trailing }: MainBannerProps) {
 
   return (
-    <div className="relative w-full" style={{ maxHeight: 325, height: 325 }}>
-      <div
-        className="absolute inset-0 z-0"
-        style={{
-          backgroundImage: `url(${homeBanner})`,
-          backgroundSize: 'cover',
-          backgroundRepeat: 'no-repeat',
-          backgroundPosition: 'center',
-        }}
-      />
+    <div className="relative w-full bg-[#f80505]" style={{ maxHeight: 325, height: 325 }}>
+      <div className="absolute inset-0 z-0">
+        <Carousel
+          images={carouselImages}
+          autoSlide={true}
+          autoSlideInterval={8000}
+          showDots={true}
+          showArrows={false}
+          className="w-full h-full"
+          backgroundSize="contain"
+          backgroundPosition="center"
+        />
+      </div>
 
       <div className="absolute inset-0 z-15 bg-gradient-to-r from-[#A32929]/100 to-[#A32929]/40 md:from-[#A32929]/90 md:to-transparent" />
 
