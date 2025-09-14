@@ -232,6 +232,21 @@ export type Database = {
         }
         Relationships: []
       }
+      geo_pe_provinces: {
+        Row: {
+          code: string
+          name: string
+        }
+        Insert: {
+          code: string
+          name: string
+        }
+        Update: {
+          code?: string
+          name?: string
+        }
+        Relationships: []
+      }
       group_members: {
         Row: {
           group_id: string
