@@ -44,9 +44,9 @@ export function EventsPage() {
     hasNextPage,
     isError,
   } = useInfiniteQuery({
-    queryKey: ['events_list', { department, district, search, dateRange, orderBy }],
+    queryKey: ['events_list', { department, province, district, search, dateRange, orderBy }],
     queryFn: ({ pageParam = 0 }) =>
-      fetchEventsPaginated({ department, district, search, dateRange, orderBy, page: pageParam }),
+      fetchEventsPaginated({ department, province, district, search, dateRange, orderBy, page: pageParam }),
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) =>
       lastPage.length === EVENTS_RESULTS_PER_PAGE ? allPages.length : undefined,
@@ -176,6 +176,7 @@ export function EventsPage() {
 }
 type FetchEventsPaginatedParams = {
   department?: string,
+  province?: string,
   district?: string,
   search?: string,
   dateRange?: DateRange,
@@ -185,6 +186,7 @@ type FetchEventsPaginatedParams = {
 
 async function fetchEventsPaginated({
   department = '',
+  province = '',
   district = '',
   search = '',
   dateRange,
@@ -202,6 +204,9 @@ async function fetchEventsPaginated({
   }
   if (district) {
     query = query.eq('geo_district', district);
+  }
+  if (province) {
+    query = query.like('geo_district', `${province}%`);
   }
   if (search) {
     query = query.ilike('title', `%${search}%`);
