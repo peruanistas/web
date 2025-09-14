@@ -1,10 +1,7 @@
-import { Button } from '@common/components/button';
 import { Carousel } from '@common/components/carousel';
-import { Link } from 'wouter';
 import bannerCarousel1 from '@assets/images/banner_carousel_1.png';
 import bannerCarousel2 from '@assets/images/banner_carousel_2.png';
 import bannerCarousel3 from '@assets/images/banner_carousel_3.png';
-import { ContentLayout } from '@common/components/content_layout';
 
 type MainBannerProps = {
   title: string;
@@ -19,6 +16,7 @@ const carouselImages = [
 ];
 
 // @ts-expect-error temporarily unused
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function HomeBanner({ title, description, trailing }: MainBannerProps) {
 
   return (

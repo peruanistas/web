@@ -39,9 +39,9 @@ export function Carousel({
   useEffect(() => {
     if (!autoSlide) return;
 
-    const interval = setInterval(nextSlide, autoSlideInterval);
+    const interval = setTimeout(nextSlide, autoSlideInterval);
     return () => clearInterval(interval);
-  }, [autoSlide, autoSlideInterval, nextSlide]);
+  }, [autoSlide, autoSlideInterval, nextSlide, currentIndex]);
 
   if (images.length === 0) return null;
 
@@ -94,8 +94,8 @@ export function Carousel({
               key={index}
               onClick={() => goToSlide(index)}
               className={`w-3 h-3 rounded-full transition-colors duration-200 ${index === currentIndex
-                  ? 'bg-white'
-                  : 'bg-white/50 hover:bg-white/70'
+                ? 'bg-white'
+                : 'bg-white/50 hover:bg-white/70'
                 }`}
               aria-label={`Go to slide ${index + 1}`}
             />
