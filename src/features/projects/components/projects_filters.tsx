@@ -1,23 +1,32 @@
 import Select from 'react-select';
 import { useMemo } from 'react';
-import { DEPARTMENT_OPTIONS, DISTRICTS_BY_DEPARTMENT } from '@common/data/geo';
+import { DEPARTMENT_OPTIONS, PROVINCES_BY_DEPARTMENT, DISTRICTS_BY_PROVINCE } from '@common/data/geo';
 
 type ProjectFiltersProps = {
   department: string;
+  province: string;
   district: string;
   onDepartmentChange: (code: string) => void;
+  onProvinceChange: (code: string) => void;
   onDistrictChange: (code: string) => void;
 };
 
 export function ProjectFilters({
   department,
+  province,
   district,
   onDepartmentChange,
+  onProvinceChange,
   onDistrictChange,
 }: ProjectFiltersProps) {
-  const districtOptions = useMemo(
-    () => (department ? DISTRICTS_BY_DEPARTMENT[department] || [] : []),
+  const provinceOptions = useMemo(
+    () => (department ? PROVINCES_BY_DEPARTMENT[department] || [] : []),
     [department]
+  );
+
+  const districtOptions = useMemo(
+    () => (province ? DISTRICTS_BY_PROVINCE[province] || [] : []),
+    [province]
   );
 
   return (
@@ -34,13 +43,26 @@ export function ProjectFilters({
           placeholder='Todos los departamentos'
         />
       </div>
+      <div className='mb-3'>
+        <Select
+          styles={{
+            menu: base => ({ ...base, zIndex: 9999 }),
+          }}
+          options={provinceOptions}
+          value={provinceOptions.find(opt => opt.value === province) || null}
+          onChange={opt => onProvinceChange(opt ? opt.value : '')}
+          isClearable
+          isDisabled={!department}
+          placeholder='Todas las provincias'
+        />
+      </div>
       <div>
         <Select
           options={districtOptions}
           value={districtOptions.find(opt => opt.value === district) || null}
           onChange={opt => onDistrictChange(opt ? opt.value : '')}
           isClearable
-          isDisabled={!department}
+          isDisabled={!province}
           placeholder='Todos los distritos'
         />
       </div>

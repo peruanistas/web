@@ -1,8 +1,8 @@
 import { useForm } from 'react-hook-form';
 import { TermsModal } from '@common/components/terms_modal';
 import { Button } from '@common/components/button';
-import { useState } from 'react';
-import { DEPARTMENT_OPTIONS, DISTRICTS_BY_DEPARTMENT } from '@common/data/geo';
+import { useState, useEffect } from 'react';
+import { DEPARTMENT_OPTIONS, PROVINCES_BY_DEPARTMENT, DISTRICTS_BY_PROVINCE } from '@common/data/geo';
 import { db } from '@db/client';
 import { useAuthStore } from '@auth/store/auth_store';
 import { useLocation } from 'wouter';
@@ -19,6 +19,7 @@ type Inputs = {
   tipo_documento: 'dni' | 'carnet';
   numero_documento: string;
   departamento: string;
+  provincia: string;
   distrito: string;
   acceptTerms: boolean;
 };
@@ -31,6 +32,7 @@ export const CompleteProfileForm = () => {
     handleSubmit,
     watch,
     control,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<Inputs>({
     defaultValues: {
@@ -43,15 +45,30 @@ export const CompleteProfileForm = () => {
   const [dniError, setDniError] = useState<string | null>(null);
 
   const departamentoSeleccionado = watch('departamento');
+  const provinciaSeleccionada = watch('provincia');
   const tipoDocumentoSeleccionado = watch('tipo_documento');
 
   const { user } = useAuthStore();
   const [, navigate] = useLocation();
 
-
-  const distritos = departamentoSeleccionado
-    ? DISTRICTS_BY_DEPARTMENT[departamentoSeleccionado] || []
+  const provincias = departamentoSeleccionado
+    ? PROVINCES_BY_DEPARTMENT[departamentoSeleccionado] || []
     : [];
+
+  const distritos = provinciaSeleccionada
+    ? DISTRICTS_BY_PROVINCE[provinciaSeleccionada] || []
+    : [];
+
+  // Reset provincia and distrito when departamento changes
+  useEffect(() => {
+    setValue('provincia', '');
+    setValue('distrito', '');
+  }, [departamentoSeleccionado, setValue]);
+
+  // Reset distrito when provincia changes
+  useEffect(() => {
+    setValue('distrito', '');
+  }, [provinciaSeleccionada, setValue]);
 
   const onSubmit = async (data: Inputs) => {
     if (!user) {
@@ -108,6 +125,7 @@ export const CompleteProfileForm = () => {
         tipo_documento: data.tipo_documento,
         numero_documento: data.numero_documento,
         geo_department: data.departamento,
+        // geo_province: data.provincia, // TODO: Add to database schema
         geo_district: data.distrito,
         profile_completed: data.tipo_documento === 'dni' ? dniVerified : true,
       };
@@ -293,16 +311,38 @@ export const CompleteProfileForm = () => {
           </div>
           <div>
             <label className="text-[#404040] block mb-1">
+              Provincia <span className="text-red-500">*</span>
+            </label>
+            <select
+              className="border border-[#D9D9D9] rounded-lg p-2 w-full text-[#404040] truncate"
+              {...register('provincia', { required: 'Campo requerido' })}
+              disabled={!departamentoSeleccionado}
+            >
+              <option value="">
+                {!departamentoSeleccionado ? 'Selecciona departamento' : 'Selecciona provincia'}
+              </option>
+              {provincias.map(option => (
+                <option key={option.value} value={option.value} className="truncate">
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            {errors.provincia && (
+              <p className="text-red-500 text-xs mt-1">{errors.provincia.message}</p>
+            )}
+          </div>
+          <div>
+            <label className="text-[#404040] block mb-1">
               Distrito <span className="text-red-500">*</span>
             </label>
             <select
               className="border border-[#D9D9D9] rounded-lg p-2 w-full text-[#404040]"
               style={{ width: '100%', maxWidth: '100%' }}
               {...register('distrito', { required: 'Campo requerido' })}
-              disabled={!departamentoSeleccionado}
+              disabled={!provinciaSeleccionada}
             >
               <option value="">
-                {!departamentoSeleccionado ? 'Selecciona departamento' : 'Selecciona distrito'}
+                {!provinciaSeleccionada ? 'Selecciona provincia' : 'Selecciona distrito'}
               </option>
               {distritos.map(option => (
                 <option key={option.value} value={option.value} className="truncate">

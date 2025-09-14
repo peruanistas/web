@@ -1,18 +1,17 @@
-import { db } from "@db/client";
-import { useEffect, useState } from "react";
-import { useRef } from "react";
-import { useForm } from "react-hook-form";
-import { Layout } from "@common/components/layout";
-import { Header } from "@common/components/header";
-import { PageBanner } from "@common/components/page_banner";
-import { pushBlobToStorage } from "@common/utils";
-import { DEPARTMENT_OPTIONS, DISTRICTS_BY_DEPARTMENT } from "@common/data/geo";
-import { Admonition } from "@common/components/admonition";
-import { SuccessModal } from "@common/components/modal_create";
-import { Info } from "lucide-react";
-import { useAuthStore } from "@auth/store/auth_store";
-import { MDXEditorComponent } from "@common/components/mxEditorComponent";
-import TermsModal from "@common/components/termsModal";
+import { db } from '@db/client';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { Layout } from '@common/components/layout';
+import { Header } from '@common/components/header';
+import { PageBanner } from '@common/components/page_banner';
+import { pushBlobToStorage } from '@common/utils';
+import { DEPARTMENT_OPTIONS, PROVINCES_BY_DEPARTMENT, DISTRICTS_BY_PROVINCE } from '@common/data/geo';
+import { Admonition } from '@common/components/admonition';
+import { SuccessModal } from '@common/components/modal_create';
+import { Info } from 'lucide-react';
+import { useAuthStore } from '@auth/store/auth_store';
+import { MDXEditorComponent } from '@common/components/mxEditorComponent';
+import TermsModal from '@common/components/termsModal';
 
 type ProjectFormData = {
   projectName: string;
@@ -20,27 +19,28 @@ type ProjectFormData = {
   // link?: string;
   coverImage: FileList;
   department: string;
+  province: string;
   district: string;
   acceptTerms: boolean;
-  projectType: "improve" | "create";
+  projectType: 'improve' | 'create';
   projectCategory:
-    | "investment"
-    | "optimization"
-    | "extension"
-    | "repair"
-    | "replacement";
+  | 'investment'
+  | 'optimization'
+  | 'extension'
+  | 'repair'
+  | 'replacement';
   // productiveUnit: 'Opcion 1' | 'Opcion 2';
   // improvementChoice: 'Opcion 1' | 'Opcion 2';
   // creditStatus: 'Aprobado' | 'Desaprobado';
 };
 
 const ERROR_MESSAGES = {
-  REQUIRED: "Este campo es obligatorio",
-  IMAGE_REQUIRED: "La imagen de portada es obligatoria",
-  IMAGE_TYPE: "Debe ser un archivo de imagen válido",
-  IMAGE_SIZE: "El tamaño máximo permitido es 5MB",
-  MAX_LENGTH: "Máximo 255 caracteres",
-  LOGIN_REQUIRED: "Debes iniciar sesión para crear un proyecto",
+  REQUIRED: 'Este campo es obligatorio',
+  IMAGE_REQUIRED: 'La imagen de portada es obligatoria',
+  IMAGE_TYPE: 'Debe ser un archivo de imagen válido',
+  IMAGE_SIZE: 'El tamaño máximo permitido es 5MB',
+  MAX_LENGTH: 'Máximo 255 caracteres',
+  LOGIN_REQUIRED: 'Debes iniciar sesión para crear un proyecto',
 };
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -56,11 +56,11 @@ export function ProjectsCreatePage() {
     trigger,
   } = useForm<ProjectFormData>({
     defaultValues: {
-      projectType: "create", // Valor por defecto
+      projectType: 'create', // Valor por defecto
     },
   });
 
-  register("description", {
+  register('description', {
     required: ERROR_MESSAGES.REQUIRED,
     validate: (value) => value?.trim().length > 0 || ERROR_MESSAGES.REQUIRED,
   });
@@ -70,6 +70,19 @@ export function ProjectsCreatePage() {
   const [isTermsOpen, setIsTermsOpen] = useState(false);
 
   const [createdProjectId, setCreatedProjectId] = useState<string | null>(null);
+
+  // Cascade resets for department -> province -> district
+  const departmentValue = watch('department');
+  const provinceValue = watch('province');
+
+  useEffect(() => {
+    setValue('province', '');
+    setValue('district', '');
+  }, [departmentValue, setValue]);
+
+  useEffect(() => {
+    setValue('district', '');
+  }, [provinceValue, setValue]);
 
   const onSubmit = async (form_data: ProjectFormData) => {
     try {
@@ -81,12 +94,12 @@ export function ProjectsCreatePage() {
 
       const bucket_path = await pushBlobToStorage(
         db,
-        "multimedia",
+        'multimedia',
         form_data.coverImage[0]
       );
 
       const { data, error } = await db
-        .from("projects")
+        .from('projects')
         .insert({
           title: form_data.projectName,
           content: form_data.description,
@@ -97,16 +110,16 @@ export function ProjectsCreatePage() {
           ioarr_type: form_data.projectCategory,
           published_at: new Date().toISOString(),
         })
-        .select("id")
+        .select('id')
         .single();
 
       if (error) throw error;
-      if (!data?.id) throw new Error("No se obtuvo ID del proyecto");
+      if (!data?.id) throw new Error('No se obtuvo ID del proyecto');
       setCreatedProjectId(data.id);
       setIsModalOpen(true);
       reset();
     } catch (error) {
-      console.error("Error al crear proyecto:", error);
+      console.error('Error al crear proyecto:', error);
       const errorMessage =
         error instanceof Error ? error.message : String(error);
       alert(`Error: ${errorMessage}`);
@@ -119,11 +132,11 @@ export function ProjectsCreatePage() {
     ref: fileRef,
     onChange: hookFormOnChange,
     ...fileRegisterProps
-  } = register("coverImage", {
+  } = register('coverImage', {
     required: ERROR_MESSAGES.IMAGE_REQUIRED,
     validate: {
       fileType: (files) =>
-        files[0]?.type?.startsWith("image/") || ERROR_MESSAGES.IMAGE_TYPE,
+        files[0]?.type?.startsWith('image/') || ERROR_MESSAGES.IMAGE_TYPE,
       fileSize: (files) =>
         files[0]?.size <= MAX_FILE_SIZE || ERROR_MESSAGES.IMAGE_SIZE,
     },
@@ -138,15 +151,15 @@ export function ProjectsCreatePage() {
 
     // 2. Propagamos el evento al hook form
     hookFormOnChange(e);
-    trigger("coverImage");
+    trigger('coverImage');
   };
 
   useEffect(() => {
-    document.title = "Crear Proyecto";
+    document.title = 'Crear Proyecto';
   }, []);
   const handleDescriptionChange = (markdown: string) => {
-    setValue("description", markdown, { shouldValidate: true });
-    trigger("description");
+    setValue('description', markdown, { shouldValidate: true });
+    trigger('description');
   };
 
   return (
@@ -177,16 +190,15 @@ export function ProjectsCreatePage() {
               <input
                 id="projectName"
                 type="text"
-                {...register("projectName", {
+                {...register('projectName', {
                   required: ERROR_MESSAGES.REQUIRED,
                   maxLength: {
                     value: 255,
                     message: ERROR_MESSAGES.MAX_LENGTH,
                   },
                 })}
-                className={`w-full px-3 py-2 border rounded-md ${
-                  errors.projectName ? "border-red-500" : "border-gray-300"
-                }`}
+                className={`w-full px-3 py-2 border rounded-md ${errors.projectName ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 placeholder="Mi proyecto innovador"
               />
               {errors.projectName && (
@@ -206,7 +218,7 @@ export function ProjectsCreatePage() {
               </label>
               <div id="description" aria-describedby="description-error">
                 <MDXEditorComponent
-                  markdown={watch("description") || ""}
+                  markdown={watch('description') || ''}
                   onChange={handleDescriptionChange}
                   error={!!errors.description}
                 />
@@ -259,14 +271,14 @@ export function ProjectsCreatePage() {
               <div className="mt-1 flex items-center">
                 <button
                   type="button"
-                  onClick={() => document.getElementById("coverImage")?.click()}
+                  onClick={() => document.getElementById('coverImage')?.click()}
                   className="px-4 py-2 border border-gray-300 rounded-md bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer"
                 >
-                  {previewImage ? "Cambiar imagen" : "Seleccionar archivo"}
+                  {previewImage ? 'Cambiar imagen' : 'Seleccionar archivo'}
                 </button>
                 <span className="ml-2 text-sm text-gray-500 select-none">
-                  {watch("coverImage")?.[0]?.name ||
-                    "Ningún archivo seleccionado"}
+                  {watch('coverImage')?.[0]?.name ||
+                    'Ningún archivo seleccionado'}
                 </span>
                 <input
                   id="coverImage"
@@ -285,8 +297,8 @@ export function ProjectsCreatePage() {
               )}
             </div>
 
-            {/* Ubicación - Departamento, Ciudad, Distrito */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Ubicación - Departamento, Provincia, Distrito */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Select para Departamento */}
               <div>
                 <label
@@ -297,12 +309,11 @@ export function ProjectsCreatePage() {
                 </label>
                 <select
                   id="department"
-                  {...register("department", {
-                    required: "El departamento es obligatorio",
+                  {...register('department', {
+                    required: 'El departamento es obligatorio',
                   })}
-                  className={`w-full px-3 py-2 border rounded-md ${
-                    errors.department ? "border-red-500" : "border-gray-300"
-                  }`}
+                  className={`w-full px-3 py-2 border rounded-md ${errors.department ? 'border-red-500' : 'border-gray-300'
+                    }`}
                 >
                   <option value="">Seleccione un departamento</option>
                   {DEPARTMENT_OPTIONS.map((option) => (
@@ -318,7 +329,45 @@ export function ProjectsCreatePage() {
                 )}
               </div>
 
-              {/* Select para Distrito (dependiente del Departamento seleccionado) */}
+              {/* Select para Provincia (dependiente del Departamento seleccionado) */}
+              <div>
+                <label
+                  htmlFor="province"
+                  className="block font-medium text-gray-700 mb-1"
+                >
+                  Provincia <span className="text-red-500">*</span>
+                </label>
+                <select
+                  id="province"
+                  disabled={!watch('department')}
+                  {...register('province', {
+                    required: 'Debe seleccionar una provincia',
+                  })}
+                  className={`w-full px-3 py-2 border rounded-md ${errors.province ? 'border-red-500' : 'border-gray-300'
+                    } ${!watch('department') ? 'bg-gray-100' : ''}`}
+                >
+                  <option value="">
+                    {watch('department')
+                      ? 'Seleccione una provincia'
+                      : 'Primero seleccione un departamento'}
+                  </option>
+                  {watch('department') &&
+                    PROVINCES_BY_DEPARTMENT[watch('department')]?.map(
+                      (option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      )
+                    )}
+                </select>
+                {errors.province && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.province.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Select para Distrito (dependiente de la Provincia seleccionada) */}
               <div>
                 <label
                   htmlFor="district"
@@ -328,21 +377,20 @@ export function ProjectsCreatePage() {
                 </label>
                 <select
                   id="district"
-                  disabled={!watch("department")}
-                  {...register("district", {
-                    required: "Debe seleccionar un distrito",
+                  disabled={!watch('province')}
+                  {...register('district', {
+                    required: 'Debe seleccionar un distrito',
                   })}
-                  className={`w-full px-3 py-2 border rounded-md ${
-                    errors.district ? "border-red-500" : "border-gray-300"
-                  } ${!watch("department") ? "bg-gray-100" : ""}`}
+                  className={`w-full px-3 py-2 border rounded-md ${errors.district ? 'border-red-500' : 'border-gray-300'
+                    } ${!watch('province') ? 'bg-gray-100' : ''}`}
                 >
                   <option value="">
-                    {watch("department")
-                      ? "Seleccione un distrito"
-                      : "Primero seleccione un departamento"}
+                    {watch('province')
+                      ? 'Seleccione un distrito'
+                      : 'Primero seleccione una provincia'}
                   </option>
-                  {watch("department") &&
-                    DISTRICTS_BY_DEPARTMENT[watch("department")]?.map(
+                  {watch('province') &&
+                    DISTRICTS_BY_PROVINCE[watch('province')]?.map(
                       (option) => (
                         <option key={option.value} value={option.value}>
                           {option.label}
@@ -363,7 +411,7 @@ export function ProjectsCreatePage() {
               {/* Radio buttons para tipo de proyecto */}
               <div className="mb-6">
                 <label className="block font-medium text-gray-700 mb-3">
-                  Mi proyecto es para ...{" "}
+                  Mi proyecto es para ...{' '}
                   <span className="text-red-500">*</span>
                 </label>
                 <div className="flex space-x-6">
@@ -371,8 +419,8 @@ export function ProjectsCreatePage() {
                     <input
                       type="radio"
                       value="improve"
-                      {...register("projectType", {
-                        required: "Selecciona una opción",
+                      {...register('projectType', {
+                        required: 'Selecciona una opción',
                       })}
                       className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300"
                     />
@@ -384,8 +432,8 @@ export function ProjectsCreatePage() {
                     <input
                       type="radio"
                       value="create"
-                      {...register("projectType", {
-                        required: "Selecciona una opción",
+                      {...register('projectType', {
+                        required: 'Selecciona una opción',
                       })}
                       className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300"
                     />
@@ -410,8 +458,8 @@ export function ProjectsCreatePage() {
                   </label>
                   <select
                     id="projectCategory"
-                    {...register("projectCategory", {
-                      required: "Selecciona un tipo de proyecto",
+                    {...register('projectCategory', {
+                      required: 'Selecciona un tipo de proyecto',
                     })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   >
@@ -493,8 +541,8 @@ export function ProjectsCreatePage() {
                 <input
                   id="acceptTerms"
                   type="checkbox"
-                  {...register("acceptTerms", {
-                    required: "Debes aceptar los términos y condiciones",
+                  {...register('acceptTerms', {
+                    required: 'Debes aceptar los términos y condiciones',
                   })}
                   className="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-blue-500"
                 />
@@ -504,7 +552,7 @@ export function ProjectsCreatePage() {
                   htmlFor="acceptTerms"
                   className="font-medium text-gray-700"
                 >
-                  Acepto los{" "}
+                  Acepto los{' '}
                   <button
                     type="button"
                     onClick={() => setIsTermsOpen(true)}
@@ -528,7 +576,7 @@ export function ProjectsCreatePage() {
                 disabled={isSubmitting}
                 className="w-full bg-[var(--color-primary)] text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {isSubmitting ? "Creando proyecto..." : "Crear Proyecto"}
+                {isSubmitting ? 'Creando proyecto...' : 'Crear Proyecto'}
               </button>
             </div>
           </form>

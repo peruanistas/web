@@ -30,6 +30,7 @@ const PROJECTS_RESULTS_PER_PAGE = 6;
 export function ProjectsPage() {
   useScrollReset();
   const [department, setDepartment] = useState('');
+  const [province, setProvince] = useState('');
   const [district, setDistrict] = useState('');
   const [search, setSearch] = useState('');
   const [orderBy, setOrderBy] = useState('created_at_asc');
@@ -134,9 +135,15 @@ export function ProjectsPage() {
             <div className="flex flex-col gap-2">
               <ProjectFilters
                 department={department}
+                province={province}
                 district={district}
                 onDepartmentChange={(val) => {
                   setDepartment(val);
+                  setProvince('');
+                  setDistrict('');
+                }}
+                onProvinceChange={(val) => {
+                  setProvince(val);
                   setDistrict('');
                 }}
                 onDistrictChange={setDistrict}

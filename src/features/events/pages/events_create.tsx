@@ -1,17 +1,17 @@
-import { db } from "@db/client";
-import { useEffect, useState, useRef } from "react";
-import { useForm } from "react-hook-form";
-import { Layout } from "@common/components/layout";
-import { Header } from "@common/components/header";
-import { PageBanner } from "@common/components/page_banner";
-import { DEPARTMENT_OPTIONS, DISTRICTS_BY_DEPARTMENT } from "@common/data/geo";
-import { pushBlobToStorage } from "@common/utils";
-import { useAuthStore } from "@auth/store/auth_store";
-import { Admonition } from "@common/components/admonition";
-import { SuccessModal } from "@common/components/modal_create";
-import { Info } from "lucide-react";
-import { MDXEditorComponent } from "@common/components/mxEditorComponent";
-import TermsModal from "@common/components/termsModal";
+import { db } from '@db/client';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { Layout } from '@common/components/layout';
+import { Header } from '@common/components/header';
+import { PageBanner } from '@common/components/page_banner';
+import { DEPARTMENT_OPTIONS, PROVINCES_BY_DEPARTMENT, DISTRICTS_BY_PROVINCE } from '@common/data/geo';
+import { pushBlobToStorage } from '@common/utils';
+import { useAuthStore } from '@auth/store/auth_store';
+import { Admonition } from '@common/components/admonition';
+import { SuccessModal } from '@common/components/modal_create';
+import { Info } from 'lucide-react';
+import { MDXEditorComponent } from '@common/components/mxEditorComponent';
+import TermsModal from '@common/components/termsModal';
 
 type EventFormData = {
   eventName: string;
@@ -20,18 +20,19 @@ type EventFormData = {
   dateTime: string;
   coverImage: FileList;
   department: string;
+  province: string;
   city: string;
   district: string;
   acceptTerms: boolean;
 };
 
 const ERROR_MESSAGES = {
-  REQUIRED: "Este campo es obligatorio",
-  IMAGE_REQUIRED: "La imagen de portada es obligatoria",
-  IMAGE_TYPE: "Debe ser un archivo de imagen válido",
-  IMAGE_SIZE: "El tamaño máximo permitido es 5MB",
-  MAX_LENGTH: "Máximo 255 caracteres",
-  LOGIN_REQUIRED: "Debes iniciar sesión para crear un proyecto",
+  REQUIRED: 'Este campo es obligatorio',
+  IMAGE_REQUIRED: 'La imagen de portada es obligatoria',
+  IMAGE_TYPE: 'Debe ser un archivo de imagen válido',
+  IMAGE_SIZE: 'El tamaño máximo permitido es 5MB',
+  MAX_LENGTH: 'Máximo 255 caracteres',
+  LOGIN_REQUIRED: 'Debes iniciar sesión para crear un proyecto',
 };
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -55,7 +56,7 @@ export function EventsCreatePage() {
     trigger,
   } = useForm<EventFormData>();
 
-  register("description", {
+  register('description', {
     required: ERROR_MESSAGES.REQUIRED,
     validate: (value) => value?.trim().length > 0 || ERROR_MESSAGES.REQUIRED,
   });
@@ -66,15 +67,28 @@ export function EventsCreatePage() {
   const [isTermsOpen, setIsTermsOpen] = useState(false);
   const [createdEventId, setCreatedEventId] = useState<string | null>(null);
 
+  // Cascade resets for department -> province -> district
+  const departmentValue = watch('department');
+  const provinceValue = watch('province');
+
+  useEffect(() => {
+    setValue('province', '');
+    setValue('district', '');
+  }, [departmentValue, setValue]);
+
+  useEffect(() => {
+    setValue('district', '');
+  }, [provinceValue, setValue]);
+
   const onSubmit = async (form_data: EventFormData) => {
     try {
-      if (!user) throw new Error("Debes iniciar sesión para crear un evento");
+      if (!user) throw new Error('Debes iniciar sesión para crear un evento');
       if (!form_data.coverImage[0])
-        throw new Error("No se subió ninguna imagen de portada");
+        throw new Error('No se subió ninguna imagen de portada');
 
       const bucket_path = await pushBlobToStorage(
         db,
-        "multimedia",
+        'multimedia',
         form_data.coverImage[0]
       );
 
@@ -90,20 +104,20 @@ export function EventsCreatePage() {
       };
 
       const { data, error } = await db
-        .from("events")
+        .from('events')
         .insert(eventData)
-        .select("id")
+        .select('id')
         .single();
 
       if (error) throw error;
-      if (!data?.id) throw new Error("No se obtuvo ID del proyecto");
+      if (!data?.id) throw new Error('No se obtuvo ID del proyecto');
       setCreatedEventId(data.id);
       setIsModalOpen(true);
       reset();
     } catch (error) {
-      console.error("Error al crear evento:", error);
+      console.error('Error al crear evento:', error);
       const errorMessage =
-        error instanceof Error ? error.message : "Ocurrió un error desconocido";
+        error instanceof Error ? error.message : 'Ocurrió un error desconocido';
       alert(`Error: ${errorMessage}`);
     }
   };
@@ -115,11 +129,11 @@ export function EventsCreatePage() {
     ref: fileRef,
     onChange: hookFormOnChange,
     ...fileRegisterProps
-  } = register("coverImage", {
+  } = register('coverImage', {
     required: ERROR_MESSAGES.IMAGE_REQUIRED,
     validate: {
       fileType: (files) =>
-        files[0]?.type?.startsWith("image/") || ERROR_MESSAGES.IMAGE_TYPE,
+        files[0]?.type?.startsWith('image/') || ERROR_MESSAGES.IMAGE_TYPE,
       fileSize: (files) =>
         files[0]?.size <= MAX_FILE_SIZE || ERROR_MESSAGES.IMAGE_SIZE,
     },
@@ -134,14 +148,14 @@ export function EventsCreatePage() {
 
     // 2. Propagamos el evento al hook form
     hookFormOnChange(e);
-    trigger("coverImage");
+    trigger('coverImage');
   };
   const handleDescriptionChange = (markdown: string) => {
-    setValue("description", markdown, { shouldValidate: true });
-    trigger("description");
+    setValue('description', markdown, { shouldValidate: true });
+    trigger('description');
   };
   useEffect(() => {
-    document.title = "Crear Evento";
+    document.title = 'Crear Evento';
   }, []);
 
   return (
@@ -171,16 +185,15 @@ export function EventsCreatePage() {
               <input
                 id="eventName"
                 type="text"
-                {...register("eventName", {
+                {...register('eventName', {
                   required: ERROR_MESSAGES.REQUIRED,
                   maxLength: {
                     value: 255,
                     message: ERROR_MESSAGES.MAX_LENGTH,
                   },
                 })}
-                className={`w-full px-3 py-2 border rounded-md ${
-                  errors.eventName ? "border-red-500" : "border-gray-300"
-                }`}
+                className={`w-full px-3 py-2 border rounded-md ${errors.eventName ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 placeholder="Mi evento increíble"
               />
               {errors.eventName && (
@@ -200,7 +213,7 @@ export function EventsCreatePage() {
               </label>
               <div id="description" aria-describedby="description-error">
                 <MDXEditorComponent
-                  markdown={watch("description") || ""}
+                  markdown={watch('description') || ''}
                   onChange={handleDescriptionChange}
                   error={!!errors.description}
                 />
@@ -246,22 +259,21 @@ export function EventsCreatePage() {
                 id="dateTime"
                 type="datetime-local"
                 defaultValue={defaultDateTime}
-                {...register("dateTime", {
-                  required: "La fecha y hora son obligatorias",
+                {...register('dateTime', {
+                  required: 'La fecha y hora son obligatorias',
                   validate: (value) => {
-                    if (!value) return "La fecha y hora son obligatorias";
+                    if (!value) return 'La fecha y hora son obligatorias';
                     const now = new Date();
                     now.setSeconds(0, 0);
                     const selected = new Date(value);
                     if (selected < now) {
-                      return "La fecha y hora no pueden ser anteriores a la actual";
+                      return 'La fecha y hora no pueden ser anteriores a la actual';
                     }
                     return true;
                   },
                 })}
-                className={`w-full px-3 py-2 border rounded-md ${
-                  errors.dateTime ? "border-red-500" : "border-gray-300"
-                }`}
+                className={`w-full px-3 py-2 border rounded-md ${errors.dateTime ? 'border-red-500' : 'border-gray-300'
+                  }`}
               />
               {errors.dateTime && (
                 <p className="mt-1 text-sm text-red-600">
@@ -289,14 +301,14 @@ export function EventsCreatePage() {
               <div className="mt-1 flex items-center">
                 <button
                   type="button"
-                  onClick={() => document.getElementById("coverImage")?.click()}
+                  onClick={() => document.getElementById('coverImage')?.click()}
                   className="px-4 py-2 border border-gray-300 rounded-md bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer"
                 >
-                  {previewImage ? "Cambiar imagen" : "Seleccionar archivo"}
+                  {previewImage ? 'Cambiar imagen' : 'Seleccionar archivo'}
                 </button>
                 <span className="ml-2 text-sm text-gray-500 select-none">
-                  {watch("coverImage")?.[0]?.name ||
-                    "Ningún archivo seleccionado"}
+                  {watch('coverImage')?.[0]?.name ||
+                    'Ningún archivo seleccionado'}
                 </span>
                 <input
                   id="coverImage"
@@ -315,8 +327,8 @@ export function EventsCreatePage() {
               )}
             </div>
 
-            {/* Ubicación - Departamento, Ciudad, Distrito */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Ubicación - Departamento, Provincia, Distrito */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Select para Departamento */}
               <div>
                 <label
@@ -327,12 +339,11 @@ export function EventsCreatePage() {
                 </label>
                 <select
                   id="department"
-                  {...register("department", {
-                    required: "El departamento es obligatorio",
+                  {...register('department', {
+                    required: 'El departamento es obligatorio',
                   })}
-                  className={`w-full px-3 py-2 border rounded-md ${
-                    errors.department ? "border-red-500" : "border-gray-300"
-                  }`}
+                  className={`w-full px-3 py-2 border rounded-md ${errors.department ? 'border-red-500' : 'border-gray-300'
+                    }`}
                 >
                   <option value="">Seleccione un departamento</option>
                   {DEPARTMENT_OPTIONS.map((option) => (
@@ -348,7 +359,45 @@ export function EventsCreatePage() {
                 )}
               </div>
 
-              {/* Select para Distrito (dependiente del Departamento seleccionado) */}
+              {/* Select para Provincia (dependiente del Departamento seleccionado) */}
+              <div>
+                <label
+                  htmlFor="province"
+                  className="block font-medium text-gray-700 mb-1"
+                >
+                  Provincia <span className="text-red-500">*</span>
+                </label>
+                <select
+                  id="province"
+                  disabled={!watch('department')}
+                  {...register('province', {
+                    required: 'Debe seleccionar una provincia',
+                  })}
+                  className={`w-full px-3 py-2 border rounded-md ${errors.province ? 'border-red-500' : 'border-gray-300'
+                    } ${!watch('department') ? 'bg-gray-100' : ''}`}
+                >
+                  <option value="">
+                    {watch('department')
+                      ? 'Seleccione una provincia'
+                      : 'Primero seleccione un departamento'}
+                  </option>
+                  {watch('department') &&
+                    PROVINCES_BY_DEPARTMENT[watch('department')]?.map(
+                      (option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      )
+                    )}
+                </select>
+                {errors.province && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.province.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Select para Distrito (dependiente de la Provincia seleccionada) */}
               <div>
                 <label
                   htmlFor="district"
@@ -358,21 +407,20 @@ export function EventsCreatePage() {
                 </label>
                 <select
                   id="district"
-                  disabled={!watch("department")}
-                  {...register("district", {
-                    required: "Debe seleccionar un distrito",
+                  disabled={!watch('province')}
+                  {...register('district', {
+                    required: 'Debe seleccionar un distrito',
                   })}
-                  className={`w-full px-3 py-2 border rounded-md ${
-                    errors.district ? "border-red-500" : "border-gray-300"
-                  } ${!watch("department") ? "bg-gray-100" : ""}`}
+                  className={`w-full px-3 py-2 border rounded-md ${errors.district ? 'border-red-500' : 'border-gray-300'
+                    } ${!watch('province') ? 'bg-gray-100' : ''}`}
                 >
                   <option value="">
-                    {watch("department")
-                      ? "Seleccione un distrito"
-                      : "Primero seleccione un departamento"}
+                    {watch('province')
+                      ? 'Seleccione un distrito'
+                      : 'Primero seleccione una provincia'}
                   </option>
-                  {watch("department") &&
-                    DISTRICTS_BY_DEPARTMENT[watch("department")]?.map(
+                  {watch('province') &&
+                    DISTRICTS_BY_PROVINCE[watch('province')]?.map(
                       (option) => (
                         <option key={option.value} value={option.value}>
                           {option.label}
@@ -394,8 +442,8 @@ export function EventsCreatePage() {
                 <input
                   id="acceptTerms"
                   type="checkbox"
-                  {...register("acceptTerms", {
-                    required: "Debes aceptar los términos y condiciones",
+                  {...register('acceptTerms', {
+                    required: 'Debes aceptar los términos y condiciones',
                   })}
                   className="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-blue-500"
                 />
@@ -405,7 +453,7 @@ export function EventsCreatePage() {
                   htmlFor="acceptTerms"
                   className="font-medium text-gray-700"
                 >
-                  Acepto los{" "}
+                  Acepto los{' '}
                   <button
                     type="button"
                     onClick={() => setIsTermsOpen(true)}
@@ -429,7 +477,7 @@ export function EventsCreatePage() {
                 disabled={isSubmitting}
                 className="w-full bg-[var(--color-primary)] text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {isSubmitting ? "Publicando..." : "Publicar"}
+                {isSubmitting ? 'Publicando...' : 'Publicar'}
               </button>
             </div>
           </form>

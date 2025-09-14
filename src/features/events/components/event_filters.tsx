@@ -1,23 +1,32 @@
 import Select from 'react-select';
 import { useMemo } from 'react';
-import { DEPARTMENT_OPTIONS, DISTRICTS_BY_DEPARTMENT } from '@common/data/geo';
+import { DEPARTMENT_OPTIONS, PROVINCES_BY_DEPARTMENT, DISTRICTS_BY_PROVINCE } from '@common/data/geo';
 
 type EventLocationFiltersProps = {
   department: string;
+  province: string;
   district: string;
   onDepartmentChange: (code: string) => void;
+  onProvinceChange: (code: string) => void;
   onDistrictChange: (code: string) => void;
 };
 
 export function EventLocationFilters({
   department,
+  province,
   district,
   onDepartmentChange,
+  onProvinceChange,
   onDistrictChange,
 }: EventLocationFiltersProps) {
-  const districtOptions = useMemo(
-    () => (department ? DISTRICTS_BY_DEPARTMENT[department] || [] : []),
+  const provinceOptions = useMemo(
+    () => (department ? PROVINCES_BY_DEPARTMENT[department] || [] : []),
     [department]
+  );
+
+  const districtOptions = useMemo(
+    () => (province ? DISTRICTS_BY_PROVINCE[province] || [] : []),
+    [province]
   );
 
   return (
@@ -36,6 +45,20 @@ export function EventLocationFilters({
           placeholder='Todos'
         />
       </div>
+      <div className='mb-3'>
+        <label className='block text-sm mb-1'>Provincia</label>
+        <Select
+          styles={{
+            menu: base => ({ ...base, zIndex: 9999 }),
+          }}
+          options={provinceOptions}
+          value={provinceOptions.find(opt => opt.value === province) || null}
+          onChange={opt => onProvinceChange(opt ? opt.value : '')}
+          isClearable
+          isDisabled={!department}
+          placeholder='Todos'
+        />
+      </div>
       <div>
         <label className='block text-sm mb-1'>Distrito</label>
         <Select
@@ -43,7 +66,7 @@ export function EventLocationFilters({
           value={districtOptions.find(opt => opt.value === district) || null}
           onChange={opt => onDistrictChange(opt ? opt.value : '')}
           isClearable
-          isDisabled={!department}  
+          isDisabled={!province}
           placeholder='Todos'
         />
       </div>

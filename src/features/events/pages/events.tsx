@@ -28,6 +28,7 @@ const EVENTS_RESULTS_PER_PAGE = 6;
 export function EventsPage() {
   useScrollReset();
   const [department, setDepartment] = useState('');
+  const [province, setProvince] = useState('');
   const [district, setDistrict] = useState('');
   const [search, setSearch] = useState('');
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
@@ -111,9 +112,15 @@ export function EventsPage() {
             <div className='flex flex-col gap-2'>
               <EventLocationFilters
                 department={department}
+                province={province}
                 district={district}
                 onDepartmentChange={val => {
                   setDepartment(val);
+                  setProvince('');
+                  setDistrict('');
+                }}
+                onProvinceChange={val => {
+                  setProvince(val);
                   setDistrict('');
                 }}
                 onDistrictChange={setDistrict}

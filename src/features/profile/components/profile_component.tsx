@@ -1,7 +1,7 @@
 import { MapPin, Mail, Calendar, Users, Star, Eye, Pencil, User } from 'lucide-react';
 import { Button } from '@common/components/button';
 import { useAuthStore } from '@auth/store/auth_store';
-import { PE_DEPARTMENTS, PE_DISTRICTS, DEPARTMENT_OPTIONS, DISTRICTS_BY_DEPARTMENT } from '@common/data/geo';
+import { PE_DEPARTMENTS, PE_DISTRICTS, DEPARTMENT_OPTIONS, PROVINCES_BY_DEPARTMENT, DISTRICTS_BY_PROVINCE } from '@common/data/geo';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { db } from '@db/client';
 import { useLocation } from 'wouter';
@@ -59,6 +59,7 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
   const [isUpdating, setIsUpdating] = useState(false);
   const [isEditingGeo, setIsEditingGeo] = useState(false);
   const [tempDepartment, setTempDepartment] = useState('');
+  const [tempProvince, setTempProvince] = useState('');
   const [tempDistrict, setTempDistrict] = useState('');
   const [geoUpdateError, setGeoUpdateError] = useState<string | null>(null);
   const [isUpdatingGeo, setIsUpdatingGeo] = useState(false);
@@ -196,6 +197,7 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
     }
 
     setTempDepartment(displayProfile?.geo_department || '');
+    setTempProvince(''); // Province will be selected by user since we only have district in DB
     setTempDistrict(displayProfile?.geo_district || '');
     setGeoUpdateError(null);
     setIsEditingGeo(true);
@@ -205,13 +207,14 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
     setIsEditingGeo(false);
     setGeoUpdateError(null);
     setTempDepartment('');
+    setTempProvince('');
     setTempDistrict('');
   };
 
   const handleSaveGeolocation = async () => {
     if (!currentUser?.id || !isOwn) return;
-    if (!tempDepartment || !tempDistrict) {
-      setGeoUpdateError('Debes seleccionar tanto departamento como distrito');
+    if (!tempDepartment || !tempProvince || !tempDistrict) {
+      setGeoUpdateError('Debes seleccionar departamento, provincia y distrito');
       return;
     }
 
@@ -246,6 +249,7 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
 
       setIsEditingGeo(false);
       setTempDepartment('');
+      setTempProvince('');
       setTempDistrict('');
     } catch (error) {
       console.error('Error updating geolocation:', error);
@@ -894,6 +898,7 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
                             value={tempDepartment}
                             onChange={(e) => {
                               setTempDepartment(e.target.value);
+                              setTempProvince(''); // Reset province when department changes
                               setTempDistrict(''); // Reset district when department changes
                             }}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
@@ -909,18 +914,42 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
 
                         <div className="space-y-2">
                           <label className="text-sm font-medium text-gray-700">
+                            Provincia
+                          </label>
+                          <select
+                            value={tempProvince}
+                            onChange={(e) => {
+                              setTempProvince(e.target.value);
+                              setTempDistrict(''); // Reset district when province changes
+                            }}
+                            disabled={!tempDepartment}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                          >
+                            <option value="">
+                              {!tempDepartment ? 'Selecciona departamento primero' : 'Selecciona provincia'}
+                            </option>
+                            {tempDepartment && PROVINCES_BY_DEPARTMENT[tempDepartment]?.map((option: { value: string; label: string }) => (
+                              <option key={option.value} value={option.value}>
+                                {option.label}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-gray-700">
                             Distrito
                           </label>
                           <select
                             value={tempDistrict}
                             onChange={(e) => setTempDistrict(e.target.value)}
-                            disabled={!tempDepartment}
+                            disabled={!tempProvince}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                           >
                             <option value="">
-                              {!tempDepartment ? 'Selecciona departamento primero' : 'Selecciona distrito'}
+                              {!tempProvince ? 'Selecciona provincia primero' : 'Selecciona distrito'}
                             </option>
-                            {tempDepartment && DISTRICTS_BY_DEPARTMENT[tempDepartment]?.map((option: { value: string; label: string }) => (
+                            {tempProvince && DISTRICTS_BY_PROVINCE[tempProvince]?.map((option: { value: string; label: string }) => (
                               <option key={option.value} value={option.value}>
                                 {option.label}
                               </option>
@@ -946,7 +975,7 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
                           <Button
                             variant="red"
                             onClick={handleSaveGeolocation}
-                            disabled={isUpdatingGeo || !tempDepartment || !tempDistrict}
+                            disabled={isUpdatingGeo || !tempDepartment || !tempProvince || !tempDistrict}
                             className="flex-1 text-xs py-2"
                           >
                             {isUpdatingGeo ? 'Guardando...' : 'Guardar'}
