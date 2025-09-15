@@ -28,6 +28,7 @@ import './index.css';
 import { RouteGuard } from '@auth/guards/route-guards';
 import { ConfirmEmailPage } from '@auth/pages/confirm_email';
 import { GroupsPage } from '@groups/pages/groups';
+import { GroupsCreatePage } from '@groups/pages/groups_create';
 import { GroupDetail } from '@groups/pages/group_detail';
 import { ProfilePage } from '@profile/pages/profile';
 import { UserProfileDetail } from '@profile/pages/user_profile';
@@ -60,6 +61,7 @@ export function PeruanistasRouter() {
       </Route>
 
       <Route path='/grupos' component={GroupsPage} />
+      <Route path='/grupos/crear' component={GroupsCreatePage} />
       <Route path='/grupos/:id'>
         {({ id }) => <GroupDetail id={id} />}
       </Route>

@@ -14,6 +14,7 @@ import { IoEnter } from 'react-icons/io5';
 import { useState, useEffect } from 'react';
 import { checkGroupMembership, joinGroup, leaveGroup } from '../components/group-membership-functions';
 import { useAuthStore } from '@auth/store/auth_store';
+import { MarkdownViewer } from '@common/components/md_viewer';
 
 type GroupDetailProps = {
   id: string;
@@ -105,7 +106,7 @@ export function GroupDetail({ id }: GroupDetailProps) {
           {/* Group Info Row */}
           <div className="mb-6 min-w-full">
             <div>
-              <div className='flex justify-between lg:gap-4 lg:flex-row flex-col mb-2'>
+              <div className='flex justify-between lg:gap-4 lg:flex-row flex-col mb-[-15px]'>
                 <div>
                   <h1 className="text-3xl font-bold mb-3">{group.name}</h1>
                   <div className="flex items-center gap-2 text-gray-600 mb-3">
@@ -124,7 +125,7 @@ export function GroupDetail({ id }: GroupDetailProps) {
                   </Button>
                 </div>
               </div>
-              <div className="text-gray-800 mb-2">{group.description}</div>
+              <MarkdownViewer content={group.description} />
             </div>
             {/* <div className="flex flex-col items-start md:items-end gap-2">
               <AuthorInfo author={group.owner_id} />

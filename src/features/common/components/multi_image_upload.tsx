@@ -213,7 +213,7 @@ export function MultiImageUpload({
                 <img
                   src={preview.url}
                   alt={`Vista previa ${index + 1}`}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                 />
               </div>
 

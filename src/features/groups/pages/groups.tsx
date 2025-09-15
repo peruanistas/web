@@ -120,10 +120,7 @@ export function GroupsPage() {
             />
             <div className='flex flex-wrap items-center gap-4'>
               <OrderByDropdown value={orderBy} orderOptions={PROJECTS_ORDER_OPTIONS} onChange={setOrderBy} />
-              <CreateButton onClick={() => setLocation('#')}>
-                {
-                  // TODO: No hay creación de grupos
-                }
+              <CreateButton onClick={() => setLocation('/grupos/crear')}>
                 Crear grupo
               </CreateButton>
             </div>
