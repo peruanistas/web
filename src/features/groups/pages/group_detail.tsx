@@ -15,6 +15,8 @@ import { useState, useEffect } from 'react';
 import { checkGroupMembership, joinGroup, leaveGroup } from '../components/group-membership-functions';
 import { useAuthStore } from '@auth/store/auth_store';
 import { MarkdownViewer } from '@common/components/md_viewer';
+import { GroupFeed } from '../components/group_feed';
+import { toast } from 'sonner';
 
 type GroupDetailProps = {
   id: string;
@@ -64,7 +66,13 @@ export function GroupDetail({ id }: GroupDetailProps) {
   }, [group, group?.id, user]);
 
   const handleMembershipAction = async () => {
-    if (!user || !group) return;
+    if (!group) return;
+
+    // Show login prompt if user is not authenticated
+    if (!user) {
+      toast.error('Debes iniciar sesión o registrarte para unirte al grupo');
+      return;
+    }
 
     setIsLoadingMembership(true);
 
@@ -72,12 +80,15 @@ export function GroupDetail({ id }: GroupDetailProps) {
       if (isMember) {
         await leaveGroup(group.id, user.id);
         setIsMember(false);
+        toast.success('Has salido del grupo exitosamente');
       } else {
         await joinGroup(group.id, user.id);
         setIsMember(true);
+        toast.success('¡Te has unido al grupo exitosamente!');
       }
     } catch (error) {
       console.error('Error updating membership:', error);
+      toast.error('Error al actualizar la membresía. Inténtalo de nuevo.');
     } finally {
       setIsLoadingMembership(false);
     }
@@ -119,9 +130,9 @@ export function GroupDetail({ id }: GroupDetailProps) {
                     leading={<IoEnter />}
                     variant='red'
                     onClick={handleMembershipAction}
-                    disabled={isLoadingMembership || !user}
+                    disabled={isLoadingMembership}
                   >
-                    {isLoadingMembership ? 'Cargando...' : (!user ? 'Inicia sesión' : (isMember ? 'Salirse' : 'Unirse'))}
+                    {isLoadingMembership ? 'Cargando...' : (isMember ? 'Salirse' : 'Unirse')}
                   </Button>
                 </div>
               </div>
@@ -131,26 +142,8 @@ export function GroupDetail({ id }: GroupDetailProps) {
               <AuthorInfo author={group.owner_id} />
             </div> */}
           </div>
-          {/* Say something input */}
-          <div className="bg-white border border-border rounded-lg p-4 mb-8 flex items-center gap-3">
-            <img
-              src={(group.owner_id as { avatar_url?: string })?.avatar_url || '/favicon.svg'}
-              alt="Avatar"
-              className="w-10 h-10 rounded-full object-cover border"
-            />
-            <input
-              type="text"
-              className="flex-1 border-none outline-none bg-transparent text-gray-700 text-base placeholder-gray-400"
-              placeholder="Publica algo..."
-            />
-            <button className="bg-primary text-white px-4 py-2 rounded font-semibold opacity-60 cursor-not-allowed">
-              Publicar
-            </button>
-          </div>
-          {/* Posts feed placeholder */}
-          <div className="bg-gray-50 border border-border rounded-lg p-6 text-center text-gray-400">
-            Todavía no hay publicaciones
-          </div>
+          {/* Group Feed */}
+          <GroupFeed groupId={group.id} isMember={isMember} />
         </main>
       </ContentLayout>
       <Footer />

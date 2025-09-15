@@ -290,6 +290,160 @@ export type Database = {
           },
         ]
       }
+      group_publication_comments: {
+        Row: {
+          active: boolean
+          author_id: string
+          content: string
+          created_at: string
+          depth: number
+          downvotes: number
+          group_publication_id: string
+          id: string
+          parent_comment_id: string | null
+          path: unknown | null
+          reply_count: number
+          updated_at: string
+          upvotes: number
+        }
+        Insert: {
+          active?: boolean
+          author_id: string
+          content: string
+          created_at?: string
+          depth?: number
+          downvotes?: number
+          group_publication_id: string
+          id?: string
+          parent_comment_id?: string | null
+          path?: unknown | null
+          reply_count?: number
+          updated_at?: string
+          upvotes?: number
+        }
+        Update: {
+          active?: boolean
+          author_id?: string
+          content?: string
+          created_at?: string
+          depth?: number
+          downvotes?: number
+          group_publication_id?: string
+          id?: string
+          parent_comment_id?: string | null
+          path?: unknown | null
+          reply_count?: number
+          updated_at?: string
+          upvotes?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'group_publication_comments_author_id_fkey'
+            columns: ['author_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'group_publication_comments_group_publication_id_fkey'
+            columns: ['group_publication_id']
+            isOneToOne: false
+            referencedRelation: 'group_publications'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'group_publication_comments_group_publication_id_fkey'
+            columns: ['group_publication_id']
+            isOneToOne: false
+            referencedRelation: 'group_publications_with_authors'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'group_publication_comments_parent_comment_id_fkey'
+            columns: ['parent_comment_id']
+            isOneToOne: false
+            referencedRelation: 'group_comments_with_authors'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'group_publication_comments_parent_comment_id_fkey'
+            columns: ['parent_comment_id']
+            isOneToOne: false
+            referencedRelation: 'group_publication_comments'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      group_publications: {
+        Row: {
+          active: boolean
+          author_id: string
+          comment_count: number
+          content: string
+          created_at: string
+          downvotes: number
+          group_id: string
+          id: string
+          image_url: string[] | null
+          published_at: string
+          title: string
+          updated_at: string
+          upvotes: number
+        }
+        Insert: {
+          active?: boolean
+          author_id: string
+          comment_count?: number
+          content: string
+          created_at?: string
+          downvotes?: number
+          group_id: string
+          id?: string
+          image_url?: string[] | null
+          published_at?: string
+          title: string
+          updated_at?: string
+          upvotes?: number
+        }
+        Update: {
+          active?: boolean
+          author_id?: string
+          comment_count?: number
+          content?: string
+          created_at?: string
+          downvotes?: number
+          group_id?: string
+          id?: string
+          image_url?: string[] | null
+          published_at?: string
+          title?: string
+          updated_at?: string
+          upvotes?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'group_publications_author_id_fkey'
+            columns: ['author_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'group_publications_group_id_fkey'
+            columns: ['group_id']
+            isOneToOne: false
+            referencedRelation: 'groups'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'group_publications_group_id_fkey'
+            columns: ['group_id']
+            isOneToOne: false
+            referencedRelation: 'random_groups'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       groups: {
         Row: {
           active: boolean
@@ -738,6 +892,108 @@ export type Database = {
       }
     }
     Views: {
+      group_comments_with_authors: {
+        Row: {
+          active: boolean | null
+          author_apellidos: string | null
+          author_avatar_url: string | null
+          author_id: string | null
+          author_nombres: string | null
+          content: string | null
+          created_at: string | null
+          depth: number | null
+          downvotes: number | null
+          group_publication_id: string | null
+          id: string | null
+          level: number | null
+          parent_comment_id: string | null
+          path: unknown | null
+          reply_count: number | null
+          updated_at: string | null
+          upvotes: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'group_publication_comments_author_id_fkey'
+            columns: ['author_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'group_publication_comments_group_publication_id_fkey'
+            columns: ['group_publication_id']
+            isOneToOne: false
+            referencedRelation: 'group_publications'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'group_publication_comments_group_publication_id_fkey'
+            columns: ['group_publication_id']
+            isOneToOne: false
+            referencedRelation: 'group_publications_with_authors'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'group_publication_comments_parent_comment_id_fkey'
+            columns: ['parent_comment_id']
+            isOneToOne: false
+            referencedRelation: 'group_comments_with_authors'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'group_publication_comments_parent_comment_id_fkey'
+            columns: ['parent_comment_id']
+            isOneToOne: false
+            referencedRelation: 'group_publication_comments'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      group_publications_with_authors: {
+        Row: {
+          active: boolean | null
+          author_apellidos: string | null
+          author_avatar_url: string | null
+          author_id: string | null
+          author_nombres: string | null
+          comment_count: number | null
+          content: string | null
+          created_at: string | null
+          downvotes: number | null
+          group_id: string | null
+          group_name: string | null
+          id: string | null
+          image_url: string[] | null
+          published_at: string | null
+          title: string | null
+          updated_at: string | null
+          upvotes: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'group_publications_author_id_fkey'
+            columns: ['author_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'group_publications_group_id_fkey'
+            columns: ['group_id']
+            isOneToOne: false
+            referencedRelation: 'groups'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'group_publications_group_id_fkey'
+            columns: ['group_id']
+            isOneToOne: false
+            referencedRelation: 'random_groups'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       random_groups: {
         Row: {
           active: boolean | null
@@ -949,9 +1205,29 @@ export type Database = {
       }
     }
     Functions: {
+      _ltree_compress: {
+        Args: { '': unknown }
+        Returns: unknown
+      }
+      _ltree_gist_options: {
+        Args: { '': unknown }
+        Returns: undefined
+      }
       binary_quantize: {
         Args: { '': string } | { '': unknown }
         Returns: unknown
+      }
+      get_comment_thread: {
+        Args: { comment_id: string }
+        Returns: {
+          author_id: string
+          author_nombres: string
+          content: string
+          created_at: string
+          depth: number
+          id: string
+          level: number
+        }[]
       }
       get_event_attendance_summary: {
         Args: { event_id: string }
@@ -983,6 +1259,32 @@ export type Database = {
           title: string
           upvotes: number
           visibility: Database['public']['Enums']['visibility']
+        }[]
+      }
+      get_group_feed: {
+        Args: {
+          p_group_id: string
+          p_limit?: number
+          p_max_comments_per_post?: number
+          p_offset?: number
+        }
+        Returns: {
+          activity_score: number
+          author_apellidos: string
+          author_avatar_url: string
+          author_id: string
+          author_nombres: string
+          comment_count: number
+          comments: Json
+          content: string
+          created_at: string
+          downvotes: number
+          group_name: string
+          id: string
+          image_url: string[]
+          published_at: string
+          title: string
+          upvotes: number
         }[]
       }
       get_project_vote_summary: {
@@ -1058,6 +1360,86 @@ export type Database = {
         Args: { '': string } | { '': unknown } | { '': unknown }
         Returns: string
       }
+      lca: {
+        Args: { '': unknown[] }
+        Returns: unknown
+      }
+      lquery_in: {
+        Args: { '': unknown }
+        Returns: unknown
+      }
+      lquery_out: {
+        Args: { '': unknown }
+        Returns: unknown
+      }
+      lquery_recv: {
+        Args: { '': unknown }
+        Returns: unknown
+      }
+      lquery_send: {
+        Args: { '': unknown }
+        Returns: string
+      }
+      ltree_compress: {
+        Args: { '': unknown }
+        Returns: unknown
+      }
+      ltree_decompress: {
+        Args: { '': unknown }
+        Returns: unknown
+      }
+      ltree_gist_in: {
+        Args: { '': unknown }
+        Returns: unknown
+      }
+      ltree_gist_options: {
+        Args: { '': unknown }
+        Returns: undefined
+      }
+      ltree_gist_out: {
+        Args: { '': unknown }
+        Returns: unknown
+      }
+      ltree_in: {
+        Args: { '': unknown }
+        Returns: unknown
+      }
+      ltree_out: {
+        Args: { '': unknown }
+        Returns: unknown
+      }
+      ltree_recv: {
+        Args: { '': unknown }
+        Returns: unknown
+      }
+      ltree_send: {
+        Args: { '': unknown }
+        Returns: string
+      }
+      ltree2text: {
+        Args: { '': unknown }
+        Returns: string
+      }
+      ltxtq_in: {
+        Args: { '': unknown }
+        Returns: unknown
+      }
+      ltxtq_out: {
+        Args: { '': unknown }
+        Returns: unknown
+      }
+      ltxtq_recv: {
+        Args: { '': unknown }
+        Returns: unknown
+      }
+      ltxtq_send: {
+        Args: { '': unknown }
+        Returns: string
+      }
+      nlevel: {
+        Args: { '': unknown }
+        Returns: number
+      }
       recalculate_all_vote_counts: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -1073,6 +1455,10 @@ export type Database = {
       sparsevec_typmod_in: {
         Args: { '': unknown[] }
         Returns: number
+      }
+      text2ltree: {
+        Args: { '': string }
+        Returns: unknown
       }
       toggle_event_attendance: {
         Args: { p_event_id: string }

@@ -26,6 +26,7 @@ import 'react-day-picker/style.css';
 import 'leaflet/dist/leaflet.css';
 import './index.css';
 import { RouteGuard } from '@auth/guards/route-guards';
+import { Toaster } from 'sonner';
 import { ConfirmEmailPage } from '@auth/pages/confirm_email';
 import { GroupsPage } from '@groups/pages/groups';
 import { GroupsCreatePage } from '@groups/pages/groups_create';
@@ -117,6 +118,7 @@ function PeruanistasRoot() {
             <PeruanistasRouter />
           </RouteGuard>
         </AuthProvider>
+        <Toaster position="bottom-right" richColors />
         {showDevtools && (
           <React.Suspense fallback={null}>
             <ReactQueryDevtoolsProduction />

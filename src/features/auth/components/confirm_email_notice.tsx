@@ -1,7 +1,47 @@
-import { MailIcon, InfoIcon } from "lucide-react"
+import { MailIcon, InfoIcon } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { db } from '@db/client';
+import { useAuthStore } from '@auth/store/auth_store';
+import { toast } from 'sonner';
 
 export const ConfirmEmailNotice = () => {
-  //const userEmail = "usuario@ejemplo.com"
+  const { user } = useAuthStore();
+  const [isResending, setIsResending] = useState(false);
+  const [countdown, setCountdown] = useState(60); // Start with 60 seconds countdown immediately
+
+  // Countdown timer effect
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (countdown > 0) {
+      timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [countdown]);
+
+  const handleResendConfirmation = async () => {
+    if (!user?.email || countdown > 0) return;
+
+    setIsResending(true);
+
+    try {
+      const { error } = await db.auth.resend({
+        type: 'signup',
+        email: user.email,
+      });
+
+      if (error) {
+        toast.error('Error al reenviar el correo: ' + error.message);
+      } else {
+        toast.success('¡Correo de confirmación reenviado exitosamente!');
+        setCountdown(60); // Set 1-minute countdown
+      }
+    } catch (error) {
+      console.error('Error resending confirmation:', error);
+      toast.error('Error inesperado al reenviar el correo');
+    } finally {
+      setIsResending(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -13,7 +53,8 @@ export const ConfirmEmailNotice = () => {
             </div>
             <h1 className="text-[24px] font-bold text-gray-900 mb-2">Confirma tu correo electrónico</h1>
             <p className="text-[#404040]">
-              Hemos enviado un correo de confirmación al correo que ingresaste.{/*<strong>{userEmail}</strong>*/}
+              Hemos enviado un correo de confirmación a{' '}
+              {user?.email && <strong>{user.email}</strong>}
             </p>
           </div>
 
@@ -36,21 +77,38 @@ export const ConfirmEmailNotice = () => {
               <ol className="list-decimal list-inside text-[#404040] space-y-2 text-sm">
                 <li>Revisa tu bandeja de entrada</li>
                 <li>
-                  Busca un correo de <strong>Supabase</strong>
+                  Busca un correo de <strong>Peruanista</strong>
                 </li>
                 <li>Haz clic en el botón "Confirmar correo electrónico"</li>
                 <li>Regresa a esta página y actualiza</li>
               </ol>
             </div>
+
+            {/* Resend Button */}
+            <div className="mt-6">
+              <button
+                onClick={handleResendConfirmation}
+                disabled={isResending || countdown > 0}
+                className="w-full bg-[var(--color-primary)] text-white py-3 px-4 rounded-md hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-opacity"
+              >
+                {isResending
+                  ? 'Reenviando...'
+                  : countdown > 0
+                    ? `Reenviar en ${countdown}s`
+                    : 'Reenviar correo de confirmación'
+                }
+              </button>
+            </div>
+
             <div className="mt-8 text-center text-sm text-[#757575]">
               <p>
-                ¿No recibiste el correo? Revisa tu carpeta de spam o{" "}
-                <button className="text-blue-600 hover:underline">contacta a soporte</button>.
+                ¿No recibiste el correo? Revisa tu carpeta de spam o{' '}
+                <button className="text-blue-600 hover:underline cursor-pointer">contacta a soporte</button>.
               </p>
             </div>
           </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
