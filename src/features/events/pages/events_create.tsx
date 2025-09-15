@@ -275,7 +275,7 @@ export function EventsCreatePage() {
               <MultiImageUpload
                 files={multiImageUpload.files}
                 onChange={multiImageUpload.handleFilesChange}
-                maxImages={3}
+                maxImages={5}
                 maxFileSize={5 * 1024 * 1024} // 5MB
                 accept="image/*"
               />

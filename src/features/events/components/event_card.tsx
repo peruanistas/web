@@ -17,7 +17,7 @@ export function EventCard(event: EventCardProps) {
           // respect width and height
           className='w-[230px] h-[140px] object-cover rounded-md bg-[#ededed]'
           alt={event.title}
-          src={event.image_url ?? NO_IMAGE_URL}
+          src={(event?.image_url ?? [])[0] ?? NO_IMAGE_URL}
         />
         <div>
           <span className='font-semibold text-sm text-primary'>

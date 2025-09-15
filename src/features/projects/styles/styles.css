@@ -15,9 +15,7 @@
 .project_detail_layout__img_container{
     margin-top: 10px;
     margin-bottom: 10px;
-    display: flex;
     width: 100%;
-    justify-content: center;
     height: fit-content;
 }
 

@@ -10,9 +10,9 @@ interface MultiImageViewerProps {
   height?: number;
 }
 
-export function MultiImageViewer({ 
-  images, 
-  alt = 'Image', 
+export function MultiImageViewer({
+  images,
+  alt = 'Image',
   className = '',
   fallbackImage = '/src/assets/images/no_image.jpg',
   height = 400
@@ -62,8 +62,8 @@ export function MultiImageViewer({
   if (validImages.length === 0) {
     return (
       <div className={`relative bg-black rounded-md flex items-center justify-center ${className}`} style={{ height: `${height}px` }}>
-        <img 
-          src={fallbackImage} 
+        <img
+          src={fallbackImage}
           alt={alt}
           className="max-w-full max-h-full object-contain"
         />
@@ -83,10 +83,10 @@ export function MultiImageViewer({
             className="max-w-full max-h-full object-contain cursor-pointer"
             onClick={() => openModal(currentIndex)}
           />
-          
+
           {/* Expand Icon Overlay */}
           <div className="absolute top-2 right-2 bg-black/50 rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-               onClick={() => openModal(currentIndex)}>
+            onClick={() => openModal(currentIndex)}>
             <Expand size={16} className="text-white" />
           </div>
         </div>
@@ -124,11 +124,10 @@ export function MultiImageViewer({
               <button
                 key={index}
                 onClick={() => setCurrentIndex(index)}
-                className={`w-16 h-16 rounded border-2 overflow-hidden transition-all ${
-                  index === currentIndex 
-                    ? 'border-blue-500 ring-2 ring-blue-200' 
+                className={`w-16 h-16 rounded border-2 overflow-hidden transition-all ${index === currentIndex
+                    ? 'border-blue-500 ring-2 ring-blue-200'
                     : 'border-gray-300 hover:border-gray-400'
-                }`}
+                  }`}
               >
                 <img
                   src={image}
@@ -147,11 +146,10 @@ export function MultiImageViewer({
               <button
                 key={index}
                 onClick={() => setCurrentIndex(index)}
-                className={`w-2 h-2 rounded-full transition-all ${
-                  index === currentIndex 
-                    ? 'bg-blue-500' 
+                className={`w-2 h-2 rounded-full transition-all ${index === currentIndex
+                    ? 'bg-blue-500'
                     : 'bg-gray-300 hover:bg-gray-400'
-                }`}
+                  }`}
               />
             ))}
           </div>
@@ -160,7 +158,7 @@ export function MultiImageViewer({
 
       {/* Modal for Full-Screen View */}
       <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <div 
+        <div
           className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center"
           onKeyDown={handleModalKeyDown}
           tabIndex={-1}
@@ -175,7 +173,7 @@ export function MultiImageViewer({
           </button>
 
           {/* Modal Image Container */}
-          <div 
+          <div
             className="relative max-w-[90vw] max-h-[90vh] flex items-center justify-center"
             onClick={(e) => e.stopPropagation()}
           >
@@ -218,7 +216,7 @@ export function MultiImageViewer({
 
               {/* Modal Thumbnail Navigation */}
               {validImages.length <= 10 && (
-                <div 
+                <div
                   className="absolute bottom-16 left-1/2 -translate-x-1/2 flex gap-2"
                   onClick={(e) => e.stopPropagation()}
                 >
@@ -226,11 +224,10 @@ export function MultiImageViewer({
                     <button
                       key={index}
                       onClick={() => setModalImageIndex(index)}
-                      className={`w-12 h-12 rounded border overflow-hidden transition-all ${
-                        index === modalImageIndex 
-                          ? 'border-white ring-2 ring-white/50' 
+                      className={`w-12 h-12 rounded border overflow-hidden transition-all ${index === modalImageIndex
+                          ? 'border-white ring-2 ring-white/50'
                           : 'border-white/50 hover:border-white'
-                      }`}
+                        }`}
                     >
                       <img
                         src={image}
