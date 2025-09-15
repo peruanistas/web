@@ -3,18 +3,37 @@ import { NO_IMAGE_URL } from '@common/constants';
 import { PE_DEPARTMENTS, PE_DISTRICTS } from '@common/data/geo';
 import type { ProjectPreview } from '@projects/types';
 import { formatIoaarType } from '@projects/utils';
-import { Star } from 'lucide-react';
-import { useState } from 'react';
+import { MoreVertical, Star } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import ContentLoader from 'react-content-loader';
 import { FaVoteYea } from 'react-icons/fa';
 import { FaLocationDot } from 'react-icons/fa6';
 import { Link } from 'wouter';
 import { VoteConfirmationModal } from '@projects/components/vote_confirmation_modal';
+import { Share } from '@common/components/share';
+import { Modal } from '@common/components/modal';
 
 type ProjectCardProps = ProjectPreview & {};
 
 export function ProjectCard(project: ProjectCardProps) {
   const [voteModalOpen, setVoteModalOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
 
   return (
     <>
@@ -26,7 +45,39 @@ export function ProjectCard(project: ProjectCardProps) {
         />
       }
       <Link href={`/proyectos/${project.id}`}>
-        <article className='flex flex-col border border-border rounded-sm bg-white'>
+        <article className='flex flex-col border border-border rounded-sm bg-white relative group'>
+          {/* Triple dot menu button */}
+          <div className='absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-200'>
+            <div className='relative' ref={dropdownRef}>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsDropdownOpen(!isDropdownOpen);
+                }}
+                className='p-1 bg-white/90 hover:bg-white rounded-full shadow-sm border border-gray-200 transition-colors'
+              >
+                <MoreVertical size={16} className='text-gray-600' />
+              </button>
+
+              {/* Dropdown menu */}
+              {isDropdownOpen && (
+                <div className='absolute top-full right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg min-w-[140px] z-20'>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setIsDropdownOpen(false);
+                      setShareOpen(true);
+                    }}
+                    className='w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors'
+                  >
+                    Compartir
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
           {/* Project image */}
           <img
             height={240}
@@ -73,6 +124,14 @@ export function ProjectCard(project: ProjectCardProps) {
           </div>
         </article>
       </Link>
+      <Modal open={shareOpen} onClose={() => setShareOpen(false)}>
+        <Share
+          url={`${window.location.origin}/proyectos/${project.id}`}
+          title={project?.title}
+          shareTitle={'Comparte esta publicación'}
+          content={'Ven a conocer y participar en este proyecto Peruanista'}
+        />
+      </Modal>
     </>
   );
 }
