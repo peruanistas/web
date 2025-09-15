@@ -71,6 +71,7 @@ export function GroupPostCreateForm({ groupId, onPostCreated, onCancel }: GroupP
     try {
       let imageUrls: string[] = [];
 
+
       // Upload images if any
       if (formData.images && formData.images.length > 0) {
         const uploadPromises = formData.images.map((img) =>
