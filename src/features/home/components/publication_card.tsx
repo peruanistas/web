@@ -8,11 +8,14 @@ import { db } from '@db/client';
 import { useAuthStore } from '@auth/store/auth_store';
 import { useMutation } from '@tanstack/react-query';
 import type { RecommendedPublication } from '@home/components/feed';
+import { Modal } from '@common/components/modal';
+import { Share } from '@common/components/share';
 
 type PublicationCardProps = RecommendedPublication & {};
 
 export function PublicationCard(publication: PublicationCardProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { user } = useAuthStore();
@@ -81,14 +84,17 @@ export function PublicationCard(publication: PublicationCardProps) {
   const handleNotInterested = () => {
     if (!user?.id) {
       alert('Para ocultar publicaciones necesitas iniciar sesión. ¡Regístrate gratis para personalizar tu experiencia!');
-      // Optionally redirect to login/signup page
-      window.location.href = '/login';
       return;
     }
 
     setIsHidden(true); // Optimistic update
     setIsDropdownOpen(false);
     hidePublicationMutation.mutate();
+  };
+
+  const handleShare = () => {
+    setIsDropdownOpen(false);
+    setShareOpen(true);
   };
 
   const handleUndo = () => {
@@ -159,6 +165,16 @@ export function PublicationCard(publication: PublicationCardProps) {
               >
                 No me interesa
               </button>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleShare();
+                }}
+                className='w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors'
+              >
+                Compartir
+              </button>
             </div>
           )}
         </div>
@@ -213,6 +229,14 @@ export function PublicationCard(publication: PublicationCardProps) {
           </div>
         </div>
       </Link>
+      <Modal open={shareOpen} onClose={() => setShareOpen(false)}>
+        <Share
+          url={`${window.location.origin}/feed/${publication.id}`}
+          title={publication?.title}
+          shareTitle={'Comparte esta publicación'}
+          content={publication?.content}
+        />
+      </Modal>
     </article>
   );
 }
