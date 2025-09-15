@@ -72,7 +72,7 @@ export function GroupPostCreateForm({ groupId, onPostCreated, onCancel }: GroupP
       let imageUrls: string[] = [];
 
       // Upload images if any
-      if (formData.images.length > 0) {
+      if (formData.images && formData.images.length > 0) {
         const uploadPromises = formData.images.map((img) =>
           pushBlobToStorage(db, 'multimedia', img)
         );
