@@ -94,18 +94,18 @@ export function EventsCreatePage() {
       if (!form_data.coverImages[0])
         throw new Error('No se subió ninguna imagen de portada');
 
-      const bucket_path = await pushBlobToStorage(
-        db,
-        'multimedia',
-        form_data.coverImages[0]
-      );
+      const uploadPromises = form_data.coverImages.map((img) => {
+        return pushBlobToStorage(db, 'multimedia', img);
+      });
+
+      const bucket_paths = await Promise.all(uploadPromises);
 
       const eventData = {
         title: form_data.eventName,
         content: form_data.description,
         geo_department: form_data.department,
         geo_district: form_data.district,
-        image_url: bucket_path,
+        image_url: bucket_paths,
         event_date: new Date(form_data.dateTime).toISOString(),
         author_id: user.id,
         published_at: new Date().toISOString(),

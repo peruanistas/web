@@ -14,6 +14,7 @@ import { PE_DEPARTMENTS, PE_DISTRICTS } from '@common/data/geo';
 import { MarkdownViewer } from '@common/components/md_viewer';
 import ContentLoader from 'react-content-loader';
 import { useState } from 'react';
+import { MultiImageViewer } from '@common/components/multi_image_viewer';
 
 type Props = {
   id: string
@@ -142,10 +143,10 @@ export function EventDetailBasic({ id }: Props) {
 
         {event.image_url && (
           <div className="mb-6">
-            <img
-              src={event.image_url || '/placeholder.svg'}
-              alt="Imagen del evento"
-              className="w-full h-auto rounded-lg object-cover"
+            <MultiImageViewer
+              images={event.image_url}
+              alt={`Imagen del evento: ${event.title}`}
+              className="w-full rounded-lg"
             />
           </div>
         )}

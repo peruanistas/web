@@ -22,6 +22,7 @@ import { Loader } from '@common/components/loader';
 import { votesEffectivePoints } from '@projects/utils';
 import ContentLoader from 'react-content-loader';
 import { NO_IMAGE_URL } from '@common/constants';
+import { MultiImageViewer } from '@common/components/multi_image_viewer';
 
 type ProjectsDetailsPageProps = {
   id: string;
@@ -79,7 +80,12 @@ export function ProjectsDetailsPage({ id }: ProjectsDetailsPageProps) {
           <div>
             <div className='flex justify-center items-center w-full'>
               <div className="project_detail_layout__img_container">
-                <img src={(project?.image_url ?? [])[0] ?? NO_IMAGE_URL} />
+                <MultiImageViewer
+                  images={project?.image_url || []}
+                  alt={project?.title}
+                  fallbackImage={NO_IMAGE_URL}
+                  height={350}
+                />
               </div>
             </div>
             <Link to={`/u/${project.author_id.id}`}>

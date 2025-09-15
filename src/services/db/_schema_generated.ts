@@ -137,7 +137,7 @@ export type Database = {
           geo_department: string
           geo_district: string
           id: string
-          image_url: string | null
+          image_url: string[] | null
           impression_count: number
           published_at: string
           title: string
@@ -154,7 +154,7 @@ export type Database = {
           geo_department: string
           geo_district: string
           id?: string
-          image_url?: string | null
+          image_url?: string[] | null
           impression_count?: number
           published_at: string
           title: string
@@ -171,7 +171,7 @@ export type Database = {
           geo_department?: string
           geo_district?: string
           id?: string
-          image_url?: string | null
+          image_url?: string[] | null
           impression_count?: number
           published_at?: string
           title?: string
