@@ -69,7 +69,7 @@ export const LoginForm = () => {
             >
               <img
                 src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google"
-                className="h-[18px] w-[18px] "/>
+                className="h-[18px] w-[18px] " />
               Continuar con Google
             </button>
             <div className="flex items-center my-4">
@@ -94,6 +94,7 @@ export const LoginForm = () => {
             <input
               type={showPassword ? 'text' : 'password'}
               placeholder="Contraseña"
+              autoComplete='current-password'
               className="border border-[#D9D9D9] rounded-lg p-2 pr-10 w-full text-[#404040]"
               {...register('password', { required: 'Campo requerido' })}
             />
