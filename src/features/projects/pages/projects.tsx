@@ -45,10 +45,11 @@ export function ProjectsPage() {
     hasNextPage,
     isError,
   } = useInfiniteQuery({
-    queryKey: ['projects_list', { department, district, search, orderBy }],
+    queryKey: ['projects_list', { department, province, district, search, orderBy }],
     queryFn: ({ pageParam = 0 }) =>
       fetchProjectsPaginated({
         department,
+        province,
         district,
         search,
         orderBy,
@@ -195,6 +196,7 @@ export function ProjectsPage() {
 
 type FetchProjectsPaginatedParams = {
   department?: string;
+  province?: string;
   district?: string;
   search?: string;
   orderBy?: string;
@@ -204,6 +206,7 @@ type FetchProjectsPaginatedParams = {
 async function fetchProjectsPaginated({
   department = '',
   district = '',
+  province = '',
   search = '',
   orderBy = 'created_at_desc',
   page = 0,
@@ -219,6 +222,9 @@ async function fetchProjectsPaginated({
 
   if (department) {
     query = query.eq('geo_department', department);
+  }
+  if (province) {
+    query = query.like('geo_district', `${province}%`);
   }
   if (district) {
     query = query.eq('geo_district', district);

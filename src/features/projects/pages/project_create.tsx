@@ -12,12 +12,14 @@ import { Info } from 'lucide-react';
 import { useAuthStore } from '@auth/store/auth_store';
 import { MDXEditorComponent } from '@common/components/mxEditorComponent';
 import TermsModal from '@common/components/termsModal';
+import { MultiImageUpload } from '@common/components/multi_image_upload';
+import { useMultiImageUpload } from '@common/hooks/useMultiImageUpload';
 
 type ProjectFormData = {
   projectName: string;
   description: string;
   // link?: string;
-  coverImage: FileList;
+  coverImages: File[];
   department: string;
   province: string;
   district: string;
@@ -43,8 +45,6 @@ const ERROR_MESSAGES = {
   LOGIN_REQUIRED: 'Debes iniciar sesión para crear un proyecto',
 };
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-
 export function ProjectsCreatePage() {
   const {
     register,
@@ -63,6 +63,14 @@ export function ProjectsCreatePage() {
   register('description', {
     required: ERROR_MESSAGES.REQUIRED,
     validate: (value) => value?.trim().length > 0 || ERROR_MESSAGES.REQUIRED,
+  });
+
+  // Initialize multi-image upload hook
+  const multiImageUpload = useMultiImageUpload({
+    fieldName: 'coverImages',
+    setValue,
+    trigger,
+    maxImages: 5,
   });
 
   const { user } = useAuthStore();
@@ -88,15 +96,15 @@ export function ProjectsCreatePage() {
     try {
       if (!user) throw new Error(ERROR_MESSAGES.LOGIN_REQUIRED);
 
-      if (!form_data.coverImage[0]) {
+      if (!form_data.coverImages[0]) {
         throw new Error(ERROR_MESSAGES.IMAGE_REQUIRED);
       }
 
-      const bucket_path = await pushBlobToStorage(
-        db,
-        'multimedia',
-        form_data.coverImage[0]
-      );
+      const uploadPromises = form_data.coverImages.map((img) => {
+        return pushBlobToStorage(db, 'multimedia', img);
+      });
+
+      const bucket_paths = await Promise.all(uploadPromises);
 
       const { data, error } = await db
         .from('projects')
@@ -105,7 +113,7 @@ export function ProjectsCreatePage() {
           content: form_data.description,
           geo_department: form_data.department,
           geo_district: form_data.district,
-          image_url: bucket_path,
+          image_url: bucket_paths,
           author_id: user.id,
           ioarr_type: form_data.projectCategory,
           published_at: new Date().toISOString(),
@@ -125,34 +133,11 @@ export function ProjectsCreatePage() {
       alert(`Error: ${errorMessage}`);
     }
   };
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
-  // Extraemos las propiedades del register para el input file
-  const {
-    ref: fileRef,
-    onChange: hookFormOnChange,
-    ...fileRegisterProps
-  } = register('coverImage', {
+  // Register coverImages field for react-hook-form
+  register('coverImages', {
     required: ERROR_MESSAGES.IMAGE_REQUIRED,
-    validate: {
-      fileType: (files) =>
-        files[0]?.type?.startsWith('image/') || ERROR_MESSAGES.IMAGE_TYPE,
-      fileSize: (files) =>
-        files[0]?.size <= MAX_FILE_SIZE || ERROR_MESSAGES.IMAGE_SIZE,
-    },
   });
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // 1. Manejar previsualización
-    const file = e.target.files?.[0];
-    if (file) {
-      setPreviewImage(URL.createObjectURL(file));
-    }
-
-    // 2. Propagamos el evento al hook form
-    hookFormOnChange(e);
-    trigger('coverImage');
-  };
 
   useEffect(() => {
     document.title = 'Crear Proyecto';
@@ -253,51 +238,24 @@ export function ProjectsCreatePage() {
             </div> */}
 
             {/* Imagen de portada */}
+            {/* Imagen de portada */}
             <div>
-              <span className="block font-medium text-gray-700 mb-1">
-                Imagen de portada <span className="text-red-500">*</span>
-              </span>
-
-              {previewImage && (
-                <div className="mb-4">
-                  <img
-                    src={previewImage}
-                    alt="Previsualización"
-                    className="max-h-60 w-auto rounded-md object-contain border border-gray-200"
-                  />
-                </div>
-              )}
-
-              <div className="mt-1 flex items-center">
-                <button
-                  type="button"
-                  onClick={() => document.getElementById('coverImage')?.click()}
-                  className="px-4 py-2 border border-gray-300 rounded-md bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer"
-                >
-                  {previewImage ? 'Cambiar imagen' : 'Seleccionar archivo'}
-                </button>
-                <span className="ml-2 text-sm text-gray-500 select-none">
-                  {watch('coverImage')?.[0]?.name ||
-                    'Ningún archivo seleccionado'}
-                </span>
-                <input
-                  id="coverImage"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  ref={fileRef}
-                  {...fileRegisterProps}
-                  className="hidden"
-                />
-              </div>
-              {errors.coverImage && (
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Imágenes del proyecto *
+              </label>
+              <MultiImageUpload
+                files={multiImageUpload.files}
+                onChange={multiImageUpload.handleFilesChange}
+                maxImages={5}
+                maxFileSize={5 * 1024 * 1024} // 5MB
+                accept="image/*"
+              />
+              {errors.coverImages && (
                 <p className="mt-1 text-sm text-red-600">
-                  {errors.coverImage.message}
+                  {errors.coverImages.message}
                 </p>
               )}
-            </div>
-
-            {/* Ubicación - Departamento, Provincia, Distrito */}
+            </div>            {/* Ubicación - Departamento, Provincia, Distrito */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Select para Departamento */}
               <div>

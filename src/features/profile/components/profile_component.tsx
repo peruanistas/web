@@ -429,7 +429,7 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
             <div className="p-4 sm:p-6">
               <div className="flex flex-col sm:flex-row items-start gap-4">
                 <img
-                  src={project.image_url || '/placeholder.svg?height=80&width=80'}
+                  src={(project.image_url ?? [])[0] || '/placeholder.svg?height=80&width=80'}
                   alt="Proyecto"
                   className="w-full sm:w-20 h-48 sm:h-20 rounded-lg object-cover flex-shrink-0"
                 />

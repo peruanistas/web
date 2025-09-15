@@ -1,33 +1,33 @@
-import { useAuthStore } from "@auth/store/auth_store";
-import { Header } from "@common/components/header";
-import { Layout } from "@common/components/layout";
-import { pushBlobToStorage } from "@common/utils";
-import { db } from "@db/client";
-import { useEffect, useRef, useState } from "react";
-import { useForm } from "react-hook-form";
-import { PageBanner } from "@common/components/page_banner";
-import { SuccessModal } from "@common/components/modal_create";
-import { MDXEditorComponent } from "@common/components/mxEditorComponent";
-import { create } from "domain";
-import TermsModal from "@common/components/termsModal";
+import { useAuthStore } from '@auth/store/auth_store';
+import { Header } from '@common/components/header';
+import { Layout } from '@common/components/layout';
+import { pushBlobToStorage } from '@common/utils';
+import { db } from '@db/client';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { PageBanner } from '@common/components/page_banner';
+import { SuccessModal } from '@common/components/modal_create';
+import { MDXEditorComponent } from '@common/components/mxEditorComponent';
+import TermsModal from '@common/components/termsModal';
+import { MultiImageUpload } from '@common/components/multi_image_upload';
+import { useMultiImageUpload } from '@common/hooks/useMultiImageUpload';
 
 type NewsFormData = {
   title: string;
   description: string;
   link?: string;
-  coverImage: FileList;
+  coverImages: File[];
   acceptTerms: boolean;
 };
 
 const ERROR_MESSAGES = {
-  REQUIRED: "Este campo es obligatorio",
-  IMAGE_REQUIRED: "La imagen de portada es obligatoria",
-  IMAGE_TYPE: "Debe ser un archivo de imagen válido",
-  IMAGE_SIZE: "El tamaño máximo permitido es 5MB",
-  MAX_LENGTH: "Máximo 255 caracteres",
-  LOGIN_REQUIRED: "Debes iniciar sesión para crear un proyecto",
+  REQUIRED: 'Este campo es obligatorio',
+  IMAGE_REQUIRED: 'La imagen de portada es obligatoria',
+  IMAGE_TYPE: 'Debe ser un archivo de imagen válido',
+  IMAGE_SIZE: 'El tamaño máximo permitido es 5MB',
+  MAX_LENGTH: 'Máximo 255 caracteres',
+  LOGIN_REQUIRED: 'Debes iniciar sesión para crear un proyecto',
 };
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 export function NewCreatePage() {
   const { user } = useAuthStore();
@@ -41,44 +41,28 @@ export function NewCreatePage() {
     trigger, // Agregado para observar los valores del formulario
   } = useForm<NewsFormData>();
 
-  register("description", {
+  register('description', {
     required: ERROR_MESSAGES.REQUIRED,
     validate: (value) => value?.trim().length > 0 || ERROR_MESSAGES.REQUIRED,
   });
 
-  const handleDescriptionChange = (markdown: string) => {
-    setValue("description", markdown, { shouldValidate: true });
-    trigger("description");
-  };
-
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
-
-  // Extraemos las propiedades del register para el input file
-  const {
-    ref: fileRef,
-    onChange: hookFormOnChange,
-    ...fileRegisterProps
-  } = register("coverImage", {
-    required: ERROR_MESSAGES.IMAGE_REQUIRED,
-    validate: {
-      fileType: (files) =>
-        files[0]?.type?.startsWith("image/") || ERROR_MESSAGES.IMAGE_TYPE,
-      fileSize: (files) =>
-        files[0]?.size <= MAX_FILE_SIZE || ERROR_MESSAGES.IMAGE_SIZE,
-    },
+  // Initialize multi-image upload hook with max 1 image
+  const multiImageUpload = useMultiImageUpload({
+    fieldName: 'coverImages',
+    setValue,
+    trigger,
+    maxImages: 1,
   });
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // 1. Manejar previsualización
-    const file = e.target.files?.[0];
-    if (file) {
-      setPreviewImage(URL.createObjectURL(file));
-    }
-
-    // 2. Propagamos el evento al hook form
-    hookFormOnChange(e);
-    trigger("coverImage");
+  const handleDescriptionChange = (markdown: string) => {
+    setValue('description', markdown, { shouldValidate: true });
+    trigger('description');
   };
+
+  // Register coverImages field for react-hook-form
+  register('coverImages', {
+    required: ERROR_MESSAGES.IMAGE_REQUIRED,
+  });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isTermsOpen, setIsTermsOpen] = useState(false);
@@ -86,20 +70,20 @@ export function NewCreatePage() {
   const onSubmit = async (form_data: NewsFormData) => {
     try {
       if (!user)
-        throw new Error("Debes iniciar sesión para crear una publicacion");
+        throw new Error('Debes iniciar sesión para crear una publicacion');
 
-      if (!form_data.coverImage[0]) {
-        throw new Error("No se subió ninguna imagen de portada");
+      if (!form_data.coverImages[0]) {
+        throw new Error('No se subió ninguna imagen de portada');
       }
 
       const bucket_path = await pushBlobToStorage(
         db,
-        "multimedia",
-        form_data.coverImage[0]
+        'multimedia',
+        form_data.coverImages[0]
       );
 
       const { data, error } = await db
-        .from("publications")
+        .from('publications')
         .insert({
           title: form_data.title,
           content: form_data.description,
@@ -107,18 +91,18 @@ export function NewCreatePage() {
           author_id: user.id,
           published_at: new Date().toISOString(),
           active: true,
-          visibility: "public",
+          visibility: 'public',
         })
-        .select("id")
+        .select('id')
         .single();
 
       if (error) throw error;
-      if (!data?.id) throw new Error("No se obtuvo ID del proyecto");
+      if (!data?.id) throw new Error('No se obtuvo ID del proyecto');
       setCreatedNewsId(data.id);
       setIsModalOpen(true);
       reset();
     } catch (error) {
-      console.error("Error al crear noticia:", error);
+      console.error('Error al crear noticia:', error);
       const errorMessage =
         error instanceof Error ? error.message : String(error);
       alert(`Error: ${errorMessage}`);
@@ -126,7 +110,7 @@ export function NewCreatePage() {
   };
 
   useEffect(() => {
-    document.title = "Crear Publicacion";
+    document.title = 'Crear Publicacion';
   }, []);
 
   return (
@@ -156,16 +140,15 @@ export function NewCreatePage() {
               <input
                 id="title"
                 type="text"
-                {...register("title", {
-                  required: "El título es obligatorio",
+                {...register('title', {
+                  required: 'El título es obligatorio',
                   maxLength: {
                     value: 255,
-                    message: "Máximo 255 caracteres",
+                    message: 'Máximo 255 caracteres',
                   },
                 })}
-                className={`w-full px-3 py-2 border rounded-md ${
-                  errors.title ? "border-red-500" : "border-gray-300"
-                }`}
+                className={`w-full px-3 py-2 border rounded-md ${errors.title ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 placeholder="Título de la publicación"
               />
               {errors.title && (
@@ -185,7 +168,7 @@ export function NewCreatePage() {
               </label>
               <div id="description" aria-describedby="description-error">
                 <MDXEditorComponent
-                  markdown={watch("description") || ""}
+                  markdown={watch('description') || ''}
                   onChange={handleDescriptionChange}
                   error={!!errors.description}
                 />
@@ -199,45 +182,19 @@ export function NewCreatePage() {
 
             {/* Imagen de portada */}
             <div>
-              <span className="block font-medium text-gray-700 mb-1">
+              <label className="block font-medium text-gray-700 mb-1">
                 Imagen de portada <span className="text-red-500">*</span>
-              </span>
-
-              {previewImage && (
-                <div className="mb-4">
-                  <img
-                    src={previewImage}
-                    alt="Previsualización"
-                    className="max-h-60 w-auto rounded-md object-contain border border-gray-200"
-                  />
-                </div>
-              )}
-
-              <div className="mt-1 flex items-center">
-                <button
-                  type="button"
-                  onClick={() => document.getElementById("coverImage")?.click()}
-                  className="px-4 py-2 border border-gray-300 rounded-md bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer"
-                >
-                  {previewImage ? "Cambiar imagen" : "Seleccionar archivo"}
-                </button>
-                <span className="ml-2 text-sm text-gray-500 select-none">
-                  {watch("coverImage")?.[0]?.name ||
-                    "Ningún archivo seleccionado"}
-                </span>
-                <input
-                  id="coverImage"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  ref={fileRef}
-                  {...fileRegisterProps}
-                  className="hidden"
-                />
-              </div>
-              {errors.coverImage && (
+              </label>
+              <MultiImageUpload
+                files={multiImageUpload.files}
+                onChange={multiImageUpload.handleFilesChange}
+                maxImages={1}
+                maxFileSize={5 * 1024 * 1024} // 5MB
+                accept="image/*"
+              />
+              {errors.coverImages && (
                 <p className="mt-1 text-sm text-red-600">
-                  {errors.coverImage.message}
+                  {errors.coverImages.message}
                 </p>
               )}
             </div>
@@ -248,8 +205,8 @@ export function NewCreatePage() {
                 <input
                   id="acceptTerms"
                   type="checkbox"
-                  {...register("acceptTerms", {
-                    required: "Debes aceptar los términos y condiciones",
+                  {...register('acceptTerms', {
+                    required: 'Debes aceptar los términos y condiciones',
                   })}
                   className="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-blue-500"
                 />
@@ -259,7 +216,7 @@ export function NewCreatePage() {
                   htmlFor="acceptTerms"
                   className="font-medium text-gray-700"
                 >
-                  Acepto los{" "}
+                  Acepto los{' '}
                   <button
                     type="button"
                     onClick={() => setIsTermsOpen(true)}
@@ -283,7 +240,7 @@ export function NewCreatePage() {
                 disabled={isSubmitting}
                 className="w-full bg-[var(--color-primary)] text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {isSubmitting ? "Creando publicacion..." : "Crear publicacion"}
+                {isSubmitting ? 'Creando publicacion...' : 'Crear publicacion'}
               </button>
             </div>
           </form>
@@ -297,7 +254,7 @@ export function NewCreatePage() {
         routeType="feed"
         projectId={createdNewsId}
       />
-      <TermsModal 
+      <TermsModal
         isOpen={isTermsOpen}
         onClose={() => setIsTermsOpen(false)}
       />

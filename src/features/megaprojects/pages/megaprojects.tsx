@@ -25,6 +25,7 @@ const MEGAPROJECTS_RESULTS_PER_PAGE = 6;
 export function MegaprojectsPage() {
   useScrollReset();
   const [department, setDepartment] = useState('');
+  const [province, setProvince] = useState('');
   const [district, setDistrict] = useState('');
   const [search, setSearch] = useState('');
   const [orderBy, setOrderBy] = useState('created_at_asc');
@@ -38,9 +39,9 @@ export function MegaprojectsPage() {
     hasNextPage,
     isError,
   } = useInfiniteQuery({
-    queryKey: ['megaprojects_list', { department, district, search, orderBy }],
+    queryKey: ['megaprojects_list', { department, province, district, search, orderBy }],
     queryFn: ({ pageParam = 0 }) =>
-      fetchProjectsPaginated({ department, district, search, orderBy, page: pageParam }),
+      fetchProjectsPaginated({ department, province, district, search, orderBy, page: pageParam }),
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) =>
       lastPage.length === MEGAPROJECTS_RESULTS_PER_PAGE ? allPages.length : undefined,
@@ -103,9 +104,14 @@ export function MegaprojectsPage() {
             <div className='flex flex-col gap-2'>
               <ProjectFilters
                 department={department}
+                province={province}
                 district={district}
                 onDepartmentChange={val => {
                   setDepartment(val);
+                  setDistrict('');
+                }}
+                onProvinceChange={(val) => {
+                  setProvince(val);
                   setDistrict('');
                 }}
                 onDistrictChange={setDistrict}
@@ -155,6 +161,7 @@ export function MegaprojectsPage() {
 
 type FetchProjectsPaginatedParams = {
   department?: string,
+  province?: string,
   district?: string,
   search?: string,
   orderBy?: string,
@@ -164,6 +171,7 @@ type FetchProjectsPaginatedParams = {
 async function fetchProjectsPaginated({
   department = '',
   district = '',
+  province = '',
   search = '',
   orderBy = 'created_at_desc',
   page = 0,
@@ -177,6 +185,9 @@ async function fetchProjectsPaginated({
 
   if (department) {
     query = query.eq('geo_department', department);
+  }
+  if (province) {
+    query = query.like('geo_district', `${province}%`);
   }
   if (district) {
     query = query.eq('geo_district', district);

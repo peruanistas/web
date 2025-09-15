@@ -21,6 +21,7 @@ import { Link } from 'wouter';
 import { Loader } from '@common/components/loader';
 import { votesEffectivePoints } from '@projects/utils';
 import ContentLoader from 'react-content-loader';
+import { NO_IMAGE_URL } from '@common/constants';
 
 type ProjectsDetailsPageProps = {
   id: string;
@@ -78,7 +79,7 @@ export function ProjectsDetailsPage({ id }: ProjectsDetailsPageProps) {
           <div>
             <div className='flex justify-center items-center w-full'>
               <div className="project_detail_layout__img_container">
-                <img src={project.image_url || undefined} />
+                <img src={(project?.image_url ?? [])[0] ?? NO_IMAGE_URL} />
               </div>
             </div>
             <Link to={`/u/${project.author_id.id}`}>

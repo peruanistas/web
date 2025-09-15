@@ -125,7 +125,7 @@ export function VoteConfirmationModal({ open, onClose, project }: VoteConfirmati
       <div className='mb-6'>
         <div className='flex gap-4 mt-4'>
           <div className='w-32'>
-            <img src={project?.image_url || undefined} />
+            <img src={(project?.image_url ?? [])[0]} />
           </div>
           <div className='flex flex-col justify-center'>
             <h2 className='text-xl mb-0.5 font-semibold'>{project?.title}</h2>

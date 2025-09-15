@@ -27,6 +27,7 @@ export function HomeFeed() {
   useScrollReset();
   const [, setLocation] = useLocation();
   const [department, setDepartment] = useState('');
+  const [province, setProvince] = useState('');
   const [district, setDistrict] = useState('');
   const { user } = useAuthStore();
 
@@ -36,10 +37,10 @@ export function HomeFeed() {
     isLoading,
     isFetchingNextPage,
   } = useInfiniteQuery({
-    queryKey: ['damero_paginated_list', department, district, user?.id],
+    queryKey: ['damero_paginated_list', department, province, district, user?.id],
     queryFn: ({ pageParam }) => {
       const pages = Promise.all([
-        fetchMorePublications({ page: pageParam, department, district }),
+        fetchMorePublications({ page: pageParam, department, province, district }),
         // [],
         // [],
         fetchMoreProjects({ page: pageParam, department, district }),
@@ -91,9 +92,14 @@ export function HomeFeed() {
           <div className='flex-grow'>
             <ProjectFilters
               department={department}
+              province={province}
               district={district}
               onDepartmentChange={code => {
                 setDepartment(code);
+                setDistrict('');
+              }}
+              onProvinceChange={(val) => {
+                setProvince(val);
                 setDistrict('');
               }}
               onDistrictChange={setDistrict} />
@@ -199,6 +205,7 @@ export function HomeFeed() {
 type FetchPaginationParams = {
   page: number,
   department?: string;
+  province?: string;
   district?: string;
   userId?: string;
 }

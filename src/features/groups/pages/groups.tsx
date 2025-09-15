@@ -31,6 +31,7 @@ const PROJECTS_RESULTS_PER_PAGE = 6;
 export function GroupsPage() {
   useScrollReset();
   const [department, setDepartment] = useState('');
+  const [province, setProvince] = useState('');
   const [district, setDistrict] = useState('');
   const [search, setSearch] = useState('');
   const [orderBy, setOrderBy] = useState('created_at_asc');
@@ -38,6 +39,7 @@ export function GroupsPage() {
 
   const { user } = useAuthStore();
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { data: membershipData, isLoading: membershipsLoading } = useQuery({
     queryKey: ['group_memberships', user?.id],
     queryFn: async () => {
@@ -61,9 +63,9 @@ export function GroupsPage() {
     hasNextPage,
     isError,
   } = useInfiniteQuery({
-    queryKey: ['groups_list', { department, district, search, orderBy }],
+    queryKey: ['groups_list', { department, province, district, search, orderBy }],
     queryFn: ({ pageParam = 0 }) =>
-      fetchGroupsPaginated({ department, district, search, orderBy, page: pageParam }),
+      fetchGroupsPaginated({ department, province, district, search, orderBy, page: pageParam }),
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) =>
       lastPage.length === PROJECTS_RESULTS_PER_PAGE ? allPages.length : undefined,
@@ -131,9 +133,14 @@ export function GroupsPage() {
             <div className='flex flex-col gap-2'>
               <ProjectFilters
                 department={department}
+                province={province}
                 district={district}
                 onDepartmentChange={val => {
                   setDepartment(val);
+                  setDistrict('');
+                }}
+                onProvinceChange={(val) => {
+                  setProvince(val);
                   setDistrict('');
                 }}
                 onDistrictChange={setDistrict}
@@ -188,6 +195,7 @@ export function GroupsPage() {
 
 type FetchGroupPaginatedParams = {
   department?: string,
+  province?: string,
   district?: string,
   search?: string,
   orderBy?: string,
@@ -196,6 +204,7 @@ type FetchGroupPaginatedParams = {
 
 async function fetchGroupsPaginated({
   department = '',
+  province = '',
   district = '',
   search = '',
   orderBy = 'created_at_desc',
@@ -209,6 +218,9 @@ async function fetchGroupsPaginated({
 
   if (department) {
     query = query.eq('geo_department', department);
+  }
+  if (province) {
+    query = query.like('geo_district', `${province}%`);
   }
   if (district) {
     query = query.eq('geo_district', district);

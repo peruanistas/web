@@ -12,13 +12,15 @@ import { SuccessModal } from '@common/components/modal_create';
 import { Info } from 'lucide-react';
 import { MDXEditorComponent } from '@common/components/mxEditorComponent';
 import TermsModal from '@common/components/termsModal';
+import { MultiImageUpload } from '@common/components/multi_image_upload';
+import { useMultiImageUpload } from '@common/hooks/useMultiImageUpload';
 
 type EventFormData = {
   eventName: string;
   description: string;
   // link?: string;
   dateTime: string;
-  coverImage: FileList;
+  coverImages: File[];
   department: string;
   province: string;
   city: string;
@@ -34,8 +36,6 @@ const ERROR_MESSAGES = {
   MAX_LENGTH: 'Máximo 255 caracteres',
   LOGIN_REQUIRED: 'Debes iniciar sesión para crear un proyecto',
 };
-
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 function getCurrentDateTimeLocal() {
   const now = new Date();
@@ -61,6 +61,14 @@ export function EventsCreatePage() {
     validate: (value) => value?.trim().length > 0 || ERROR_MESSAGES.REQUIRED,
   });
 
+  // Initialize multi-image upload hook
+  const multiImageUpload = useMultiImageUpload({
+    fieldName: 'coverImages',
+    setValue,
+    trigger,
+    maxImages: 3,
+  });
+
   const [defaultDateTime] = useState(getCurrentDateTimeLocal());
   const { user } = useAuthStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -83,13 +91,13 @@ export function EventsCreatePage() {
   const onSubmit = async (form_data: EventFormData) => {
     try {
       if (!user) throw new Error('Debes iniciar sesión para crear un evento');
-      if (!form_data.coverImage[0])
+      if (!form_data.coverImages[0])
         throw new Error('No se subió ninguna imagen de portada');
 
       const bucket_path = await pushBlobToStorage(
         db,
         'multimedia',
-        form_data.coverImage[0]
+        form_data.coverImages[0]
       );
 
       const eventData = {
@@ -122,34 +130,11 @@ export function EventsCreatePage() {
     }
   };
 
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
-
-  // Extraemos las propiedades del register para el input file
-  const {
-    ref: fileRef,
-    onChange: hookFormOnChange,
-    ...fileRegisterProps
-  } = register('coverImage', {
+  // Register coverImages field for react-hook-form
+  register('coverImages', {
     required: ERROR_MESSAGES.IMAGE_REQUIRED,
-    validate: {
-      fileType: (files) =>
-        files[0]?.type?.startsWith('image/') || ERROR_MESSAGES.IMAGE_TYPE,
-      fileSize: (files) =>
-        files[0]?.size <= MAX_FILE_SIZE || ERROR_MESSAGES.IMAGE_SIZE,
-    },
   });
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // 1. Manejar previsualización
-    const file = e.target.files?.[0];
-    if (file) {
-      setPreviewImage(URL.createObjectURL(file));
-    }
-
-    // 2. Propagamos el evento al hook form
-    hookFormOnChange(e);
-    trigger('coverImage');
-  };
   const handleDescriptionChange = (markdown: string) => {
     setValue('description', markdown, { shouldValidate: true });
     trigger('description');
@@ -284,45 +269,19 @@ export function EventsCreatePage() {
 
             {/* Imagen de portada */}
             <div>
-              <span className="block font-medium text-gray-700 mb-1">
-                Imagen de portada <span className="text-red-500">*</span>
-              </span>
-
-              {previewImage && (
-                <div className="mb-4">
-                  <img
-                    src={previewImage}
-                    alt="Previsualización"
-                    className="max-h-60 w-auto rounded-md object-contain border border-gray-200"
-                  />
-                </div>
-              )}
-
-              <div className="mt-1 flex items-center">
-                <button
-                  type="button"
-                  onClick={() => document.getElementById('coverImage')?.click()}
-                  className="px-4 py-2 border border-gray-300 rounded-md bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer"
-                >
-                  {previewImage ? 'Cambiar imagen' : 'Seleccionar archivo'}
-                </button>
-                <span className="ml-2 text-sm text-gray-500 select-none">
-                  {watch('coverImage')?.[0]?.name ||
-                    'Ningún archivo seleccionado'}
-                </span>
-                <input
-                  id="coverImage"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  ref={fileRef}
-                  {...fileRegisterProps}
-                  className="hidden"
-                />
-              </div>
-              {errors.coverImage && (
+              <label className="block font-medium text-gray-700 mb-1">
+                Imágenes del evento <span className="text-red-500">*</span>
+              </label>
+              <MultiImageUpload
+                files={multiImageUpload.files}
+                onChange={multiImageUpload.handleFilesChange}
+                maxImages={3}
+                maxFileSize={5 * 1024 * 1024} // 5MB
+                accept="image/*"
+              />
+              {errors.coverImages && (
                 <p className="mt-1 text-sm text-red-600">
-                  {errors.coverImage.message}
+                  {errors.coverImages.message}
                 </p>
               )}
             </div>

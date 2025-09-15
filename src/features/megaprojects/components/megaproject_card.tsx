@@ -32,7 +32,7 @@ export function MegaprojectCard(project: MegaprojectCardProps) {
             height={240}
             className='object-cover h-[240px] rounded-t-sm bg-[#ededed]'
             alt={project.title}
-            src={project.image_url ?? NO_IMAGE_URL}
+            src={(project?.image_url ?? [])[0] ?? NO_IMAGE_URL}
           />
           {/* Project information */}
           <div className='flex flex-col p-3 min-h-[132px] h-[132px]'>

@@ -79,7 +79,7 @@ export function MegaprojectsDetailsPage({ id }: MegaprojectsDetailsPageProps) {
           <div>
             <div className='flex justify-center items-center w-full'>
               <div className="project_detail_layout__img_container">
-                <img src={project.image_url || undefined} />
+                <img src={(project?.image_url ?? [])[0]} />
               </div>
             </div>
             <Link to={`/u/${project.author_id.id}`}>

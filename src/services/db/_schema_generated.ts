@@ -521,7 +521,7 @@ export type Database = {
           geo_department: string
           geo_district: string
           id: string
-          image_url: string | null
+          image_url: string[] | null
           impression_count: number
           ioarr_type: Database['public']['Enums']['ioarr_type']
           is_megaproject: boolean
@@ -538,7 +538,7 @@ export type Database = {
           geo_department: string
           geo_district: string
           id?: string
-          image_url?: string | null
+          image_url?: string[] | null
           impression_count?: number
           ioarr_type: Database['public']['Enums']['ioarr_type']
           is_megaproject?: boolean
@@ -555,7 +555,7 @@ export type Database = {
           geo_department?: string
           geo_district?: string
           id?: string
-          image_url?: string | null
+          image_url?: string[] | null
           impression_count?: number
           ioarr_type?: Database['public']['Enums']['ioarr_type']
           is_megaproject?: boolean
@@ -808,9 +808,10 @@ export type Database = {
           geo_department: string | null
           geo_district: string | null
           id: string | null
-          image_url: string | null
+          image_url: string[] | null
           impression_count: number | null
           ioarr_type: Database['public']['Enums']['ioarr_type'] | null
+          is_megaproject: boolean | null
           published_at: string | null
           title: string | null
           updated_at: string | null
@@ -824,9 +825,10 @@ export type Database = {
           geo_department?: string | null
           geo_district?: string | null
           id?: string | null
-          image_url?: string | null
+          image_url?: string[] | null
           impression_count?: number | null
           ioarr_type?: Database['public']['Enums']['ioarr_type'] | null
+          is_megaproject?: boolean | null
           published_at?: string | null
           title?: string | null
           updated_at?: string | null
@@ -840,9 +842,10 @@ export type Database = {
           geo_department?: string | null
           geo_district?: string | null
           id?: string | null
-          image_url?: string | null
+          image_url?: string[] | null
           impression_count?: number | null
           ioarr_type?: Database['public']['Enums']['ioarr_type'] | null
+          is_megaproject?: boolean | null
           published_at?: string | null
           title?: string | null
           updated_at?: string | null
