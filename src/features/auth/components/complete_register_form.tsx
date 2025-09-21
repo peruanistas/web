@@ -9,7 +9,7 @@ import { useAuthStore } from '@auth/store/auth_store';
 import { useLocation } from 'wouter';
 import 'react-phone-number-input/style.css';
 import { CountryDropdown } from 'react-country-region-selector';
-import PhoneInput, { isSupportedCountry, isValidPhoneNumber, parsePhoneNumber } from 'react-phone-number-input';
+import PhoneInput, { isValidPhoneNumber, parsePhoneNumber } from 'react-phone-number-input';
 import { Controller } from 'react-hook-form';
 import { toast } from 'sonner';
 import dniHelpImage from '@assets/images/dni_help.png';
@@ -469,8 +469,6 @@ export const CompleteProfileForm = () => {
                   defaultValue='Peru'
                   rules={{
                     required: 'Campo requerido',
-                    validate: (value) =>
-                      isSupportedCountry(value || '') || 'País inválido',
                   }}
                   render={({ field }) => (
                     <CountryDropdown
