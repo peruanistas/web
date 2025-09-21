@@ -7,10 +7,11 @@ import { MultiImageViewer } from '@common/components/multi_image_viewer';
 import { useAuthStore } from '@auth/store/auth_store';
 import { GroupCommentsSection } from '@groups/components/group_comments_section';
 import type { GroupPost } from '../types/group_posts';
+import { NoAvatarImg } from '@common/components/header';
 
 type GroupPostCardProps = {
   post: GroupPost;
-  onVote?: (postId: string, type: 'upvote' | 'downvote') => void;
+  onVote?: (postId: string, type: 'upvote' | 'downvote') => Promise<void>;
   onCommentAdded?: () => void;
 };
 
@@ -20,7 +21,9 @@ export function GroupPostCard({ post, onVote, onCommentAdded }: GroupPostCardPro
   const [isVoting, setIsVoting] = useState(false);
 
   const formatDate = (dateString: string) => {
-    return formatDistanceToNow(new Date(dateString), {
+    const utcDate = new Date(dateString);
+    const localDate = new Date(utcDate.getTime() - utcDate.getTimezoneOffset() * 60000);
+    return formatDistanceToNow(localDate, {
       addSuffix: true,
       locale: es,
     });
@@ -42,11 +45,13 @@ export function GroupPostCard({ post, onVote, onCommentAdded }: GroupPostCardPro
       {/* Post Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
-          <img
-            src={post.author_avatar_url || '/favicon.svg'}
-            alt={`${post.author_nombres} ${post.author_apellidos}`}
-            className="w-10 h-10 rounded-full object-cover border"
-          />
+          {
+            post.author_avatar_url ? <img
+              src={post.author_avatar_url || '/favicon.svg'}
+              alt={`${post.author_nombres} ${post.author_apellidos}`}
+              className="w-10 h-10 rounded-full object-cover border"
+            /> : NoAvatarImg
+          }
           <div>
             <h3 className="font-semibold text-gray-900">
               {post.author_nombres} {post.author_apellidos}

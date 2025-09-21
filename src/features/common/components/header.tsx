@@ -19,6 +19,12 @@ type HeaderProps = React.HTMLAttributes<HTMLDivElement> & {
   showNavigation?: boolean;
 };
 
+export const NoAvatarImg = (
+  <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer">
+    <User size={18} className='text-gray-600' />
+  </div>
+);
+
 export function Header({ showNavigation, ...rest }: HeaderProps) {
   const [pathname] = useLocation();
   const { user, clearUser } = useAuthStore();
@@ -84,38 +90,38 @@ export function Header({ showNavigation, ...rest }: HeaderProps) {
             </Link>
 
             {/* Menú "Crear" */}
-            { user &&
+            {user &&
               <div className='relative' ref={createMenuRef}>
-              <button
-                onClick={() => setOpenCreateMenu(!openCreateMenu)}
-                className='hidden md:flex items-center gap-1 px-4 py-2 border border-gray-300 rounded-md bg-primary text-sm font-medium text-white hover:bg-primary-border cursor-pointer'
-              >
-                <Plus size={16} />
-                Crear
-                <ChevronDown size={16} />
-              </button>
-              {openCreateMenu && (
-                <div className='absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded shadow-md z-50'>
-                  <Link href='/feed/crear'>
-                    <div className='flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer'>
-                      <FileText size={16} />
-                      Crear publicación
-                    </div>
-                  </Link>
-                  <Link href='/proyectos/crear'>
-                    <div className='flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer'>
-                      <Briefcase size={16} />
-                      Crear proyecto
-                    </div>
-                  </Link>
-                  <Link href='/eventos/crear'>
-                    <div className='flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer'>
-                      <Calendar size={16} />
-                      Crear evento
-                    </div>
-                  </Link>
-                </div>
-              )}
+                <button
+                  onClick={() => setOpenCreateMenu(!openCreateMenu)}
+                  className='hidden md:flex items-center gap-1 px-4 py-2 border border-gray-300 rounded-md bg-primary text-sm font-medium text-white hover:bg-primary-border cursor-pointer'
+                >
+                  <Plus size={16} />
+                  Crear
+                  <ChevronDown size={16} />
+                </button>
+                {openCreateMenu && (
+                  <div className='absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded shadow-md z-50'>
+                    <Link href='/feed/crear'>
+                      <div className='flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer'>
+                        <FileText size={16} />
+                        Crear publicación
+                      </div>
+                    </Link>
+                    <Link href='/proyectos/crear'>
+                      <div className='flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer'>
+                        <Briefcase size={16} />
+                        Crear proyecto
+                      </div>
+                    </Link>
+                    <Link href='/eventos/crear'>
+                      <div className='flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer'>
+                        <Calendar size={16} />
+                        Crear evento
+                      </div>
+                    </Link>
+                  </div>
+                )}
               </div>
             }
 
@@ -167,11 +173,7 @@ export function Header({ showNavigation, ...rest }: HeaderProps) {
                       alt="User avatar"
                       className="w-8 h-8 rounded-full object-cover"
                     />
-                  ) : (
-                    <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer">
-                      <User size={18} className='text-gray-600' />
-                    </div>
-                  )}
+                  ) : NoAvatarImg}
                 </button>
                 {openProfileMenu && (
                   <div className='absolute right-0 mt-2 w-40 bg-white border border-gray-300 rounded z-50'>

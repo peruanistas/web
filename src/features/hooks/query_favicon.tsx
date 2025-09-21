@@ -6,7 +6,7 @@ export function useQueryFavicon() {
   const isMutating = useIsMutating();
 
   useEffect(() => {
-    const faviconLink = document.querySelector("link[rel~='icon']") as HTMLLinkElement | null;
+    const faviconLink = document.querySelector('link[rel~=\'icon\']') as HTMLLinkElement | null;
     if (!faviconLink) return;
 
     const originalHref = '/favicon.ico';

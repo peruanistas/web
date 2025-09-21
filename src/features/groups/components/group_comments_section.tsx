@@ -5,8 +5,9 @@ import { es } from 'date-fns/locale';
 import { ChevronUp, ChevronDown, Reply } from 'lucide-react';
 import { db } from '@db/client';
 import { useAuthStore } from '@auth/store/auth_store';
-import type { GroupPostComment, GroupCommentCreate } from '../types/group_posts';
+import type { GroupPostComment } from '../types/group_posts';
 import { toast } from 'sonner';
+import { NoAvatarImg } from '@common/components/header';
 
 export type GroupCommentsSectionProps = {
   postId: string;
@@ -18,32 +19,87 @@ export type CommentFormData = {
   content: string;
 };
 
+// Helper to build a comment tree
+function buildCommentTree(comments: GroupPostComment[]) {
+  const map = new Map<string, (GroupPostComment & { replies: GroupPostComment[] })>();
+  const roots: (GroupPostComment & { replies: GroupPostComment[] })[] = [];
+  comments.forEach((c) => {
+    map.set(c.id, { ...c, replies: [] });
+  });
+  map.forEach((comment) => {
+    if (comment.parent_comment_id && map.has(comment.parent_comment_id)) {
+      map.get(comment.parent_comment_id)!.replies.push(comment);
+    } else {
+      roots.push(comment);
+    }
+  });
+  return roots;
+}
+
+function CommentTree({
+  comments,
+  postId,
+  replyingTo,
+  setReplyingTo,
+  onCommentAdded,
+}: {
+  comments: (GroupPostComment & { replies: GroupPostComment[] })[];
+  postId: string;
+  replyingTo: string | null;
+  setReplyingTo: (id: string | null) => void;
+  onCommentAdded?: () => void;
+}) {
+  return (
+    <div className="space-y-3">
+      {comments.map((comment) => (
+        <div key={comment.id}>
+          <CommentItem
+            comment={comment}
+            postId={postId}
+            onReply={setReplyingTo}
+            replyingTo={replyingTo}
+            onCommentAdded={onCommentAdded}
+          />
+          {comment.replies.length > 0 && (
+            <div className="ml-6">
+              <CommentTree
+                comments={comment.replies as (GroupPostComment & { replies: GroupPostComment[] })[]}
+                postId={postId}
+                replyingTo={replyingTo}
+                setReplyingTo={setReplyingTo}
+                onCommentAdded={onCommentAdded}
+              />
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function GroupCommentsSection({ postId, comments, onCommentAdded }: GroupCommentsSectionProps) {
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const commentTree = buildCommentTree(comments);
 
   return (
     <div className="space-y-4">
       {/* Comment Form */}
       <CommentForm postId={postId} onCommentAdded={onCommentAdded} />
 
-      {/* Comments List */}
-      <div className="space-y-3">
-        {comments.map((comment) => (
-          <CommentItem
-            key={comment.id}
-            comment={comment}
-            postId={postId}
-            onReply={(commentId) => setReplyingTo(commentId)}
-            replyingTo={replyingTo}
-            onCommentAdded={onCommentAdded}
-          />
-        ))}
-        {comments.length === 0 && (
-          <p className="text-gray-500 text-center py-4">
-            No hay comentarios todavía. ¡Sé el primero en comentar!
-          </p>
-        )}
-      </div>
+      {/* Comments Tree */}
+      {commentTree.length > 0 ? (
+        <CommentTree
+          comments={commentTree}
+          postId={postId}
+          replyingTo={replyingTo}
+          setReplyingTo={setReplyingTo}
+          onCommentAdded={onCommentAdded}
+        />
+      ) : (
+        <p className="text-gray-500 text-center py-4">
+          No hay comentarios todavía. ¡Sé el primero en comentar!
+        </p>
+      )}
     </div>
   );
 }
@@ -77,18 +133,11 @@ export function CommentForm({
     setIsSubmitting(true);
 
     try {
-      const commentData: GroupCommentCreate = {
-        content: data.content,
-        group_publication_id: postId,
-        parent_comment_id: parentCommentId,
-      };
-
-      const { error } = await db
-        .from('group_publication_comments')
-        .insert({
-          ...commentData,
-          author_id: user.id,
-        });
+      const { error } = await db.rpc('add_group_publication_comment', {
+        p_content: data.content,
+        p_group_publication_id: postId,
+        p_parent_comment_id: parentCommentId,
+      });
 
       if (error) throw error;
 
@@ -115,11 +164,13 @@ export function CommentForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
       <div className="flex gap-3">
-        <img
-          src={user.profile?.avatar_url || '/favicon.svg'}
-          alt="Tu avatar"
-          className="w-8 h-8 rounded-full object-cover border flex-shrink-0"
-        />
+        {
+          user.profile?.avatar_url ? <img
+            src={user.profile?.avatar_url}
+            alt="Tu avatar"
+            className="w-8 h-8 rounded-full object-cover border flex-shrink-0"
+          /> : NoAvatarImg
+        }
         <div className="flex-1">
           <textarea
             {...register('content', {
@@ -173,7 +224,10 @@ export function CommentItem({ comment, postId, onReply, replyingTo, onCommentAdd
   const [isVoting, setIsVoting] = useState(false);
 
   const formatDate = (dateString: string) => {
-    return formatDistanceToNow(new Date(dateString), {
+    // Parse as UTC and convert to local time
+    const utcDate = new Date(dateString);
+    const localDate = new Date(utcDate.getTime() - utcDate.getTimezoneOffset() * 60000);
+    return formatDistanceToNow(localDate, {
       addSuffix: true,
       locale: es,
     });
@@ -200,11 +254,13 @@ export function CommentItem({ comment, postId, onReply, replyingTo, onCommentAdd
         {/* Comment Header */}
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <img
-              src={comment.author_avatar_url || '/favicon.svg'}
-              alt={`${comment.author_nombres} ${comment.author_apellidos}`}
-              className="w-6 h-6 rounded-full object-cover border"
-            />
+            {
+              comment.author_avatar_url ? <img
+                src={comment.author_avatar_url}
+                alt={`${comment.author_nombres} ${comment.author_apellidos}`}
+                className="w-6 h-6 rounded-full object-cover border"
+              /> : NoAvatarImg
+            }
             <span className="font-medium text-sm text-gray-900">
               {comment.author_nombres} {comment.author_apellidos}
             </span>

@@ -6,6 +6,7 @@ import type { GroupPost, GroupPostComment } from '../types/group_posts';
 import { GroupPostCard } from './group_post_card';
 import { GroupPostCreateForm } from './group_post_create';
 import { ProjectCardSkeleton } from '@projects/components/project_card';
+import { NoAvatarImg } from '@common/components/header';
 
 type GroupFeedProps = {
   groupId: string;
@@ -100,14 +101,16 @@ export function GroupFeed({ groupId, isMember }: GroupFeedProps) {
   const handleVote = async (postId: string, type: 'upvote' | 'downvote') => {
     if (!user) return;
 
-    try {
-      // TODO: Implement post voting logic
-      console.log('Voting on post:', postId, type);
-      // After voting, refetch to get updated counts
-      refetch();
-    } catch (error) {
-      console.error('Error voting:', error);
-    }
+    // try {
+    //   const { error } = await db.rpc('vote_for_post', {
+    //     post_id: postId,
+    //     vote_type: type,
+    //   });
+    //   if (error) throw error;
+    //   refetch(); // After voting, refetch to get updated counts
+    // } catch (error) {
+    //   console.error('Error voting:', error);
+    // }
   };
 
   if (isError) {
@@ -139,11 +142,13 @@ export function GroupFeed({ groupId, isMember }: GroupFeedProps) {
             />
           ) : (
             <div className="bg-white border border-gray-200 rounded-lg p-4 flex items-center gap-3">
-              <img
-                src={user.profile?.avatar_url || '/favicon.svg'}
-                alt="Tu avatar"
-                className="w-10 h-10 rounded-full object-cover border"
-              />
+              {
+                user.profile?.avatar_url ? <img
+                  src={user.profile?.avatar_url}
+                  alt="Tu avatar"
+                  className="w-8 h-8 rounded-full object-cover border flex-shrink-0"
+                /> : NoAvatarImg
+              }
               <button
                 onClick={() => setShowCreateForm(true)}
                 className="flex-1 text-left px-4 py-2 bg-gray-50 hover:bg-gray-100 rounded-full text-gray-700 transition-colors"

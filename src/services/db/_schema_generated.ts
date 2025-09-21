@@ -1258,6 +1258,27 @@ export type Database = {
         Args: { '': unknown }
         Returns: undefined
       }
+      add_group_publication_comment: {
+        Args: {
+          p_content: string
+          p_group_publication_id: string
+          p_parent_comment_id?: string
+        }
+        Returns: {
+          author_id: string
+          content: string
+          created_at: string
+          depth: number
+          downvotes: number
+          group_publication_id: string
+          id: string
+          parent_comment_id: string
+          path: unknown
+          reply_count: number
+          updated_at: string
+          upvotes: number
+        }[]
+      }
       binary_quantize: {
         Args: { '': string } | { '': unknown }
         Returns: unknown
