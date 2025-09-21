@@ -1,3 +1,5 @@
+import { useRef } from 'react';
+import { Check, Copy } from 'lucide-react';
 import { Header } from '@common/components/header';
 import { Footer } from '@common/components/footer';
 import { Layout } from '@common/components/layout';
@@ -241,7 +243,7 @@ export function GroupDetail({ id }: GroupDetailProps) {
                 <MarkdownViewer content={group.description} />
               )}
               {/* Social links */}
-              <div className="flex flex-col md:flex-row gap-4 mt-4">
+              <div className="flex flex-col md:flex-row gap-4 mt-4 bg-gray-100 p-5 rounded-md">
                 {/* Facebook */}
                 <div className="flex-1">
                   <label className="flex items-center gap-2 font-medium text-gray-700 mb-1">
@@ -258,9 +260,12 @@ export function GroupDetail({ id }: GroupDetailProps) {
                     />
                   ) : (
                     group.facebook_group_url ? (
-                      <a href={group.facebook_group_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline break-all">
-                        {group.facebook_group_url}
-                      </a>
+                      <div className="flex items-center gap-2">
+                        <CopyButton value={group.facebook_group_url} />
+                        <a href={group.facebook_group_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline break-all">
+                          {group.facebook_group_url}
+                        </a>
+                      </div>
                     ) : (
                       <span className="text-gray-400 italic">No hay enlace de grupo de Facebook</span>
                     )
@@ -282,9 +287,12 @@ export function GroupDetail({ id }: GroupDetailProps) {
                     />
                   ) : (
                     group.whatsapp_group_url ? (
-                      <a href={group.whatsapp_group_url} target="_blank" rel="noopener noreferrer" className="text-green-600 underline break-all">
-                        {group.whatsapp_group_url}
-                      </a>
+                      <div className="flex items-center gap-2">
+                        <CopyButton value={group.whatsapp_group_url} />
+                        <a href={group.whatsapp_group_url} target="_blank" rel="noopener noreferrer" className="text-green-600 underline break-all">
+                          {group.whatsapp_group_url}
+                        </a>
+                      </div>
                     ) : (
                       <span className="text-gray-400 italic">No hay enlace de grupo de WhatsApp</span>
                     )
@@ -338,5 +346,36 @@ function Skeleton() {
       </ContentLayout>
       <Footer />
     </Layout>
+  );
+}
+
+function CopyButton({ value, className = '' }: { value: string, className?: string }) {
+  const [copied, setCopied] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(value);
+      toast.info('Enlace copiado al portapapeles');
+      setCopied(true);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => setCopied(false), 1200);
+    } catch {
+      toast.error('No se pudo copiar');
+    }
+  };
+  return (
+    <button
+      type="button"
+      aria-label="Copiar enlace"
+      className={`pl-1 rounded hover:bg-gray-200 transition-colors ${className}`}
+      onClick={handleCopy}
+      tabIndex={0}
+    >
+      {copied ? (
+        <Check className="w-4 h-4 text-gray-500" />
+      ) : (
+        <Copy className="w-4 h-4 text-gray-500" />
+      )}
+    </button>
   );
 }
