@@ -19,6 +19,7 @@
     "lucide-react": "^0.510.0",
     "react": "^19.1.0",
     "react-content-loader": "^7.0.2",
+    "react-country-region-selector": "^4.0.2",
     "react-day-picker": "^9.7.0",
     "react-dom": "^19.1.0",
     "react-hook-form": "^7.56.3",

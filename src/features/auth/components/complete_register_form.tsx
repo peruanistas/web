@@ -8,7 +8,8 @@ import type { Tables } from '@db/schema';
 import { useAuthStore } from '@auth/store/auth_store';
 import { useLocation } from 'wouter';
 import 'react-phone-number-input/style.css';
-import PhoneInput, { isValidPhoneNumber, parsePhoneNumber } from 'react-phone-number-input';
+import { CountryDropdown } from 'react-country-region-selector';
+import PhoneInput, { isSupportedCountry, isValidPhoneNumber, parsePhoneNumber } from 'react-phone-number-input';
 import { Controller } from 'react-hook-form';
 import { toast } from 'sonner';
 import dniHelpImage from '@assets/images/dni_help.png';
@@ -33,6 +34,7 @@ type Step1Inputs = {
 // Step 2 form inputs (complete profile)
 type Step2Inputs = {
   celular: string;
+  pais: string;
   departamento: string;
   provincia: string;
   distrito: string;
@@ -176,9 +178,7 @@ export const CompleteProfileForm = () => {
         p_phone_country_code: phoneParsed?.countryCallingCode
           ? `+${phoneParsed.countryCallingCode}`
           : '',
-        p_country_code: phoneParsed?.countryCallingCode
-          ? `+${phoneParsed.countryCallingCode}`
-          : '',
+        p_country_code: data.pais,
         p_geo_department: data.departamento,
         p_geo_district: data.distrito,
       }).single();
@@ -456,6 +456,36 @@ export const CompleteProfileForm = () => {
                 />
                 {step2Form.formState.errors.celular && (
                   <p className="text-red-500 text-xs mt-1">{step2Form.formState.errors.celular.message}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="text-[#404040] block mb-1">
+                  País <span className="text-red-500">*</span>
+                </label>
+                <Controller
+                  control={step2Form.control}
+                  name="pais"
+                  defaultValue='Peru'
+                  rules={{
+                    required: 'Campo requerido',
+                    validate: (value) =>
+                      isSupportedCountry(value || '') || 'País inválido',
+                  }}
+                  render={({ field }) => (
+                    <CountryDropdown
+                      disabled={field.disabled}
+                      name={field.name}
+                      onChange={field.onChange}
+                      ref={field.ref}
+                      value={field.value}
+                      defaultValue={'PE'}
+                      className="border border-[#D9D9D9] rounded-lg p-2 w-full text-[#404040] cursor-pointer"
+                    />
+                  )}
+                />
+                {step2Form.formState.errors.pais && (
+                  <p className="text-red-500 text-xs mt-1">{step2Form.formState.errors.pais.message}</p>
                 )}
               </div>
 
