@@ -64,7 +64,7 @@ export function GroupPostCard({ post, onVote, onCommentAdded }: GroupPostCardPro
       </h2>
 
       {/* Post Content */}
-      <div className="mb-4">
+      <div className="mt-[-1.8rem] mb-2">
         <MarkdownViewer content={post.content} />
       </div>
 
