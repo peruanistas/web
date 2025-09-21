@@ -25,6 +25,7 @@
     "react-hook-form": "^7.56.3",
     "react-icons": "^5.5.0",
     "react-leaflet": "^5.0.0",
+    "react-lite-yt-embed": "^1.2.7",
     "react-phone-number-input": "^3.4.12",
     "react-select": "^5.10.1",
     "react-share": "^5.2.2",
