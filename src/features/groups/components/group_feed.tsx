@@ -100,6 +100,7 @@ export function GroupFeed({ groupId, isMember }: GroupFeedProps) {
 
   const handleVote = async (postId: string, type: 'upvote' | 'downvote') => {
     if (!user) return;
+    console.log({ postId, type });
 
     // try {
     //   const { error } = await db.rpc('vote_for_post', {
