@@ -17,6 +17,8 @@ import { useAuthStore } from '@auth/store/auth_store';
 import { MarkdownViewer } from '@common/components/md_viewer';
 import { GroupFeed } from '../components/group_feed';
 import { toast } from 'sonner';
+import facebookIcon from '@assets/images/icons/facebook.svg';
+import whatsappIcon from '@assets/images/icons/whatsapp.svg';
 
 type GroupDetailProps = {
   id: string;
@@ -37,12 +39,31 @@ async function fetchGroup(id: string): Promise<Group | null> {
   return data;
 }
 
+// Helper to fetch group member role
+async function fetchGroupMemberRole(groupId: string, userId: string): Promise<'owner' | 'admin' | 'member' | null> {
+  if (!userId) return null;
+  // Check owner
+  const { data: group } = await db.from('groups').select('owner_id').eq('id', groupId).single();
+  if (group?.owner_id === userId) return 'owner';
+  // Check admin/member
+  const { data: member } = await db.from('group_members').select('role').eq('group_id', groupId).eq('user_id', userId).single();
+  if (member?.role === 'admin') return 'admin';
+  if (member?.role) return 'member';
+  return null;
+}
+
 export function GroupDetail({ id }: GroupDetailProps) {
   useScrollReset();
 
   const { user } = useAuthStore();
   const [isMember, setIsMember] = useState(false);
   const [isLoadingMembership, setIsLoadingMembership] = useState(false);
+  const [groupRole, setGroupRole] = useState<'owner' | 'admin' | 'member' | null>(null);
+  const [editMode, setEditMode] = useState(false);
+  const [desc, setDesc] = useState('');
+  const [facebookUrl, setFacebookUrl] = useState('');
+  const [whatsappUrl, setWhatsappUrl] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   const { data: group, isLoading, isError } = useQuery({
     queryKey: ['group_detail', id],
@@ -64,6 +85,63 @@ export function GroupDetail({ id }: GroupDetailProps) {
 
     getCurrentUser();
   }, [group, group?.id, user]);
+
+  useEffect(() => {
+    if (user && group) {
+      fetchGroupMemberRole(group.id, user.id).then(setGroupRole);
+      setDesc(group.description || '');
+      setFacebookUrl(group.facebook_group_url || '');
+      setWhatsappUrl(group.whatsapp_group_url || '');
+    }
+  }, [group, user]);
+
+  // Validation helpers (same as in group create)
+  function validateFacebookUrl(url: string) {
+    if (!url) return true;
+    // Require a non-empty group identifier after /groups/
+    return /^(https:\/\/(www\.)?facebook\.com\/groups\/[^\s/]+\/?|https:\/\/(www\.)?facebook\.com\/share\/g\/[^\s/]+\/?)/.test(url);
+  }
+  function validateWhatsappUrl(url: string) {
+    if (!url) return true;
+    return /^https:\/\/chat\.whatsapp\.com\/.*/.test(url);
+  }
+
+  async function handleSave() {
+    if (!group) return;
+    // Validate
+    if (!desc.trim()) {
+      toast.error('La descripción no puede estar vacía');
+      return;
+    }
+    if (facebookUrl && !validateFacebookUrl(facebookUrl)) {
+      toast.error('Debe ser un enlace válido de grupo de Facebook');
+      return;
+    }
+    if (whatsappUrl && !validateWhatsappUrl(whatsappUrl)) {
+      toast.error('Debe ser un enlace válido de grupo de WhatsApp');
+      return;
+    }
+    setIsSaving(true);
+    try {
+      const { error } = await db.from('groups').update({
+        description: desc,
+        facebook_group_url: facebookUrl || null,
+        whatsapp_group_url: whatsappUrl || null,
+      }).eq('id', group.id);
+      if (error) throw error;
+      toast.success('Grupo actualizado correctamente');
+      setEditMode(false);
+      // Optionally, refetch group data (or update local state)
+      // For now, update group fields locally
+      group.description = desc;
+      group.facebook_group_url = facebookUrl;
+      group.whatsapp_group_url = whatsappUrl;
+    } catch {
+      toast.error('Error al actualizar el grupo');
+    } finally {
+      setIsSaving(false);
+    }
+  }
 
   const handleMembershipAction = async () => {
     if (!group) return;
@@ -125,7 +203,7 @@ export function GroupDetail({ id }: GroupDetailProps) {
                     <span>{PE_DEPARTMENTS[group.geo_department].name}, {PE_DISTRICTS[group.geo_district].name}</span>
                   </div>
                 </div>
-                <div>
+                <div className="flex gap-2 items-center">
                   <Button
                     leading={<IoEnter />}
                     variant='red'
@@ -134,9 +212,85 @@ export function GroupDetail({ id }: GroupDetailProps) {
                   >
                     {isLoadingMembership ? 'Cargando...' : (isMember ? 'Salirse' : 'Unirse')}
                   </Button>
+                  {(groupRole === 'owner' || groupRole === 'admin') && !editMode && (
+                    <Button variant="white" onClick={() => setEditMode(true)}>
+                      Editar
+                    </Button>
+                  )}
+                  {editMode && (
+                    <>
+                      <Button variant="red" onClick={handleSave} disabled={isSaving}>
+                        {isSaving ? 'Guardando...' : 'Guardar'}
+                      </Button>
+                      <Button variant="white" onClick={() => { setEditMode(false); setDesc(group.description || ''); setFacebookUrl(group.facebook_group_url || ''); setWhatsappUrl(group.whatsapp_group_url || ''); }} disabled={isSaving}>
+                        Cancelar
+                      </Button>
+                    </>
+                  )}
                 </div>
               </div>
-              <MarkdownViewer content={group.description} />
+              {/* Editable or read-only description */}
+              {editMode ? (
+                <textarea
+                  className="w-full border border-gray-300 focus:outline-gray-400 rounded p-2 mt-2 mb-2"
+                  value={desc}
+                  onChange={e => setDesc(e.target.value)}
+                  rows={4}
+                />
+              ) : (
+                <MarkdownViewer content={group.description} />
+              )}
+              {/* Social links */}
+              <div className="flex flex-col md:flex-row gap-4 mt-4">
+                {/* Facebook */}
+                <div className="flex-1">
+                  <label className="flex items-center gap-2 font-medium text-gray-700 mb-1">
+                    <img src={facebookIcon} alt="Facebook" className="w-5 h-5 inline" />
+                    Group de Facebook
+                  </label>
+                  {editMode ? (
+                    <input
+                      type="url"
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 ${facebookUrl && !validateFacebookUrl(facebookUrl) ? 'border-red-500' : 'border-gray-300'}`}
+                      value={facebookUrl}
+                      onChange={e => setFacebookUrl(e.target.value)}
+                      placeholder="https://www.facebook.com/groups/tu-grupo"
+                    />
+                  ) : (
+                    group.facebook_group_url ? (
+                      <a href={group.facebook_group_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline break-all">
+                        {group.facebook_group_url}
+                      </a>
+                    ) : (
+                      <span className="text-gray-400 italic">No hay enlace de grupo de Facebook</span>
+                    )
+                  )}
+                </div>
+                {/* WhatsApp */}
+                <div className="flex-1">
+                  <label className="flex items-center gap-2 font-medium text-gray-700 mb-1">
+                    <img src={whatsappIcon} alt="WhatsApp" className="w-5 h-5 inline" />
+                    Grupo de WhatsApp
+                  </label>
+                  {editMode ? (
+                    <input
+                      type="url"
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 ${whatsappUrl && !validateWhatsappUrl(whatsappUrl) ? 'border-red-500' : 'border-gray-300'}`}
+                      value={whatsappUrl}
+                      onChange={e => setWhatsappUrl(e.target.value)}
+                      placeholder="https://chat.whatsapp.com/tu-grupo"
+                    />
+                  ) : (
+                    group.whatsapp_group_url ? (
+                      <a href={group.whatsapp_group_url} target="_blank" rel="noopener noreferrer" className="text-green-600 underline break-all">
+                        {group.whatsapp_group_url}
+                      </a>
+                    ) : (
+                      <span className="text-gray-400 italic">No hay enlace de grupo de WhatsApp</span>
+                    )
+                  )}
+                </div>
+              </div>
             </div>
             {/* <div className="flex flex-col items-start md:items-end gap-2">
               <AuthorInfo author={group.owner_id} />

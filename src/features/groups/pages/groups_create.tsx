@@ -15,7 +15,7 @@ import TermsModal from '@common/components/termsModal';
 import { MultiImageUpload } from '@common/components/multi_image_upload';
 import { useMultiImageUpload } from '@common/hooks/useMultiImageUpload';
 import facebookIcon from '@assets/images/icons/facebook.svg';
-import whatsappIcon from '@assets/images/icons/whatsApp.svg';
+import whatsappIcon from '@assets/images/icons/whatsapp.svg';
 
 type GroupFormData = {
   groupName: string;
