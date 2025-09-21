@@ -14,6 +14,8 @@ import { MDXEditorComponent } from '@common/components/mxEditorComponent';
 import TermsModal from '@common/components/termsModal';
 import { MultiImageUpload } from '@common/components/multi_image_upload';
 import { useMultiImageUpload } from '@common/hooks/useMultiImageUpload';
+import facebookIcon from '@assets/images/icons/facebook.svg';
+import whatsappIcon from '@assets/images/icons/whatsApp.svg';
 
 type GroupFormData = {
   groupName: string;
@@ -23,6 +25,8 @@ type GroupFormData = {
   province: string;
   district: string;
   acceptTerms: boolean;
+  facebookGroupUrl?: string;
+  whatsappGroupUrl?: string;
 };
 
 const ERROR_MESSAGES = {
@@ -84,24 +88,18 @@ export function GroupsCreatePage() {
 
       const uploadedPath = await pushBlobToStorage(db, 'multimedia', form_data.coverImages[0]);
 
-      const groupData = {
-        name: form_data.groupName,
-        description: form_data.description,
-        geo_department: form_data.department,
-        geo_district: form_data.district,
-        image_url: uploadedPath,
-        owner_id: user.id,
-      };
-
-      const { data, error } = await db
-        .from('groups')
-        .insert(groupData)
-        .select('id')
-        .single();
+      const { data, error } = await db.rpc('create_group_and_join_admin', {
+        p_name: form_data.groupName,
+        p_description: form_data.description,
+        p_geo_department: form_data.department,
+        p_geo_district: form_data.district,
+        p_image_url: uploadedPath,
+      }).single();
 
       if (error) throw error;
-      if (!data?.id) throw new Error('No se obtuvo ID del grupo');
-      setCreatedGroupId(data.id);
+      if (!data?.group_id) throw new Error('No se obtuvo ID del grupo');
+
+      setCreatedGroupId(data.group_id);
       setIsModalOpen(true);
       reset();
     } catch (error) {
@@ -322,6 +320,60 @@ export function GroupsCreatePage() {
                 )}
               </div>
             </div>
+
+            {/* Social Group Links */}
+            <section className="bg-gray-50 border border-gray-200 rounded-md p-4 mb-10">
+              <h3 className='mb-4 block font-medium text-gray-700'>Enlace a grupos</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Facebook Group URL */}
+                <div>
+                  <label htmlFor="facebookGroupUrl" className="flex font-medium text-gray-700 mb-1 items-center gap-2">
+                    <img src={facebookIcon} alt="Facebook" className="w-5 h-5 inline" />
+                    Enlace de grupo Facebook
+                  </label>
+                  <input
+                    id="facebookGroupUrl"
+                    type="url"
+                    {...register('facebookGroupUrl', {
+                      pattern: {
+                        value: /^(https:\/\/www\.facebook\.com\/groups\/|https:\/\/facebook\.com\/groups\/|https:\/\/www\.facebook\.com\/share\/g\/).*/,
+                        message: 'Debe ser un enlace válido de grupo de Facebook',
+                      },
+                    })}
+                    className={`w-full px-3 py-2 border rounded-md ${errors.facebookGroupUrl ? 'border-red-500' : 'border-gray-300'}`}
+                    placeholder="https://www.facebook.com/groups/tu-grupo"
+                  />
+                  {errors.facebookGroupUrl && (
+                    <p className="mt-1 text-sm text-red-600">{errors.facebookGroupUrl.message}</p>
+                  )}
+                </div>
+                {/* WhatsApp Group URL */}
+                <div>
+                  <label htmlFor="whatsappGroupUrl" className="flex font-medium text-gray-700 mb-1 items-center gap-2">
+                    <img src={whatsappIcon} alt="WhatsApp" className="w-5 h-5 inline" />
+                    Enlace de grupo WhatsApp
+                  </label>
+                  <input
+                    id="whatsappGroupUrl"
+                    type="url"
+                    {...register('whatsappGroupUrl', {
+                      pattern: {
+                        value: /^https:\/\/chat\.whatsapp\.com\/.*/,
+                        message: 'Debe ser un enlace válido de grupo de WhatsApp',
+                      },
+                    })}
+                    className={`w-full px-3 py-2 border rounded-md ${errors.whatsappGroupUrl ? 'border-red-500' : 'border-gray-300'}`}
+                    placeholder="https://chat.whatsapp.com/tu-grupo"
+                  />
+                  {errors.whatsappGroupUrl && (
+                    <p className="mt-1 text-sm text-red-600">{errors.whatsappGroupUrl.message}</p>
+                  )}
+                </div>
+              </div>
+              <div className="mt-3 text-base text-gray-700">
+                Con el propósito de mejorar la interacción de los miembros, Peruanista ofrece la opción de enlazar grupos de whatsapp y facebook para que los integrantes puedan unirse.
+              </div>
+            </section>
 
             {/* Términos y condiciones */}
             <div className="flex">

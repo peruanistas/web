@@ -251,19 +251,19 @@ export type Database = {
         Row: {
           group_id: string
           joined_at: string
-          role: string
+          role: Database['public']['Enums']['group_member_role']
           user_id: string
         }
         Insert: {
           group_id: string
           joined_at?: string
-          role?: string
+          role?: Database['public']['Enums']['group_member_role']
           user_id: string
         }
         Update: {
           group_id?: string
           joined_at?: string
-          role?: string
+          role?: Database['public']['Enums']['group_member_role']
           user_id?: string
         }
         Relationships: [
@@ -449,6 +449,7 @@ export type Database = {
           active: boolean
           created_at: string
           description: string
+          facebook_group_url: string | null
           geo_department: string
           geo_district: string
           id: string
@@ -456,11 +457,13 @@ export type Database = {
           name: string
           owner_id: string
           updated_at: string
+          whatsapp_group_url: string | null
         }
         Insert: {
           active?: boolean
           created_at?: string
           description: string
+          facebook_group_url?: string | null
           geo_department: string
           geo_district: string
           id?: string
@@ -468,11 +471,13 @@ export type Database = {
           name: string
           owner_id: string
           updated_at?: string
+          whatsapp_group_url?: string | null
         }
         Update: {
           active?: boolean
           created_at?: string
           description?: string
+          facebook_group_url?: string | null
           geo_department?: string
           geo_district?: string
           id?: string
@@ -480,6 +485,7 @@ export type Database = {
           name?: string
           owner_id?: string
           updated_at?: string
+          whatsapp_group_url?: string | null
         }
         Relationships: [
           {
@@ -1256,6 +1262,31 @@ export type Database = {
         Args: { '': string } | { '': unknown }
         Returns: unknown
       }
+      create_group_and_join_admin: {
+        Args: {
+          p_description: string
+          p_facebook_group_url?: string
+          p_geo_department: string
+          p_geo_district: string
+          p_image_url?: string
+          p_name: string
+          p_whatsapp_group_url?: string
+        }
+        Returns: {
+          active: boolean
+          created_at: string
+          description: string
+          facebook_group_url: string
+          geo_department: string
+          geo_district: string
+          group_id: string
+          image_url: string
+          name: string
+          owner_id: string
+          updated_at: string
+          whatsapp_group_url: string
+        }[]
+      }
       get_comment_thread: {
         Args: { comment_id: string }
         Returns: {
@@ -1555,6 +1586,7 @@ export type Database = {
       }
     }
     Enums: {
+      group_member_role: 'admin' | 'moderator' | 'member'
       ioarr_type:
       | 'investment'
       | 'optimization'
@@ -1690,6 +1722,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      group_member_role: ['admin', 'moderator', 'member'],
       ioarr_type: [
         'investment',
         'optimization',
