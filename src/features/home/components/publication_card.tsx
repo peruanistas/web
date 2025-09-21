@@ -1,6 +1,6 @@
 import { NO_IMAGE_URL } from '@common/constants';
 import { formatDate2 } from '@common/utils';
-import { Eye, MessageSquare, ThumbsUp, MoreVertical } from 'lucide-react';
+import { Eye, MessageSquare, ThumbsUp, MoreVertical, Ban, Share2, HeartIcon } from 'lucide-react';
 import ContentLoader from 'react-content-loader';
 import { Link } from 'wouter';
 import { useState, useRef, useEffect } from 'react';
@@ -10,6 +10,7 @@ import { useMutation } from '@tanstack/react-query';
 import type { RecommendedPublication } from '@home/components/feed';
 import { Modal } from '@common/components/modal';
 import { Share } from '@common/components/share';
+import { toast } from 'sonner';
 
 type PublicationCardProps = RecommendedPublication & {};
 
@@ -83,7 +84,7 @@ export function PublicationCard(publication: PublicationCardProps) {
 
   const handleNotInterested = () => {
     if (!user?.id) {
-      alert('Para ocultar publicaciones necesitas iniciar sesión. ¡Regístrate gratis para personalizar tu experiencia!');
+      toast.error('Para ocultar publicaciones necesitas iniciar sesión. ¡Regístrate gratis para personalizar tu experiencia!');
       return;
     }
 
@@ -92,6 +93,17 @@ export function PublicationCard(publication: PublicationCardProps) {
     hidePublicationMutation.mutate();
   };
 
+  const handleInterested = () => {
+    if (!user?.id) {
+      toast.error('Para seguir publicaciones necesitas iniciar sesión. ¡Regístrate gratis para personalizar tu experiencia!');
+      return;
+    }
+    toast.success(`Verás más publicaciones de ${publication.source_name}`);
+
+    setIsDropdownOpen(false);
+  };
+
+
   const handleShare = () => {
     setIsDropdownOpen(false);
     setShareOpen(true);
@@ -99,7 +111,7 @@ export function PublicationCard(publication: PublicationCardProps) {
 
   const handleUndo = () => {
     if (!user?.id) {
-      alert('Para gestionar publicaciones ocultas necesitas iniciar sesión. ¡Regístrate gratis!');
+      toast.error('Para gestionar publicaciones ocultas necesitas iniciar sesión. ¡Regístrate gratis!');
       // Optionally redirect to login/signup page
       window.location.href = '/login';
       return;
@@ -154,15 +166,27 @@ export function PublicationCard(publication: PublicationCardProps) {
 
           {/* Dropdown menu */}
           {isDropdownOpen && (
-            <div className='absolute top-full right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg min-w-[140px] z-20'>
+            <div className='absolute top-full right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg min-w-[200px] z-20'>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleInterested();
+                }}
+                className='w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2'
+              >
+                <HeartIcon className='max-w-4 max-h-8 text-gray-500' />
+                Ver más de {publication.source_name}
+              </button>
               <button
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
                   handleNotInterested();
                 }}
-                className='w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors'
+                className='w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2'
               >
+                <Ban className='max-w-4 max-h-4 text-gray-500' />
                 No me interesa
               </button>
               <button
@@ -171,8 +195,9 @@ export function PublicationCard(publication: PublicationCardProps) {
                   e.stopPropagation();
                   handleShare();
                 }}
-                className='w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors'
+                className='w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2'
               >
+                <Share2 className='max-w-4 max-h-4 text-gray-500' />
                 Compartir
               </button>
             </div>
