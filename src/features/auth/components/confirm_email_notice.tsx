@@ -102,8 +102,8 @@ export const ConfirmEmailNotice = () => {
 
             <div className="mt-8 text-center text-sm text-[#757575]">
               <p>
-                ¿No recibiste el correo? Revisa tu carpeta de spam o{' '}
-                <button className="text-blue-600 hover:underline cursor-pointer">contacta a soporte</button>.
+                ¿No recibiste el correo? Revisa tu carpeta de spam o espera hasta poder reenviarlo.
+                {/* <button className="text-blue-600 hover:underline cursor-pointer">contacta a soporte</button>. */}
               </p>
             </div>
           </div>

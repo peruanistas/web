@@ -208,6 +208,7 @@ export const CompleteProfileForm = () => {
       }
 
       setProfileCompleted(true);
+      localStorage.removeItem(`verification_nonce_result_${user.id}`);
       toast.success('¡Perfil completado exitosamente!');
       navigate('/');
     } catch (error) {
