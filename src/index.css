@@ -104,6 +104,20 @@ body {
   }
 }
 
+@keyframes marquee-x {
+  0% {
+    transform: translateX(0%);
+    /* transform: translateX(0%); */
+  }
+  100% {
+    transform: translateX(-54%);
+  }
+}
+
+.animate-marquee-x {
+  animation: marquee-x 7.9s ease-in-out forwards;
+}
+
 /*
 Clears the ‘X’ from Chrome
 https://medium.com/@rion.mrk/how-to-remove-x-icon-from-search-input-field-or-input-type-search-db3c808405fb

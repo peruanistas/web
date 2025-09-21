@@ -20,36 +20,17 @@ const carouselImages = [
 export function HomeBanner({ title, description, trailing }: MainBannerProps) {
 
   return (
-    <div className="relative w-full bg-[#f80505]" style={{ maxHeight: 325, height: 325 }}>
-      <div className="absolute inset-0 z-0">
-        <Carousel
-          images={carouselImages}
-          autoSlide={true}
-          autoSlideInterval={8000}
-          showDots={true}
-          showArrows={false}
-          className="w-full h-full"
-          backgroundSize="contain"
-          backgroundPosition="center"
-        />
-      </div>
-
-      {/* <div className="absolute inset-0 z-15 bg-gradient-to-r from-[#A32929]/100 to-[#A32929]/40 md:from-[#A32929]/90 md:to-transparent" /> */}
-
-      {/* <ContentLayout className="relative z-20 h-full">
-        <div className="flex h-full items-end place-content-between gap-4">
-          <div className="flex flex-col justify-center gap-4 h-full w-full">
-            <h1 className="text-3xl md:text-4xl font-bold text-white md:w-1/3">{title}</h1>
-            <p className="text-sm md:text-base leading-snug text-white md:w-2/4">{description}</p>
-            <div>
-              <Link to="/about">
-                <Button variant="hero">Conoce más</Button>
-              </Link>
-            </div>
-          </div>
-          {trailing}
-        </div>
-      </ContentLayout> */}
+    <div className="w-full bg-[#f80505]">
+      <Carousel
+        images={carouselImages}
+        autoSlide={true}
+        autoSlideInterval={8000}
+        showDots={true}
+        showArrows={false}
+        className="w-full h-full"
+        backgroundSize="contain"
+        backgroundPosition="center"
+      />
     </div>
   );
 }
