@@ -42,6 +42,7 @@ type Step2Inputs = {
 // DNI verification response type
 type DNIVerificationResponse = {
   verified: boolean;
+  verification_nonce_id: string;
   details: {
     document_number: { provided: string; reniec: string; match: boolean };
     verification_code: { provided: string; reniec: string; match: boolean };
@@ -53,7 +54,6 @@ type DNIVerificationResponse = {
     second_lastname: string;
     full_name: string;
   };
-  reniec_data: Record<string, unknown>;
   error?: string;
 };
 
@@ -71,7 +71,7 @@ export const CompleteProfileForm = () => {
   const [step1Loading, setStep1Loading] = useState(false);
   const [step1Error, setStep1Error] = useState<string | null>(null);
 
-  // Step 2 form  
+  // Step 2 form
   const step2Form = useForm<Step2Inputs>();
   const [modalVisible, setModalVisible] = useState<'terminos' | 'privacidad' | null>(null);
   const [step2Error, setStep2Error] = useState<string | null>(null);
@@ -93,6 +93,15 @@ export const CompleteProfileForm = () => {
     step2Form.setValue('distrito', '');
   }, [departamentoSeleccionado, step2Form]);
 
+  useEffect(() => {
+    if (!user) return;
+    const nonceData = getSignupNonceData(user.id);
+    if (nonceData) {
+      setVerifiedUserData(nonceData);
+      setCurrentStep(2);
+    }
+  }, [user]);
+
   // Reset distrito when provincia changes
   useEffect(() => {
     step2Form.setValue('distrito', '');
@@ -102,6 +111,11 @@ export const CompleteProfileForm = () => {
   const onStep1Submit = async (data: Step1Inputs) => {
     setStep1Loading(true);
     setStep1Error(null);
+
+    if (!user) {
+      toast('Primero vuelve a registrate');
+      return;
+    }
 
     try {
       const response = await fetch(
@@ -113,6 +127,7 @@ export const CompleteProfileForm = () => {
             Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_KEY}`,
           },
           body: JSON.stringify({
+            user_id: user.id,
             document_number: data.document_number,
             verification_code: data.verification_code,
             emission_date: data.emission_date,
@@ -127,6 +142,8 @@ export const CompleteProfileForm = () => {
         toast.error('Error en la verificación del DNI');
         return;
       }
+
+      window.localStorage.setItem(`verification_nonce_result_${user.id}`, JSON.stringify(result));
 
       // Success - store verified data and move to step 2
       setVerifiedUserData(result);
@@ -151,28 +168,27 @@ export const CompleteProfileForm = () => {
     try {
       const phoneParsed = parsePhoneNumber(data.celular || '');
 
-      const profileData = {
-        id: user.id,
-        nombres: formatName(verifiedUserData.person.name),
-        apellido_paterno: formatName(verifiedUserData.person.first_lastname),
-        apellido_materno: formatName(verifiedUserData.person.second_lastname),
-        celular: phoneParsed?.nationalNumber || '',
-        country_code: phoneParsed?.countryCallingCode
+      console.log({ nonce: getSignupNonceData(user.id)!.verification_nonce_id });
+
+      const { data: signupCompleteData, error } = await db.rpc('signup_complete', {
+        nonce_id: getSignupNonceData(user.id)!.verification_nonce_id,
+        p_celular: phoneParsed?.nationalNumber || '',
+        p_phone_country_code: phoneParsed?.countryCallingCode
           ? `+${phoneParsed.countryCallingCode}`
           : '',
-        tipo_documento: 'dni' as const,
-        numero_documento: verifiedUserData.details.document_number.reniec,
-        geo_department: data.departamento,
-        geo_district: data.distrito,
-        profile_completed: true, // DNI is already verified
-      };
-
-      const { error } = await db
-        .from('profiles')
-        .update(profileData)
-        .eq('id', user.id);
+        p_country_code: phoneParsed?.countryCallingCode
+          ? `+${phoneParsed.countryCallingCode}`
+          : '',
+        p_geo_department: data.departamento,
+        p_geo_district: data.distrito,
+      }).single();
 
       if (error) throw error;
+
+      if (!signupCompleteData.success) {
+        toast.error('No se pudo crear el perfil. Por favor verifica la información');
+        return;
+      }
 
       // Refetch the user profile to update the auth store with complete data
       const { data: updatedProfile, error: fetchError } = await db
@@ -265,11 +281,11 @@ export const CompleteProfileForm = () => {
 
                   <div>
                     <label className="text-[#404040] block mb-1">
-                      Código de verificación <span className="text-red-500">*</span>
+                      Código de verificación (1 dígito) <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
-                      placeholder="123"
+                      placeholder="1"
                       className="border border-[#D9D9D9] rounded-lg p-3 w-full text-[#404040]"
                       {...step1Form.register('verification_code', {
                         required: 'Campo requerido',
@@ -288,11 +304,11 @@ export const CompleteProfileForm = () => {
 
                   <div>
                     <label className="text-[#404040] block mb-1">
-                      Fecha de emisión <span className="text-red-500">*</span>
+                      Fecha de nacimiento <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
-                      placeholder="01/01/2020"
+                      placeholder="30/01/2004"
                       className="border border-[#D9D9D9] rounded-lg p-3 w-full text-[#404040]"
                       {...step1Form.register('emission_date', {
                         required: 'Campo requerido',
@@ -309,9 +325,16 @@ export const CompleteProfileForm = () => {
                     )}
                   </div>
 
+                  {/* Privacy Notice */}
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <p className="text-xs text-blue-800 text-center">
+                      Esta información es solo para fines de verificación y no será almacenada
+                    </p>
+                  </div>
+
                   <Button
                     variant="red"
-                    className="font-semibold w-full mt-6 cursor-pointer"
+                    className="font-semibold w-full cursor-pointer"
                     type="submit"
                     disabled={step1Loading}
                   >
@@ -595,3 +618,12 @@ export const CompleteProfileForm = () => {
     </div>
   );
 };
+
+function getSignupNonceData(user_id: string): DNIVerificationResponse | null {
+  const nonceResult = window.localStorage.getItem(`verification_nonce_result_${user_id}`);
+  if (!nonceResult) {
+    return null;
+  }
+  const resultParsed: DNIVerificationResponse = JSON.parse(nonceResult);
+  return resultParsed;
+}

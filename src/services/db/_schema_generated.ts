@@ -562,6 +562,7 @@ export type Database = {
           id: string
           nombres: string | null
           numero_documento: string | null
+          phone_country_code: string | null
           profile_completed: boolean
           tipo_documento: string | null
           updated_at: string
@@ -579,6 +580,7 @@ export type Database = {
           id: string
           nombres?: string | null
           numero_documento?: string | null
+          phone_country_code?: string | null
           profile_completed?: boolean
           tipo_documento?: string | null
           updated_at?: string
@@ -596,6 +598,7 @@ export type Database = {
           id?: string
           nombres?: string | null
           numero_documento?: string | null
+          phone_country_code?: string | null
           profile_completed?: boolean
           tipo_documento?: string | null
           updated_at?: string
@@ -889,6 +892,39 @@ export type Database = {
             referencedColumns: ['id']
           },
         ]
+      }
+      signup_verification_nonce: {
+        Row: {
+          apellido_materno: string | null
+          apellido_paterno: string | null
+          created_at: string
+          id: string
+          nombres: string | null
+          numero_documento: string | null
+          tipo_documento: string | null
+          user_id: string
+        }
+        Insert: {
+          apellido_materno?: string | null
+          apellido_paterno?: string | null
+          created_at?: string
+          id?: string
+          nombres?: string | null
+          numero_documento?: string | null
+          tipo_documento?: string | null
+          user_id: string
+        }
+        Update: {
+          apellido_materno?: string | null
+          apellido_paterno?: string | null
+          created_at?: string
+          id?: string
+          nombres?: string | null
+          numero_documento?: string | null
+          tipo_documento?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
     }
     Views: {
@@ -1443,6 +1479,21 @@ export type Database = {
       recalculate_all_vote_counts: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      signup_complete: {
+        Args: {
+          nonce_id: string
+          p_celular: string
+          p_country_code: string
+          p_geo_department: string
+          p_geo_district: string
+          p_phone_country_code: string
+        }
+        Returns: {
+          message: string
+          success: boolean
+          user_id: string
+        }[]
       }
       sparsevec_out: {
         Args: { '': unknown }
