@@ -24,7 +24,6 @@ import { PublicationDetail } from '@publications/pages/publication_detail';
 
 import 'react-day-picker/style.css';
 import 'leaflet/dist/leaflet.css';
-import 'react-lite-youtube-embed/dist/LiteYouTubeEmbed.css';
 import './index.css';
 import { RouteGuard } from '@auth/guards/route-guards';
 import { Toaster } from 'sonner';

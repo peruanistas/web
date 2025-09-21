@@ -18,6 +18,7 @@ import { ProjectFilters } from '@projects/components/projects_filters';
 import { useState } from 'react';
 import { useAuthStore } from '@auth/store/auth_store';
 import type { Tables } from '@db/schema';
+import { WhatIsPeruanistaSection } from './what_is_peruanista_section';
 
 const NEWS_RESULTS_PER_PAGE = 8;
 const PROJECTS_RESULTS_PER_PAGE = 3;
@@ -87,6 +88,7 @@ export function HomeFeed() {
 
   return (
     <section>
+      <WhatIsPeruanistaSection />
       <ContentLayout variant='wide'>
         <div className='flex justify-between items-center mb-4 gap-4 flex-wrap'>
           <div className='flex-grow'>

@@ -117,8 +117,6 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
     }
   }, [userId, isOwn, fetchExternalProfile]);
 
-  console.log({ currentUser });
-
   const handleEditClick = () => {
     setTempBio(displayProfile?.bio || '');
     setIsEditing(true);
@@ -274,7 +272,6 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
       .eq('user_id', targetUserId)
       .order('created_at', { ascending: false });
     const { data, error } = await query;
-    console.log(data);
     if (error) {
       console.error('Error fetching votes:', error);
       setVotes([]);
