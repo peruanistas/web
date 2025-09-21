@@ -11,7 +11,6 @@ import { Avatar } from '@profile/components/ui/avatar';
 import {
   pushBlobToStorage,
   canUpdateGeoLocation,
-  setGeoUpdateTimestamp,
   getDaysUntilNextGeoUpdate,
   getNextGeoUpdateDate
 } from '@common/utils';
@@ -118,7 +117,7 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
     }
   }, [userId, isOwn, fetchExternalProfile]);
 
-
+  console.log({ currentUser });
 
   const handleEditClick = () => {
     setTempBio(displayProfile?.bio || '');
@@ -187,9 +186,11 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
   const handleEditGeoClick = () => {
     if (!currentUser?.id) return;
 
-    if (!canUpdateGeoLocation(currentUser.id)) {
-      const daysLeft = getDaysUntilNextGeoUpdate(currentUser.id);
-      const nextDate = getNextGeoUpdateDate(currentUser.id);
+    const lastUpdate: number = new Date(currentUser.profile!.last_geo_update).getTime();
+
+    if (!canUpdateGeoLocation(lastUpdate)) {
+      const daysLeft = getDaysUntilNextGeoUpdate(lastUpdate);
+      const nextDate = getNextGeoUpdateDate(lastUpdate);
       setGeoUpdateError(
         `Solo puedes actualizar tu ubicación cada 6 meses. Podrás actualizar nuevamente en ${daysLeft} días (${nextDate?.toLocaleDateString('es-PE')}).`
       );
@@ -222,18 +223,13 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
     setGeoUpdateError(null);
 
     try {
-      const { error } = await db
-        .from('profiles')
-        .update({
-          geo_department: tempDepartment,
-          geo_district: tempDistrict,
-        })
-        .eq('id', currentUser.id);
+      const { error, data } = await db.rpc('update_user_geo_location', {
+        p_geo_department: tempDepartment,
+        p_geo_district: tempDistrict,
+      });
 
       if (error) throw error;
-
-      // Update timestamp in localStorage
-      setGeoUpdateTimestamp(currentUser.id);
+      if (!data[0].success) throw Error('No se pudo actualizar');
 
       // Update auth store
       if (currentUser.profile) {
@@ -241,6 +237,7 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
           ...currentUser,
           profile: {
             ...currentUser.profile,
+            last_geo_update: Date(),
             geo_department: tempDepartment,
             geo_district: tempDistrict,
           } as Required<Tables<'profiles'>>,

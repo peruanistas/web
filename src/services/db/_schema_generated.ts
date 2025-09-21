@@ -560,6 +560,7 @@ export type Database = {
           geo_department: string | null
           geo_district: string | null
           id: string
+          last_geo_update: string
           nombres: string | null
           numero_documento: string | null
           phone_country_code: string | null
@@ -578,6 +579,7 @@ export type Database = {
           geo_department?: string | null
           geo_district?: string | null
           id: string
+          last_geo_update?: string
           nombres?: string | null
           numero_documento?: string | null
           phone_country_code?: string | null
@@ -596,6 +598,7 @@ export type Database = {
           geo_department?: string | null
           geo_district?: string | null
           id?: string
+          last_geo_update?: string
           nombres?: string | null
           numero_documento?: string | null
           phone_country_code?: string | null
@@ -1514,6 +1517,13 @@ export type Database = {
       toggle_event_attendance: {
         Args: { p_event_id: string }
         Returns: undefined
+      }
+      update_user_geo_location: {
+        Args: { p_geo_department: string; p_geo_district: string }
+        Returns: {
+          message: string
+          success: boolean
+        }[]
       }
       vector_avg: {
         Args: { '': number[] }

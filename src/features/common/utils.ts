@@ -80,8 +80,6 @@ export function getRedirectURL() {
 // Re-export geo update tracker utilities
 export {
   canUpdateGeoLocation,
-  setGeoUpdateTimestamp,
   getDaysUntilNextGeoUpdate,
   getNextGeoUpdateDate,
-  getGeoUpdateTimestamp
 } from './utils/geo_update_tracker';
