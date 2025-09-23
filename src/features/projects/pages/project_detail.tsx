@@ -15,7 +15,7 @@ import { Share } from '@common/components/share';
 import { ContentLayout } from '@common/components/content_layout';
 import { MarkdownViewer } from '@common/components/md_viewer';
 import { useQuery } from '@tanstack/react-query';
-import type { ProjectFull } from '@projects/types';
+import type { ProjectFull, ProjectPreview } from '@projects/types';
 import { VoteConfirmationModal } from '@projects/components/vote_confirmation_modal';
 import { Link } from 'wouter';
 import { Loader } from '@common/components/loader';
@@ -270,7 +270,7 @@ export function ProjectsDetailsPage({ id }: ProjectsDetailsPageProps) {
         (project && voteModalOpen) && <VoteConfirmationModal
           onClose={() => setVoteModalOpen(false)}
           open={true}
-          project={project}
+          project={project as unknown as ProjectPreview}
         />
       }
 

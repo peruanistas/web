@@ -266,26 +266,16 @@ async function fetchMorePublications({ page }: FetchPaginationParams): Promise<R
 }
 
 async function fetchMoreProjects({ page, department, district }: FetchPaginationParams): Promise<ProjectPreview[]> {
-  const offset = page * PROJECTS_RESULTS_PER_PAGE;
-
-  let query = db
-    .from('projects')
-    .select('id, title, image_url, created_at, geo_department, geo_district, impression_count, ioarr_type')
-    .order('created_at', { ascending: false })
-    .range(offset, offset + PROJECTS_RESULTS_PER_PAGE - 1);
-
-  if (department) {
-    query = query.eq('geo_department', department);
-  }
-
-  if (district) {
-    query = query.eq('geo_district', district);
-  }
-
-  const { data, error } = await query;
+  const { data, error } = await db.rpc('get_projects_with_votes', {
+    p_department: department || undefined,
+    p_province: department || undefined,
+    p_district: district || undefined,
+    p_page: page,
+    p_page_size: PROJECTS_RESULTS_PER_PAGE,
+  });
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error('Could not fetch projects');
   }
 
   return data;

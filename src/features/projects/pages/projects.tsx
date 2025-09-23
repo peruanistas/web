@@ -211,51 +211,19 @@ async function fetchProjectsPaginated({
   orderBy = 'created_at_desc',
   page = 0,
 }: FetchProjectsPaginatedParams): Promise<ProjectPreview[]> {
-  const offset = page * PROJECTS_RESULTS_PER_PAGE;
+  const { data, error } = await db.rpc('get_projects_with_votes', {
+    p_department: department || undefined,
+    p_province: province || undefined,
+    p_search: search || undefined,
+    p_district: district || undefined,
+    p_order_by: orderBy || undefined,
+    p_page: page,
+    p_page_size: PROJECTS_RESULTS_PER_PAGE,
+  });
 
-  let query = db
-    .from('projects')
-    .select(
-      'id, title, image_url, created_at, geo_department, geo_district, impression_count, ioarr_type'
-    )
-    .eq('is_megaproject', false);
-
-  if (department) {
-    query = query.eq('geo_department', department);
-  }
-  if (province) {
-    query = query.like('geo_district', `${province}%`);
-  }
-  if (district) {
-    query = query.eq('geo_district', district);
-  }
-  if (search) {
-    query = query.ilike('title', `%${search}%`);
+  if (error) {
+    throw new Error('Could not fetch projects');
   }
 
-  switch (orderBy) {
-    case 'created_at_asc':
-      query = query.order('created_at', { ascending: true });
-      break;
-    case 'created_at_desc':
-      query = query.order('created_at', { ascending: false });
-      break;
-    case 'title_asc':
-      query = query.order('title', { ascending: true });
-      break;
-    case 'title_desc':
-      query = query.order('title', { ascending: false });
-      break;
-    default:
-      query = query.order('created_at', { ascending: false });
-  }
-
-  query = query.range(offset, offset + PROJECTS_RESULTS_PER_PAGE - 1);
-
-  const response = await query;
-
-  if (response.error) {
-    throw new Error(response.error.message);
-  }
-  return response.data;
+  return data;
 }

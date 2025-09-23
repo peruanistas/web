@@ -113,11 +113,11 @@ export function ProjectCard(project: ProjectCardProps) {
             </div>
             <div className='flex text-sm items-center justify-center gap-2'>
               <div className='flex items-center gap-1'>
-                <p>0</p>
+                <p>{project.golden_votes}</p>
                 <Star color='#f7865d' fill={'#f7865d'} size={20} />
               </div>
               <div className='flex items-center gap-1'>
-                <p>0</p>
+                <p>{project.silver_votes}</p>
                 <Star color='#b2b2b2' fill={'#b2b2b2'} size={20} />
               </div>
             </div>

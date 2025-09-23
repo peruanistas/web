@@ -1266,12 +1266,12 @@ export type Database = {
         }
         Returns: {
           author_id: string
+          comment_id: string
           content: string
           created_at: string
           depth: number
           downvotes: number
           group_publication_id: string
-          id: string
           parent_comment_id: string
           path: unknown
           reply_count: number
@@ -1384,6 +1384,29 @@ export type Database = {
           golden_votes: number
           silver_votes: number
           times_user_has_votes: number
+        }[]
+      }
+      get_projects_with_votes: {
+        Args: {
+          p_department?: string
+          p_district?: string
+          p_order_by?: string
+          p_page?: number
+          p_page_size?: number
+          p_province?: string
+          p_search?: string
+        }
+        Returns: {
+          created_at: string
+          geo_department: string
+          geo_district: string
+          golden_votes: number
+          id: string
+          image_url: string[]
+          impression_count: number
+          ioarr_type: Database['public']['Enums']['ioarr_type']
+          silver_votes: number
+          title: string
         }[]
       }
       get_vote_stats: {
