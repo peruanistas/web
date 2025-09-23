@@ -5,9 +5,31 @@ import donationIcon from '@assets/images/donation_icon.png';
 export function DonationWindow() {
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<'yape' | 'plin'>('yape');
+  const [showDialog, setShowDialog] = useState(true);
 
   return (
     <>
+      {/* Small dialog above the button */}
+      {showDialog && (
+        <div
+          className="fixed z-50 bg-white border border-gray-300 shadow-lg px-4 py-2 rounded-xl flex items-center gap-2 animate-fade-in"
+          style={{
+            left: 28,
+            bottom: 96, // 64px button height + 24px gap (1.5rem)
+            minWidth: 120,
+            maxWidth: 220
+          }}
+        >
+          <span className="text-[0.95rem]">Apóyanos</span>
+          <button
+            onClick={() => setShowDialog(false)}
+            className="ml-1 text-gray-400 hover:text-gray-700 focus:outline-none"
+            aria-label="Cerrar aviso"
+          >
+            ×
+          </button>
+        </div>
+      )}
       <button
         className="fixed cursor-pointer bottom-6 opacity-85 left-6 z-50 bg-primary/90 hover:bg-primary rounded-full shadow-xl flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-primary"
         style={{ width: 64, height: 64 }}
