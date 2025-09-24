@@ -21,7 +21,7 @@ export function MissionSection() {
           </p>
         </div>
         <div className='justify-center w-full h-full max-w-[600px]'>
-          <LiteYoutubeEmbed id="b8y9RNWAlHs" mute={false} />
+          <LiteYoutubeEmbed id="Fjffq_LYI1Q" mute={false} />
         </div>
       </div>
     </section>

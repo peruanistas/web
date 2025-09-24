@@ -64,7 +64,7 @@ export function WhatIsPeruanistaSection() {
             <LiteYoutubeEmbed
               iframeTitle='Video de introducción peruanista'
               imageAltText='Video de introducción peruanista'
-              id="b8y9RNWAlHs"
+              id="Fjffq_LYI1Q"
               mute={false}
             />
           </div>
