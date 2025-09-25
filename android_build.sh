@@ -16,6 +16,7 @@ key_name=debug-key.jks
 export NDK_HOME="/opt/Android/Sdk/ndk/27.2.12479018/"
 export ANDROID_HOME="/opt/Android/Sdk/"
 
+# https://v2.tauri.app/reference/cli/#android-build
 npm run tauri android build --apk
 
 OUTPUT_APK=./src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk
