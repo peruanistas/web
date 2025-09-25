@@ -19,6 +19,7 @@ import { useState } from 'react';
 import { useAuthStore } from '@auth/store/auth_store';
 import type { Tables } from '@db/schema';
 import { WhatIsPeruanistaSection } from './what_is_peruanista_section';
+import { WeatherFeedCard } from './weather_card';
 
 const NEWS_RESULTS_PER_PAGE = 8;
 const PROJECTS_RESULTS_PER_PAGE = 3;
@@ -120,9 +121,12 @@ export function HomeFeed() {
             <ContentLayout variant='wide'>
               <section className='w-full publications-grid'>
                 {
-                  publications.map((publication, i) => (
-                    <PublicationCard key={i} {...publication} />
-                  ))
+                  publications.map((publication, ip) => {
+                    if (i === 0 && ip === 3) {
+                      return <WeatherFeedCard />;
+                    }
+                    return <PublicationCard key={ip} {...publication} />;
+                  })
                 }
               </section>
             </ContentLayout>
