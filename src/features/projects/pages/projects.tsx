@@ -98,7 +98,7 @@ export function ProjectsPage() {
       <Header />
       <PageBanner
         title="Proyectos"
-        description="Explora todos los proyectos disponibles, y participa con tus votos y comentarios."
+        description="Explora todos los proyectos. Participa con tus votos y comentarios."
         variant="project"
         trailing={
           <a

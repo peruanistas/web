@@ -16,6 +16,8 @@
     "@tailwindcss/vite": "^4.1.6",
     "@tanstack/react-query": "^5.76.1",
     "@tanstack/react-query-devtools": "^5.76.1",
+    "@tauri-apps/api": "^2",
+    "@tauri-apps/plugin-opener": "^2",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.510.0",
     "react": "^19.1.0",
@@ -26,7 +28,6 @@
     "react-hook-form": "^7.56.3",
     "react-icons": "^5.5.0",
     "react-leaflet": "^5.0.0",
-    "react-lite-yt-embed": "^1.2.7",
     "react-phone-number-input": "^3.4.12",
     "react-select": "^5.10.1",
     "react-share": "^5.2.2",
@@ -34,12 +35,11 @@
     "sonner": "^2.0.3",
     "tailwindcss": "^4.1.6",
     "wouter": "^3.7.0",
-    "zustand": "^5.0.4",
-    "@tauri-apps/api": "^2",
-    "@tauri-apps/plugin-opener": "^2"
+    "zustand": "^5.0.4"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
+    "@tauri-apps/cli": "^2",
     "@types/leaflet": "^1.9.17",
     "@types/node": "^22.15.17",
     "@types/react": "^19.1.2",
@@ -52,7 +52,6 @@
     "sass": "^1.88.0",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.30.1",
-    "vite": "^6.3.5",
-    "@tauri-apps/cli": "^2"
+    "vite": "^6.3.5"
   }
 }

@@ -1,11 +1,22 @@
 import { useState } from 'react';
 import yapeQR from '@assets/images/yape_qr.jpg';
 import donationIcon from '@assets/images/donation_icon.png';
+import { useLocation } from 'wouter';
+
+const DO_NOT_SHOW_LOCATIONS = ['/signup', '/login'];
 
 export function DonationWindow() {
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<'yape' | 'plin'>('yape');
   const [showDialog, setShowDialog] = useState(true);
+
+  const [location,] = useLocation();
+
+  console.log({ location });
+
+  if (DO_NOT_SHOW_LOCATIONS.includes(location)) {
+    return <></>;
+  }
 
   return (
     <>

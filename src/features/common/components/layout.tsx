@@ -1,4 +1,4 @@
-import type React from 'react';
+import '@common/styles/layout.scss';
 
 type LayoutProps = React.HTMLAttributes<HTMLElement>;
 

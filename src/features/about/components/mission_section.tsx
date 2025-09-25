@@ -1,5 +1,4 @@
 import SectionSubtitle from '@common/components/subtitle';
-import { LiteYoutubeEmbed } from 'react-lite-yt-embed';
 
 export function MissionSection() {
   return (
@@ -21,7 +20,14 @@ export function MissionSection() {
           </p>
         </div>
         <div className='justify-center w-full h-full max-w-[600px]'>
-          <LiteYoutubeEmbed id="Fjffq_LYI1Q" mute={false} />
+          <iframe
+            width="100%"
+            height="100%"
+            src="https://www.youtube.com/embed/Fjffq_LYI1Q"
+            title=""
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen>
+          </iframe>
         </div>
       </div>
     </section>

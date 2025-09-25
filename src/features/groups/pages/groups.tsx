@@ -106,7 +106,7 @@ export function GroupsPage() {
       <Header />
       <PageBanner
         title='Grupos'
-        description='Explora todos los grupos disponibles. Únete y comparte publicaciones con ellos.'
+        description='Explora todos los grupos disponibles. Únete y comparte publicaciones.'
         variant='group'
       />
       <ContentLayout>

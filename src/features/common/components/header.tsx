@@ -78,7 +78,7 @@ export function Header({ showNavigation, ...rest }: HeaderProps) {
       }}
     >
       <ContentLayout>
-        <div className='flex justify-between items-center py-4' style={{ height: HEADER_BAR_HEIGHT }}>
+        <div className='flex justify-between items-end py-4' style={{ height: `calc(env(safe-area-inset-top) + ${HEADER_BAR_HEIGHT}px)`, }}>
           <Link href='/'>
             <div className='flex items-center gap-3'>
               <img src={logo} alt='logo' className='h-9' />

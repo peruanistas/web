@@ -18,6 +18,7 @@ import { MarkdownViewer } from '@common/components/md_viewer';
 import { Link } from 'wouter';
 import { useAuthStore } from '@auth/store/auth_store';
 import type { PublicationPreview } from '@home/types';
+import { toast } from 'sonner';
 
 type Props = {
   id: string;
@@ -99,7 +100,11 @@ export function PublicationDetail({ id }: Props) {
 
 
   async function handleUpVote() {
-    if (!user || voteLoading) return;
+    if (!user) {
+      toast.error('Crea una cuenta para poder votar por publicaciones');
+      return;
+    }
+    if (voteLoading) return;
     setVoteLoading(true);
     try {
       await db.from('publication_votes')
@@ -124,7 +129,11 @@ export function PublicationDetail({ id }: Props) {
   }
 
   async function handleDownVote() {
-    if (!user || voteLoading) return;
+    if (!user) {
+      toast.error('Crea una cuenta para poder votar por publicaciones');
+      return;
+    }
+    if (voteLoading) return;
     setVoteLoading(true);
     try {
       await db.from('publication_votes')
@@ -234,8 +243,8 @@ export function PublicationDetail({ id }: Props) {
     <Layout>
       <Header />
       <ContentLayout>
-        <div className="mx-auto py-10 flex gap-8">
-          <main className='flex-1'>
+        <div className="mx-auto py-6 px-0 md:px-0 flex flex-col lg:flex-row gap-8 w-full max-w-[1200px]">
+          <main className='flex-1 min-w-0'>
             {isLoading ? (
               <ContentLoader
                 speed={2}
@@ -312,13 +321,13 @@ export function PublicationDetail({ id }: Props) {
                       <img
                         src={publication.image_url}
                         alt={publication.title}
-                        className="w-full h-auto rounded-lg object-cover shadow-sm"
-                        style={{ maxHeight: '500px' }}
+                        className="w-full h-auto rounded-lg object-cover shadow-sm max-h-[320px] md:max-h-[500px]"
+                        style={{}}
                       />
                     </div>
                   )}
 
-                  <div className={'flex space-y-4 justify-between'}>
+                  <div className={'flex flex-col sm:flex-row gap-3 sm:gap-6 justify-between items-stretch sm:items-center'}>
                     <div className='bg-white flex-row flex gap-2 items-center justify-center rounded-lg px-4 py-2 border border-border'>
                       <button onClick={handleUpVote} className={`cursor-pointer transition-colors duration-300 ${isUpvoted ? 'text-red-600' : 'text-black'}`} >
                         <CircleArrowUp size={24} />
@@ -332,6 +341,7 @@ export function PublicationDetail({ id }: Props) {
                       <Button
                         leading={<Share2 size={18} />}
                         onClick={() => setShareOpen(true)}
+                        className="w-full sm:w-auto"
                       >
                         Compartir
                       </Button>
@@ -339,7 +349,7 @@ export function PublicationDetail({ id }: Props) {
                   </div>
 
                   <div className="prose max-w-none mt-3 mb-8">
-                    <div className="text-gray-800 text-md leading-relaxed whitespace-pre-wrap">
+                    <div className="text-gray-800 text-md leading-relaxed whitespace-pre-wrap break-words">
                       <MarkdownViewer content={publication.content} />
                     </div>
                   </div>
@@ -359,7 +369,7 @@ export function PublicationDetail({ id }: Props) {
                   )}
                   <CommentsSection publication_id={publication.id} handleRefresh={() => { }} />
                   <div className='flex flex-col justify-start py-4 mt-6 bg-white border-t-1 border-border' />
-                  <aside className="w-[36rem] lg:hidden block" style={{
+                  <aside className="w-full max-w-[36rem] lg:hidden block mt-8" style={{
                     top: HEADER_FULL_HEIGHT + 24
                   }}>
                     {randomContentElements}
@@ -368,7 +378,7 @@ export function PublicationDetail({ id }: Props) {
               )
             )}
           </main>
-          <aside className="w-96 hidden lg:block sticky self-start" style={{
+          <aside className="w-full max-w-xs hidden lg:block sticky self-start" style={{
             top: HEADER_FULL_HEIGHT + 24
           }}>
             {randomContentElements}
