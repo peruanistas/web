@@ -109,10 +109,41 @@ export function WeatherFeedCard() {
   if (loadingLocation || loadingWeather) {
     return (
       <div className="flex items-center justify-center">
-        <div className="flex flex-col bg-white rounded p-4 w-full max-w-xs border border-gray-200">
-          <ContentLoader speed={2} width={300} height={180} viewBox="0 0 300 180" backgroundColor="#f3f3f3" foregroundColor="#ecebeb">
-            <rect x="0" y="0" rx="8" ry="8" width="300" height="180" />
-          </ContentLoader>
+        <div className="flex flex-1 flex-col rounded-lg w-full max-w-xs overflow-hidden border-gray-300 border">
+          {/* Header section */}
+          <div className="bg-gradient-to-r px-4 pt-4 pb-2">
+            <ContentLoader speed={2} width={220} height={40} viewBox="0 0 220 40" backgroundColor="#f3f3f3" foregroundColor="#ecebeb">
+              <rect x="0" y="0" rx="6" ry="6" width="120" height="18" />
+              <rect x="0" y="24" rx="4" ry="4" width="80" height="12" />
+              <rect x="130" y="24" rx="4" ry="4" width="60" height="10" />
+            </ContentLoader>
+          </div>
+          {/* Icon section */}
+          <div className="bg-gray-400 flex items-center justify-center py-3">
+            <ContentLoader speed={2} width={96} height={96} viewBox="0 0 96 96" backgroundColor="#e0e0e0" foregroundColor="#ecebeb">
+
+            </ContentLoader>
+          </div>
+          {/* Temperature section */}
+          <div className="bg-white flex flex-row items-center justify-center py-4 border-t border-gray-100">
+            <ContentLoader speed={2} width={220} height={60} viewBox="0 0 220 60" backgroundColor="#f3f3f3" foregroundColor="#ecebeb">
+              <rect x="0" y="10" rx="8" ry="8" width="60" height="40" />
+              <rect x="70" y="10" rx="6" ry="6" width="80" height="16" />
+              <rect x="70" y="32" rx="4" ry="4" width="40" height="12" />
+              <rect x="120" y="32" rx="4" ry="4" width="40" height="12" />
+            </ContentLoader>
+          </div>
+          {/* Details section */}
+          <div className="flex flex-row justify-between bg-gray-50 px-4 py-3 border-t border-gray-200">
+            <ContentLoader speed={2} width={220} height={36} viewBox="0 0 220 36" backgroundColor="#f3f3f3" foregroundColor="#ecebeb">
+              <rect x="0" y="0" rx="4" ry="4" width="60" height="14" />
+              <rect x="0" y="20" rx="4" ry="4" width="40" height="10" />
+              <rect x="80" y="0" rx="4" ry="4" width="60" height="14" />
+              <rect x="80" y="20" rx="4" ry="4" width="40" height="10" />
+              <rect x="160" y="0" rx="4" ry="4" width="60" height="14" />
+              <rect x="160" y="20" rx="4" ry="4" width="40" height="10" />
+            </ContentLoader>
+          </div>
         </div>
       </div>
     );
