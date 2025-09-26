@@ -9,6 +9,8 @@ keytool -genkeypair -v \
   -validity 10000
 
 pass: peruanista
+
+Build icon: npm run tauri icon /tmp/icon_peruanista.png
 "
 
 key_name=debug-key.jks
@@ -24,6 +26,8 @@ OUTPUT_AAB=./src-tauri/gen/android/app/build/outputs/bundle/universalRelease/app
 
 zipalign=$ANDROID_HOME/build-tools/35.0.0/zipalign
 apksigner=$ANDROID_HOME/build-tools/35.0.0/apksigner
+
+rm -f app-aligned.apk app-signed.apk
 
 $zipalign -v -p 4 $OUTPUT_APK app-aligned.apk
 
