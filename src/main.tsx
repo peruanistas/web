@@ -21,6 +21,7 @@ import { useQueryFavicon } from '@hooks/query_favicon';
 import { NewCreatePage } from '@publications/pages/publication_create';
 import { AboutPage } from '@about/pages/about';
 import { PublicationDetail } from '@publications/pages/publication_detail';
+import { onOpenUrl } from '@tauri-apps/plugin-deep-link';
 
 import 'react-day-picker/style.css';
 import 'leaflet/dist/leaflet.css';
@@ -37,6 +38,7 @@ import { AylluPage } from './features/ayllu/pages/ayllu';
 // import { DonationWindow } from '@common/components/donation_window';
 import { useAuthStore } from '@auth/store/auth_store';
 import { db } from '@db/client';
+import { IS_TAURI } from '@common/utils';
 
 export function PeruanistasRouter() {
   useQueryFavicon();
@@ -184,5 +186,28 @@ window.androidBackCallback = () => {
   history.back();
   return false;
 };
+
+if (IS_TAURI) {
+  onOpenUrl(async (urls) => {
+    if (urls.length === 0) {
+      return;
+    }
+
+    if (!urls[0].includes('access_token')) {
+      return;
+    }
+
+    const url = new URL(urls[0]);
+
+    // Parse the fragment (hash) part of the URL
+    const fragment = url.hash.substring(1); // Remove the # character
+    const fragmentParams = new URLSearchParams(fragment);
+
+    await db.auth.setSession({
+      access_token: fragmentParams.get('access_token')!,
+      refresh_token: fragmentParams.get('refresh_token')!,
+    });
+  });
+}
 
 createRoot(document.getElementById('root')!).render(<PeruanistasRoot />);
