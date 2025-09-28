@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { TermsModal } from '@common/components/terms_modal';
 import { Button } from '@common/components/button';
+import { DatePicker } from '@common/components/date_picker';
 import { useState, useEffect } from 'react';
 import { DEPARTMENT_OPTIONS, PROVINCES_BY_DEPARTMENT, DISTRICTS_BY_PROVINCE } from '@common/data/geo';
 import { db } from '@db/client';
@@ -307,17 +308,23 @@ export const CompleteProfileForm = () => {
                     <label className="text-[#404040] block mb-1">
                       Fecha de nacimiento <span className="text-red-500">*</span>
                     </label>
-                    <input
-                      type="text"
-                      placeholder="30/01/2004"
-                      className="border border-[#D9D9D9] rounded-lg p-3 w-full text-[#404040]"
-                      {...step1Form.register('emission_date', {
+                    <Controller
+                      control={step1Form.control}
+                      name="emission_date"
+                      rules={{
                         required: 'Campo requerido',
                         pattern: {
                           value: /^[0-9]{2}\/[0-9]{2}\/[0-9]{4}$/,
                           message: 'Formato debe ser DD/MM/YYYY'
                         }
-                      })}
+                      }}
+                      render={({ field }) => (
+                        <DatePicker
+                          value={field.value}
+                          onChange={field.onChange}
+                          placeholder="30/01/2004"
+                        />
+                      )}
                     />
                     {step1Form.formState.errors.emission_date && (
                       <p className="text-red-500 text-xs mt-1">

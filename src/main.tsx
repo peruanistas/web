@@ -26,7 +26,7 @@ import 'react-day-picker/style.css';
 import 'leaflet/dist/leaflet.css';
 import './index.css';
 import { RouteGuard } from '@auth/guards/route-guards';
-import { toast, Toaster } from 'sonner';
+import { Toaster } from 'sonner';
 import { ConfirmEmailPage } from '@auth/pages/confirm_email';
 import { GroupsPage } from '@groups/pages/groups';
 import { GroupsCreatePage } from '@groups/pages/groups_create';
@@ -46,7 +46,6 @@ export function PeruanistasRouter() {
   // Retry authentication on focus if no user is present
   useEffect(() => {
     const handleFocus = async () => {
-      toast.info('Intentando re-autenticarte...');
       if (user) return; // User is already authenticated
 
       if (tryingToReauthenticate.current) return;
