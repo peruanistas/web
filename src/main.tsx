@@ -179,4 +179,10 @@ function PeruanistasRoot() {
   );
 }
 
+// @ts-expect-error adding a new global function
+window.androidBackCallback = () => {
+  history.back();
+  return false;
+};
+
 createRoot(document.getElementById('root')!).render(<PeruanistasRoot />);

@@ -74,7 +74,7 @@ export function mergeAndShuffle<T>(a: T[], b: T[]): T[] {
 }
 
 export function getRedirectURL() {
-  let url = import.meta.env.DEV ? 'http://localhost:5173/' : 'https://peruanistas.pages.dev/';
+  let url = import.meta.env.DEV ? 'http://localhost:5173/' : 'https://peruanista.pe/';
   // Make sure to include a trailing `/`.
   url = url.endsWith('/') ? url : `${url}/`;
   return url;

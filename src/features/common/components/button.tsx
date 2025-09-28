@@ -46,7 +46,7 @@ export function Button({
     <button
       type={type}
       disabled={disabled}
-      className={`px-5 rounded-lg h-10 cursor-pointer border ${color} ${backgroundColor} ${borderColor} ${className ?? ''}`}
+      className={`px-5 rounded-lg min-h-10 cursor-pointer border ${color} ${backgroundColor} ${borderColor} ${className ?? ''}`}
       style={style}
       {...rest}
     >

@@ -9,7 +9,7 @@ export function Modal({ open, onClose, children }: { open: boolean, onClose: () 
       style={{ pointerEvents: 'auto', zIndex: 696969 }}
     >
       <div
-        className="bg-white p-6 rounded shadow-lg relative"
+        className="bg-white p-6 rounded shadow-lg relative mx-4"
         style={{ maxWidth: 800, width: '100%', pointerEvents: 'auto' }}
         onClick={e => e.stopPropagation()}
       >
