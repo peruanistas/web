@@ -26,14 +26,27 @@ OUTPUT_AAB=./src-tauri/gen/android/app/build/outputs/bundle/universalRelease/app
 
 zipalign=$ANDROID_HOME/build-tools/35.0.0/zipalign
 apksigner=$ANDROID_HOME/build-tools/35.0.0/apksigner
+# jarsigner is part of JDK, not Android SDK
+jarsigner=jarsigner
 
-rm -f app-aligned.apk app-signed.apk
+rm -f app-aligned.apk app-signed.apk app-signed.aab
 
+# Sign APK
 $zipalign -v -p 4 $OUTPUT_APK app-aligned.apk
 
-# pass
 $apksigner sign \
   --ks $key_name \
   --ks-key-alias debug \
+  --ks-pass pass:peruanista \
   --out app-signed.apk \
   app-aligned.apk
+
+# Sign AAB
+$jarsigner -verbose \
+  -sigalg SHA256withRSA \
+  -digestalg SHA-256 \
+  -keystore $key_name \
+  -storepass peruanista \
+  -keypass peruanista \
+  $OUTPUT_AAB \
+  debug
