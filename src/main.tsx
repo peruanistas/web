@@ -41,15 +41,11 @@ import { db } from '@db/client';
 export function PeruanistasRouter() {
   useQueryFavicon();
   const { user } = useAuthStore();
-  const tryingToReauthenticate = useRef(false);
+  const retryAuthInterval = useRef<number>(0);
 
-  // Retry authentication on focus if no user is present
   useEffect(() => {
     const handleFocus = async () => {
       if (user) return; // User is already authenticated
-
-      if (tryingToReauthenticate.current) return;
-      tryingToReauthenticate.current = true;
 
       const storedCredentials = localStorage.getItem('auth_credentials');
       if (!storedCredentials) return;
@@ -75,19 +71,19 @@ export function PeruanistasRouter() {
         if (!error) {
           localStorage.removeItem('auth_credentials');
         }
-      } finally {
-        tryingToReauthenticate.current = false;
+      } catch (error) {
+        console.error('Error reauthenticating:', error);
       }
     };
 
     // Add focus event listener
-    window.addEventListener('focus', handleFocus);
+    retryAuthInterval.current = window.setInterval(handleFocus, 3000);
 
     // Also try immediately when component mounts
     handleFocus();
 
     return () => {
-      window.removeEventListener('focus', handleFocus);
+      clearInterval(retryAuthInterval.current);
     };
   }, [user]);
 
