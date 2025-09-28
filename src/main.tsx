@@ -26,7 +26,7 @@ import 'react-day-picker/style.css';
 import 'leaflet/dist/leaflet.css';
 import './index.css';
 import { RouteGuard } from '@auth/guards/route-guards';
-import { Toaster } from 'sonner';
+import { toast, Toaster } from 'sonner';
 import { ConfirmEmailPage } from '@auth/pages/confirm_email';
 import { GroupsPage } from '@groups/pages/groups';
 import { GroupsCreatePage } from '@groups/pages/groups_create';
@@ -46,6 +46,7 @@ export function PeruanistasRouter() {
   // Retry authentication on focus if no user is present
   useEffect(() => {
     const handleFocus = async () => {
+      toast.info('Intentando re-autenticarte...');
       if (user) return; // User is already authenticated
 
       if (tryingToReauthenticate.current) return;
@@ -61,16 +62,20 @@ export function PeruanistasRouter() {
           password,
         });
 
+        if (error?.code === 'email_not_confirmed') {
+          // Keep trying until the email is confirmed
+          return;
+        }
+
+        if (error?.code === 'invalid_credentials') {
+          // Invalid credentials, remove the credentials
+          localStorage.removeItem('auth_credentials');
+          return;
+        }
+
         if (!error) {
-          // Authentication successful, the auth store will be updated automatically
-          console.log('Successfully re-authenticated on focus');
-        } else {
-          // Clear invalid credentials
           localStorage.removeItem('auth_credentials');
         }
-      } catch (error) {
-        console.error('Error retrying authentication:', error);
-        localStorage.removeItem('auth_credentials');
       } finally {
         tryingToReauthenticate.current = false;
       }
