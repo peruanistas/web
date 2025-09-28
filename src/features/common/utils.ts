@@ -1,6 +1,9 @@
 import { PE_DISTRICTS } from '@common/data/geo';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
+// @ts-expect-error __TAURI__ is not defined in the window object
+export const IS_TAURI = window.__TAURI__ !== undefined;
+
 /**
  * Formats a date-like type to a human-readable format used and loved by Peruanistas.
  */

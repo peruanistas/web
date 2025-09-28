@@ -19,6 +19,8 @@ import { ProjectFilters } from '@projects/components/projects_filters';
 import '@projects/styles/projects_list.scss';
 import { CreateButton } from '@common/components/create_button';
 import { useScrollReset } from '@common/hooks/useScrollReset';
+import { IS_TAURI } from '@common/utils';
+import { openUrl } from '@tauri-apps/plugin-opener';
 
 const PROJECTS_ORDER_OPTIONS = [
   { value: 'event_date_asc', label: 'Por fecha (antiguos)' },
@@ -101,14 +103,27 @@ export function ProjectsPage() {
         description="Explora todos los proyectos. Participa con tus votos y comentarios."
         variant="project"
         trailing={
-          <a
-            href="/archive/Sistema de votación y evaluación.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-white text-sm bg-black/40 rounded m-3 p-2 hover:bg-black/60 transition"
-          >
-            ¿Cómo podemos votar?
-          </a>
+          IS_TAURI ? (
+            <a
+              href="/archive/Sistema de votación y evaluación.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white text-sm bg-black/40 rounded m-3 p-2 hover:bg-black/60 transition"
+            >
+              ¿Cómo podemos votar?
+            </a>
+          ) : (
+            <button
+              onClick={() => {
+                openUrl(
+                  'https://peruanista.pe/archive/Sistema de votación y evaluación.pdf'
+                );
+              }}
+              className="text-white text-sm bg-black/40 rounded m-3 p-2 hover:bg-black/60 transition"
+            >
+              ¿Cómo podemos votar?
+            </button>
+          )
         }
       />
       <ContentLayout>
