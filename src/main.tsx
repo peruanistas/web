@@ -34,7 +34,7 @@ import { GroupDetail } from '@groups/pages/group_detail';
 import { ProfilePage } from '@profile/pages/profile';
 import { UserProfileDetail } from '@profile/pages/user_profile';
 import { AylluPage } from './features/ayllu/pages/ayllu';
-import { DonationWindow } from '@common/components/donation_window';
+// import { DonationWindow } from '@common/components/donation_window';
 import { useAuthStore } from '@auth/store/auth_store';
 import { db } from '@db/client';
 
@@ -168,7 +168,7 @@ function PeruanistasRoot() {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <RouteGuard>
-            <DonationWindow />
+            {/* <DonationWindow /> */}
             <PeruanistasRouter />
           </RouteGuard>
         </AuthProvider>
