@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "pe.peruanista.app",
+      "sha256_cert_fingerprints": [
+        "1B:E1:A5:B6:CB:3C:07:34:B7:E6:7B:D7:09:58:42:5D:0B:3E:EF:7B:FA:93:EF:A5:E6:FA:C8:15:80:3A:FD:3F"
+      ]
+    }
+  }
+]
