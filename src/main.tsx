@@ -35,6 +35,7 @@ import { GroupDetail } from '@groups/pages/group_detail';
 import { ProfilePage } from '@profile/pages/profile';
 import { UserProfileDetail } from '@profile/pages/user_profile';
 import { AylluPage } from './features/ayllu/pages/ayllu';
+import { DeleteAccountPage } from '@auth/pages/delete_account';
 // import { DonationWindow } from '@common/components/donation_window';
 import { useAuthStore } from '@auth/store/auth_store';
 import { db } from '@db/client';
@@ -130,6 +131,8 @@ export function PeruanistasRouter() {
       </Route>
 
       <Route path='/ayllu' component={AylluPage} />
+
+      <Route path='/borrar-cuenta' component={DeleteAccountPage} />
 
       <Route path='/feed/crear' component={NewCreatePage} />
       <Route path='/feed/:id'>
