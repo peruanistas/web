@@ -3,7 +3,7 @@ import SectionSubtitle from '@common/components/subtitle';
 export function MissionSection() {
   return (
     <section className="w-full py-25 px-6 md:px-25">
-      <div className="flex flex-col md:flex-row items-center justify-center gap-10 md:gap-10 max-w-6xl mx-auto">
+      <div className="flex flex-col lg:flex-row items-center justify-center gap-10 md:gap-10 max-w-6xl mx-auto">
         <div className="flex-1 max-w-prose text-justify space-y-4 text-base leading-relaxed">
           <SectionSubtitle title="Nuestra misión" />
           <p>
@@ -22,7 +22,7 @@ export function MissionSection() {
         <div className='justify-center w-full h-full max-w-[600px]'>
           <iframe
             width="100%"
-            height="100%"
+            height="340px"
             src="https://www.youtube.com/embed/Fjffq_LYI1Q"
             title=""
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
