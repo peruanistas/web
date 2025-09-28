@@ -27,6 +27,7 @@ export const SignUpForm = () => {
 
   const [hasTyped, setHasTyped] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const validation = validatePassword(password);
 
@@ -43,11 +44,13 @@ export const SignUpForm = () => {
 
   const signUpEmail = async (formData: Inputs) => {
     const { email, password } = formData;
+    setErrorMessage(null); // Clear any previous error
 
     const { data, error } = await db.auth.signUp({ email, password });
 
     if (error) {
       console.error(error.message);
+      setErrorMessage(error.message);
     } else {
       console.log('Cuenta creada');
       const user = data.user;
@@ -64,6 +67,8 @@ export const SignUpForm = () => {
   };
 
   const signUpGoogle = async () => {
+    setErrorMessage(null); // Clear any previous error
+
     const { data, error } = await db.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -79,6 +84,7 @@ export const SignUpForm = () => {
 
     if (error) {
       console.error(error.message);
+      setErrorMessage(error.message);
     }
   };
 
@@ -110,6 +116,12 @@ export const SignUpForm = () => {
             <div className="flex-1 border-t border-[#D9D9D9]"></div>
           </div>
         </div>
+
+        {errorMessage && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-600 text-sm">{errorMessage}</p>
+          </div>
+        )}
         <form className="flex flex-col" onSubmit={handleSubmit(signUpEmail)}>
           <label className="text-[#404040] mb-2">Correo electrónico</label>
           <input

@@ -47,7 +47,7 @@ export function PeruanistasRouter() {
 
   useEffect(() => {
     const handleFocus = async () => {
-      if (user) return; // User is already authenticated
+      if (user?.confirmed_at) return;
 
       const storedCredentials = localStorage.getItem('auth_credentials');
       if (!storedCredentials) return;

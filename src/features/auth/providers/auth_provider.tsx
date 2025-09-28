@@ -29,8 +29,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const handleSupabaseUser = async (supaUser: Nullish<User>) => {
       const user = (supaUser ?? null) as PeruanistaUser | null;
 
-      console.log('HANDLING', supaUser);
-
       try {
         if (!user) return;
 
