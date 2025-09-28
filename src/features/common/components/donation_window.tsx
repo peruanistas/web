@@ -3,7 +3,7 @@ import yapeQR from '@assets/images/yape_qr.jpg';
 import donationIcon from '@assets/images/donation_icon.png';
 import { useLocation } from 'wouter';
 
-const DO_NOT_SHOW_LOCATIONS = ['/signup', '/login'];
+const DO_NOT_SHOW_LOCATIONS = ['/signup', '/login', '/confirmar-correo', '/completar-registro', '/perfil'];
 
 export function DonationWindow() {
   const [open, setOpen] = useState(false);

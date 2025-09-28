@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { StrictMode } from 'react';
 import { Route, Switch } from 'wouter';
 import { createRoot } from 'react-dom/client';
@@ -35,9 +35,57 @@ import { ProfilePage } from '@profile/pages/profile';
 import { UserProfileDetail } from '@profile/pages/user_profile';
 import { AylluPage } from './features/ayllu/pages/ayllu';
 import { DonationWindow } from '@common/components/donation_window';
+import { useAuthStore } from '@auth/store/auth_store';
+import { db } from '@db/client';
 
 export function PeruanistasRouter() {
   useQueryFavicon();
+  const { user } = useAuthStore();
+  const tryingToReauthenticate = useRef(false);
+
+  // Retry authentication on focus if no user is present
+  useEffect(() => {
+    const handleFocus = async () => {
+      if (user) return; // User is already authenticated
+
+      if (tryingToReauthenticate.current) return;
+      tryingToReauthenticate.current = true;
+
+      const storedCredentials = localStorage.getItem('auth_credentials');
+      if (!storedCredentials) return;
+
+      try {
+        const { email, password } = JSON.parse(storedCredentials);
+        const { error } = await db.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (!error) {
+          // Authentication successful, the auth store will be updated automatically
+          console.log('Successfully re-authenticated on focus');
+        } else {
+          // Clear invalid credentials
+          localStorage.removeItem('auth_credentials');
+        }
+      } catch (error) {
+        console.error('Error retrying authentication:', error);
+        localStorage.removeItem('auth_credentials');
+      } finally {
+        tryingToReauthenticate.current = false;
+      }
+    };
+
+    // Add focus event listener
+    window.addEventListener('focus', handleFocus);
+
+    // Also try immediately when component mounts
+    handleFocus();
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [user]);
 
   return (
     <Switch>

@@ -51,6 +51,8 @@ export const SignUpForm = () => {
       console.log('Cuenta creada');
       const user = data.user;
       setUser(user);
+      // Store credentials in localStorage for potential retry in complete register
+      localStorage.setItem('auth_credentials', JSON.stringify({ email, password }));
 
       if (!user?.confirmed_at) {
         navigate('/confirmar-correo');
@@ -141,7 +143,14 @@ export const SignUpForm = () => {
             <PasswordRule passed={validation.hasUpperLowerNumber} text="Mayúsculas, minúsculas y números" />
           </ul>
           <Button type="submit" variant="red" className="font-semibold w-full mb-4" disabled={isSubmitting}>
-            Crear cuenta
+            {isSubmitting ? (
+              <div className="flex items-center justify-center gap-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Creando cuenta...
+              </div>
+            ) : (
+              'Crear cuenta'
+            )}
           </Button>
           <label className="text-[#757575] text-[14px] text-center">
             ¿Ya tienes una cuenta?{' '}
