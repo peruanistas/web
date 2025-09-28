@@ -7,7 +7,8 @@ import { Link, useLocation } from 'wouter';
 import { useState, useEffect } from 'react';
 import { Check, X, Eye, EyeOff } from 'lucide-react';
 import { useAuthStore } from '@auth/store/auth_store';
-import { getRedirectURL } from '@common/utils';
+import { getRedirectURL, IS_TAURI } from '@common/utils';
+import { openUrl } from '@tauri-apps/plugin-opener';
 
 type Inputs = {
   email: string
@@ -63,12 +64,19 @@ export const SignUpForm = () => {
   };
 
   const signUpGoogle = async () => {
-    const { error } = await db.auth.signInWithOAuth({
+    const { data, error } = await db.auth.signInWithOAuth({
       provider: 'google',
       options: {
+        skipBrowserRedirect: IS_TAURI ? true : false,
         redirectTo: getRedirectURL(),
       },
     });
+
+    if (IS_TAURI && data?.url) {
+      openUrl(data.url);
+      return;
+    }
+
     if (error) {
       console.error(error.message);
     }

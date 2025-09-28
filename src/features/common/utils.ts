@@ -1,8 +1,7 @@
 import { PE_DISTRICTS } from '@common/data/geo';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-// @ts-expect-error __TAURI__ is not defined in the window object
-export const IS_TAURI = window.__TAURI__ !== undefined;
+export const IS_TAURI = '__TAURI_INTERNALS__' in window;
 
 /**
  * Formats a date-like type to a human-readable format used and loved by Peruanistas.
@@ -74,7 +73,7 @@ export function mergeAndShuffle<T>(a: T[], b: T[]): T[] {
 }
 
 export function getRedirectURL() {
-  let url = import.meta.env.DEV ? 'http://localhost:5173/' : 'https://peruanista.pe/';
+  let url = IS_TAURI ? 'https://peruanista.pe/' : import.meta.env.DEV ? 'http://localhost:5173/' : 'https://peruanista.pe/';
   // Make sure to include a trailing `/`.
   url = url.endsWith('/') ? url : `${url}/`;
   return url;
