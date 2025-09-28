@@ -50,3 +50,5 @@ $jarsigner -verbose \
   -keypass peruanista \
   $OUTPUT_AAB \
   debug
+
+mv $OUTPUT_AAB app-signed.aab
