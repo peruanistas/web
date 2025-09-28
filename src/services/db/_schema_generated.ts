@@ -511,6 +511,24 @@ export type Database = {
           },
         ]
       }
+      kv_store: {
+        Row: {
+          expires_at: string | null
+          key: string
+          value: string
+        }
+        Insert: {
+          expires_at?: string | null
+          key: string
+          value: string
+        }
+        Update: {
+          expires_at?: string | null
+          key?: string
+          value?: string
+        }
+        Relationships: []
+      }
       preferences_hidden_publications: {
         Row: {
           created_at: string
