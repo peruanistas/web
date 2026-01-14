@@ -21,7 +21,7 @@ import type { Tables } from '@db/schema';
 import { WhatIsPeruanistaSection } from './what_is_peruanista_section';
 import { WeatherFeedCard } from './weather_card';
 
-const NEWS_RESULTS_PER_PAGE = 8;
+const NEWS_RESULTS_PER_PAGE = 32;
 const PROJECTS_RESULTS_PER_PAGE = 3;
 const GROUPS_RESULTS_PER_PAGE = 6;
 
