@@ -141,8 +141,8 @@ export const CompleteProfileForm = () => {
       const result: DNIVerificationResponse = await response.json();
 
       if (!response.ok || !result.verified) {
-        setStep1Error(result.error || 'Error en la verificación del DNI');
-        toast.error('Error en la verificación del DNI');
+        setStep1Error(result.error || 'Error en la verificación del DNI. Verifica que tus datos sean correctos.');
+        toast.error('Error en la verificación del DNI. Verifica que tus datos sean correctos.');
         return;
       }
 
@@ -335,7 +335,7 @@ export const CompleteProfileForm = () => {
 
                   {/* Privacy Notice */}
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                    <p className="text-xs text-blue-800 text-center">
+                    <p className="text-[13px] text-blue-800 text-center">
                       Esta información es solo para fines de verificación y no será almacenada
                     </p>
                   </div>
@@ -515,16 +515,19 @@ export const CompleteProfileForm = () => {
               </div>
 
               <div>
-                <label className="text-[#404040] block mb-1">
+                <label className={`block mb-1 ${!departamentoSeleccionado ? 'text-gray-400' : 'text-[#404040]'}`}>
                   Provincia <span className="text-red-500">*</span>
                 </label>
                 <select
-                  className="border border-[#D9D9D9] rounded-lg p-2 w-full text-[#404040] truncate cursor-pointer"
+                  className={`border rounded-lg p-2 w-full truncate ${!departamentoSeleccionado
+                      ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'border-[#D9D9D9] text-[#404040] cursor-pointer'
+                    }`}
                   {...step2Form.register('provincia', { required: 'Campo requerido' })}
                   disabled={!departamentoSeleccionado}
                 >
                   <option value="">
-                    {!departamentoSeleccionado ? 'Selecciona departamento' : 'Selecciona provincia'}
+                    {!departamentoSeleccionado ? 'Primero selecciona departamento' : 'Selecciona provincia'}
                   </option>
                   {provincias.map(option => (
                     <option key={option.value} value={option.value} className="truncate">
@@ -538,16 +541,19 @@ export const CompleteProfileForm = () => {
               </div>
 
               <div>
-                <label className="text-[#404040] block mb-1">
+                <label className={`block mb-1 ${!provinciaSeleccionada ? 'text-gray-400' : 'text-[#404040]'}`}>
                   Distrito <span className="text-red-500">*</span>
                 </label>
                 <select
-                  className="border border-[#D9D9D9] rounded-lg p-2 w-full text-[#404040] cursor-pointer"
+                  className={`border rounded-lg p-2 w-full ${!provinciaSeleccionada
+                      ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'border-[#D9D9D9] text-[#404040] cursor-pointer'
+                    }`}
                   {...step2Form.register('distrito', { required: 'Campo requerido' })}
                   disabled={!provinciaSeleccionada}
                 >
                   <option value="">
-                    {!provinciaSeleccionada ? 'Selecciona provincia' : 'Selecciona distrito'}
+                    {!provinciaSeleccionada ? 'Primero selecciona provincia' : 'Selecciona distrito'}
                   </option>
                   {distritos.map(option => (
                     <option key={option.value} value={option.value} className="truncate">
