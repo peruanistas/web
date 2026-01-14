@@ -20,6 +20,7 @@ import { useAuthStore } from '@auth/store/auth_store';
 import type { Tables } from '@db/schema';
 import { WhatIsPeruanistaSection } from './what_is_peruanista_section';
 import { WeatherFeedCard } from './weather_card';
+import { PodcastsSection } from './podcasts_section';
 
 const NEWS_RESULTS_PER_PAGE = 32;
 const PROJECTS_RESULTS_PER_PAGE = 3;
@@ -90,6 +91,7 @@ export function HomeFeed() {
   return (
     <section>
       <WhatIsPeruanistaSection />
+      <PodcastsSection />
       <ContentLayout variant='wide'>
         <div className='flex justify-between items-center mb-4 gap-4 flex-wrap'>
           <div className='flex-grow'>
