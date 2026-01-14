@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import yapeQR from '@assets/images/yape_qr.jpg';
+import yapeQR from '@assets/images/yape_qr.png';
 import donationIcon from '@assets/images/donation_icon.png';
 import { useLocation } from 'wouter';
 

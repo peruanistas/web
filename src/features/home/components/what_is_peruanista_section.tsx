@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from '@common/components/button';
 import { Link } from 'wouter';
+import { DonationSection } from '@common/components/donation_section';
 
 const LOCAL_STORAGE_KEY = 'hide_what_is_peruanista_section';
 
@@ -41,16 +42,22 @@ export function WhatIsPeruanistaSection() {
   if (hidden && !showUndo) return null;
 
   return (
-    <section className="w-full mt-2 mb-8 pt-4 pb-4 md:px-12 flex items-center relative bg-gray-100">
+    <section className="w-full mt-2 mb-8 pt-6 pb-6 md:px-8 flex items-center relative bg-gray-100">
       {!hidden && (
-        <div className="relative w-full flex flex-col md:flex-row justify-center items-center gap-6 p-0 md:p-0 border-0">
-          <div className="w-full md:w-1/2 flex flex-col items-center md:items-start px-4 md:px-0">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-center md:text-left mb-6 text-primary">¿Qué es Peruanista?</h2>
-            <p className="text-base md:text-lg mb-4 text-gray-900 max-w-2xl text-center md:text-left">
+        <div className="relative w-full flex flex-col lg:flex-row justify-center items-center lg:items-start gap-6 p-0 border-0">
+          {/* Donation Section - shows below video on mobile, left on desktop */}
+          <div className="w-full lg:w-auto flex justify-center lg:justify-start order-3 lg:order-first px-4 lg:px-0">
+            <DonationSection />
+          </div>
+
+          {/* Text Content - center */}
+          <div className="w-full lg:flex-1 flex flex-col items-center lg:items-start px-4 py-4 lg:px-0 max-w-xl order-1 lg:order-none">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-center lg:text-left mb-6 text-primary">¿Qué es Peruanista?</h2>
+            <p className="text-base md:text-lg mb-4 text-gray-900 text-center lg:text-left">
               Peruanista es una <strong>plataforma de gobierno abierto</strong> sin fines de lucro que te mantiene informado.
               Mira este corto video introductorio para que te enteres de todo lo que te puede ofrecer la plataforma.
             </p>
-            <div className="flex justify-center md:justify-start mb-4 w-full">
+            <div className="flex justify-center lg:justify-start mb-4 w-full">
               <button
                 className="text-gray-600 underline text-base transition cursor-pointer"
                 onClick={handleClose}
@@ -59,7 +66,9 @@ export function WhatIsPeruanistaSection() {
               </button>
             </div>
           </div>
-          <div className='w-full md:w-1/2 flex justify-center items-center max-w-full md:max-w-[600px] px-2 md:px-0'>
+
+          {/* Video Section - right */}
+          <div className='w-full lg:w-[400px] xl:w-[500px] flex justify-center items-center px-4 lg:px-0 order-2 lg:order-none'>
             <div className="w-full">
               <div className="relative pb-[56.25%] h-0 w-full rounded-lg overflow-hidden shadow">
                 <div className="absolute top-0 left-0 w-full h-full">

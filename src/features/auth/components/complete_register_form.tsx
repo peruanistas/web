@@ -520,8 +520,8 @@ export const CompleteProfileForm = () => {
                 </label>
                 <select
                   className={`border rounded-lg p-2 w-full truncate ${!departamentoSeleccionado
-                      ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'border-[#D9D9D9] text-[#404040] cursor-pointer'
+                    ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'border-[#D9D9D9] text-[#404040] cursor-pointer'
                     }`}
                   {...step2Form.register('provincia', { required: 'Campo requerido' })}
                   disabled={!departamentoSeleccionado}
@@ -546,8 +546,8 @@ export const CompleteProfileForm = () => {
                 </label>
                 <select
                   className={`border rounded-lg p-2 w-full ${!provinciaSeleccionada
-                      ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'border-[#D9D9D9] text-[#404040] cursor-pointer'
+                    ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'border-[#D9D9D9] text-[#404040] cursor-pointer'
                     }`}
                   {...step2Form.register('distrito', { required: 'Campo requerido' })}
                   disabled={!provinciaSeleccionada}
@@ -617,6 +617,7 @@ export const CompleteProfileForm = () => {
                   variant="white"
                   className="flex-1 cursor-pointer"
                   onClick={() => setCurrentStep(1)}
+                  disabled={step2Form.formState.isSubmitting}
                 >
                   Volver
                 </Button>

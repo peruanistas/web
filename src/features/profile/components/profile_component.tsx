@@ -34,6 +34,7 @@ type Publication = Omit<PublicationPreview, 'source_id'>
 type Event = Tables<'events'>
 type Profile = Tables<'profiles'>
 type Votes = Tables<'project_votes'>
+type Group = Tables<'groups'>
 
 interface ProfileComponentProps {
   userId?: string
@@ -49,6 +50,7 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
   const [publications, setPublications] = useState<Publication[]>([]);
   const [votes, setVotes] = useState<Votes[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
+  const [userGroups, setUserGroups] = useState<Group[]>([]);
   const [externalProfile, setExternalProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(false);
   const [profileLoading, setProfileLoading] = useState(false);
@@ -355,6 +357,29 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
     }
   }, [isOwn, targetUserId]);
 
+  const fetchUserGroups = useCallback(async () => {
+    if (!targetUserId) return;
+
+    // Fetch groups where user is a member or owner
+    const { data, error } = await db
+      .from('group_members')
+      .select('group_id, groups(*)')
+      .eq('user_id', targetUserId);
+
+    if (error) {
+      console.error('Error fetching user groups:', error);
+      setUserGroups([]);
+      return;
+    }
+
+    // Extract groups from the joined data
+    const groups = data
+      ?.map((membership) => membership.groups)
+      .filter((group): group is Group => group !== null && group.active) || [];
+
+    setUserGroups(groups);
+  }, [targetUserId]);
+
   const fetchUserData = useCallback(async () => {
     if (!targetUserId) return;
 
@@ -386,6 +411,13 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
       fetchUserData();
     }
   }, [targetUserId, activeTab, displayProfile, fetchUserData]);
+
+  // Fetch user groups when profile is available
+  useEffect(() => {
+    if (targetUserId && displayProfile) {
+      fetchUserGroups();
+    }
+  }, [targetUserId, displayProfile, fetchUserGroups]);
 
 
 
@@ -1028,12 +1060,42 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
                 <div className="p-4">
                   <h3 className="text-lg font-semibold text-gray-900 mb-3">Grupos</h3>
                   <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <Avatar className="w-8 h-8">
-                        <span className="text-white text-xs font-bold">P</span>
-                      </Avatar>
-                      <span className="text-sm font-medium">Peruanista</span>
-                    </div>
+                    {userGroups.length === 0 ? (
+                      <div className="text-sm text-gray-500">
+                        <p className="italic mb-2">
+                          {isOwn ? 'Aún no perteneces a ningún grupo' : 'No pertenece a ningún grupo'}
+                        </p>
+                        <button
+                          onClick={() => navigate('/grupos')}
+                          className="text-primary hover:underline font-medium"
+                        >
+                          Explorar grupos →
+                        </button>
+                      </div>
+                    ) : (
+                      userGroups.map((group) => (
+                        <div
+                          key={group.id}
+                          className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 rounded-lg p-1 -m-1 transition-colors"
+                          onClick={() => navigate(`/grupos/${group.id}`)}
+                        >
+                          {group.image_url ? (
+                            <img
+                              src={group.image_url}
+                              alt={group.name}
+                              className="w-8 h-8 rounded-full object-cover"
+                            />
+                          ) : (
+                            <Avatar className="w-8 h-8">
+                              <span className="text-white text-xs font-bold">
+                                {group.name.charAt(0).toUpperCase()}
+                              </span>
+                            </Avatar>
+                          )}
+                          <span className="text-sm font-medium truncate">{group.name}</span>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </div>
               </Card>
