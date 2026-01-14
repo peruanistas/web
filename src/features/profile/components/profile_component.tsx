@@ -1086,14 +1086,14 @@ export default function ProfileComponent({ userId, isOwnProfile, initialTab, onT
                               className="w-8 h-8 rounded-full object-cover"
                             />
                           ) : (
-                            <Avatar className="w-8 h-8">
+                      <Avatar className="w-8 h-8">
                               <span className="text-white text-xs font-bold">
                                 {group.name.charAt(0).toUpperCase()}
                               </span>
-                            </Avatar>
+                      </Avatar>
                           )}
                           <span className="text-sm font-medium truncate">{group.name}</span>
-                        </div>
+                    </div>
                       ))
                     )}
                   </div>

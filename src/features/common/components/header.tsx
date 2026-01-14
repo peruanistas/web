@@ -10,6 +10,7 @@ import { User, ChevronDown, Plus, FileText, Briefcase, Calendar } from 'lucide-r
 import logo from '@assets/images/logo_with_text.webp';
 import { getVotesLeft } from '@projects/utils';
 import ContentLoader from 'react-content-loader';
+import { UserCountBadge } from './user_count_badge';
 
 export const HEADER_NAV_HEIGHT = 46;
 export const HEADER_BAR_HEIGHT = 72;
@@ -79,11 +80,12 @@ export function Header({ showNavigation, ...rest }: HeaderProps) {
     >
       <ContentLayout>
         <div className='flex justify-between items-end py-4' style={{ height: `calc(env(safe-area-inset-top) + ${HEADER_BAR_HEIGHT}px)`, }}>
-          <Link href='/'>
-            <div className='flex items-center gap-3'>
+          <div className='flex items-center gap-3'>
+            <Link href='/'>
               <img src={logo} alt='logo' className='h-9' />
-            </div>
-          </Link>
+            </Link>
+            <UserCountBadge />
+          </div>
           <div className='flex gap-4 items-center relative text-sm'>
             <Link className='cursor-pointer' href='/about'>
               <div className='hidden md:flex hover:text-[#C4320A]'>Quiénes somos</div>

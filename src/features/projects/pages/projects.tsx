@@ -34,6 +34,7 @@ export function ProjectsPage() {
   const [department, setDepartment] = useState('');
   const [province, setProvince] = useState('');
   const [district, setDistrict] = useState('');
+  const [ioarrType, setIoarrType] = useState('');
   const [search, setSearch] = useState('');
   const [orderBy, setOrderBy] = useState('created_at_asc');
   const [, setLocation] = useLocation();
@@ -47,12 +48,13 @@ export function ProjectsPage() {
     hasNextPage,
     isError,
   } = useInfiniteQuery({
-    queryKey: ['projects_list', { department, province, district, search, orderBy }],
+    queryKey: ['projects_list', { department, province, district, ioarrType, search, orderBy }],
     queryFn: ({ pageParam = 0 }) =>
       fetchProjectsPaginated({
         department,
         province,
         district,
+        ioarrType,
         search,
         orderBy,
         page: pageParam,
@@ -153,6 +155,7 @@ export function ProjectsPage() {
                 department={department}
                 province={province}
                 district={district}
+                ioarrType={ioarrType}
                 onDepartmentChange={(val) => {
                   setDepartment(val);
                   setProvince('');
@@ -163,6 +166,7 @@ export function ProjectsPage() {
                   setDistrict('');
                 }}
                 onDistrictChange={setDistrict}
+                onIoarrTypeChange={setIoarrType}
               />
             </div>
             {/* Right side */}
@@ -213,6 +217,7 @@ type FetchProjectsPaginatedParams = {
   department?: string;
   province?: string;
   district?: string;
+  ioarrType?: string;
   search?: string;
   orderBy?: string;
   page: number;
@@ -222,6 +227,7 @@ async function fetchProjectsPaginated({
   department = '',
   district = '',
   province = '',
+  ioarrType = '',
   search = '',
   orderBy = 'created_at_desc',
   page = 0,
@@ -231,6 +237,7 @@ async function fetchProjectsPaginated({
     p_province: province || undefined,
     p_search: search || undefined,
     p_district: district || undefined,
+    p_ioarr_type: ioarrType || undefined,
     p_order_by: orderBy || undefined,
     p_page: page,
     p_page_size: PROJECTS_RESULTS_PER_PAGE,
