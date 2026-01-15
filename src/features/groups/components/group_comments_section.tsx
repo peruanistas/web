@@ -238,8 +238,14 @@ export function CommentItem({ comment, postId, onReply, replyingTo, onCommentAdd
 
     setIsVoting(true);
     try {
-      // TODO: Implement comment voting
-      console.log('Voting on comment:', comment.id, type);
+      const { error } = await db.rpc('vote_group_publication_comment', {
+        p_comment_id: comment.id,
+        p_vote_type: type,
+      });
+      if (error) throw error;
+      onCommentAdded?.(); // Refetch to get updated counts
+    } catch (error) {
+      console.error('Error voting on comment:', error);
     } finally {
       setIsVoting(false);
     }

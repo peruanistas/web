@@ -100,18 +100,17 @@ export function GroupFeed({ groupId, isMember }: GroupFeedProps) {
 
   const handleVote = async (postId: string, type: 'upvote' | 'downvote') => {
     if (!user) return;
-    console.log({ postId, type });
 
-    // try {
-    //   const { error } = await db.rpc('vote_for_post', {
-    //     post_id: postId,
-    //     vote_type: type,
-    //   });
-    //   if (error) throw error;
-    //   refetch(); // After voting, refetch to get updated counts
-    // } catch (error) {
-    //   console.error('Error voting:', error);
-    // }
+    try {
+      const { error } = await db.rpc('vote_group_publication', {
+        p_group_publication_id: postId,
+        p_vote_type: type,
+      });
+      if (error) throw error;
+      refetch(); // After voting, refetch to get updated counts
+    } catch (error) {
+      console.error('Error voting:', error);
+    }
   };
 
   if (isError) {

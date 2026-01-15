@@ -13,7 +13,7 @@ import {
   quotePlugin,
 } from '@mdxeditor/editor';
 import '@mdxeditor/editor/style.css';
-import "../styles/mdx-editor.css";
+import '../styles/mdx-editor.css';
 import { useRef, useState, useEffect, memo } from 'react';
 
 interface MDXEditorComponentProps {
