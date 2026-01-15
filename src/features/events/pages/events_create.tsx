@@ -1,5 +1,5 @@
 import { db } from '@db/client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { Layout } from '@common/components/layout';
 import { Header } from '@common/components/header';
@@ -135,10 +135,18 @@ export function EventsCreatePage() {
     required: ERROR_MESSAGES.IMAGE_REQUIRED,
   });
 
-  const handleDescriptionChange = (markdown: string) => {
-    setValue('description', markdown, { shouldValidate: true });
-    trigger('description');
-  };
+  // Debounce validation to avoid lag on every keystroke
+  const validationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleDescriptionChange = useCallback((markdown: string) => {
+    setValue('description', markdown, { shouldValidate: false });
+    if (validationTimeoutRef.current) {
+      clearTimeout(validationTimeoutRef.current);
+    }
+    validationTimeoutRef.current = setTimeout(() => {
+      trigger('description');
+    }, 300);
+  }, [setValue, trigger]);
   useEffect(() => {
     document.title = 'Crear Evento';
   }, []);

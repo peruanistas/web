@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { db } from '@db/client';
 import { useAuthStore } from '@auth/store/auth_store';
@@ -55,10 +55,21 @@ export function GroupPostCreateForm({ groupId, onPostCreated, onCancel }: GroupP
     maxImages: 5,
   });
 
-  const handleContentChange = (markdown: string) => {
-    setValue('content', markdown, { shouldValidate: true });
-    trigger('content');
-  };
+  // Debounce validation to avoid lag on every keystroke
+  const validationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleContentChange = useCallback((markdown: string) => {
+    // Update value immediately without validation
+    setValue('content', markdown, { shouldValidate: false });
+
+    // Debounce validation - only validate after user stops typing for 300ms
+    if (validationTimeoutRef.current) {
+      clearTimeout(validationTimeoutRef.current);
+    }
+    validationTimeoutRef.current = setTimeout(() => {
+      trigger('content');
+    }, 300);
+  }, [setValue, trigger]);
 
   const onSubmit = async (formData: GroupPostCreateFormData) => {
     if (!user) {

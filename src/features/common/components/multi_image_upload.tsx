@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { X, Upload, Image as ImageIcon } from 'lucide-react';
 
 interface MultiImageUploadProps {
@@ -66,7 +66,7 @@ export function MultiImageUpload({
     };
   }, []);
 
-  const validateFile = (file: File): string | null => {
+  const validateFile = useCallback((file: File): string | null => {
     if (!file.type.startsWith('image/')) {
       return 'El archivo debe ser una imagen válida';
     }
@@ -74,9 +74,9 @@ export function MultiImageUpload({
       return `El archivo es demasiado grande. Máximo ${Math.round(maxFileSize / (1024 * 1024))}MB`;
     }
     return null;
-  };
+  }, [maxFileSize]);
 
-  const handleFileSelect = (newFiles: File[]) => {
+  const handleFileSelect = useCallback((newFiles: File[]) => {
     const validFiles: File[] = [];
     const errors: string[] = [];
 
@@ -106,7 +106,43 @@ export function MultiImageUpload({
 
     const updatedFiles = [...files, ...filesToAdd];
     onChange(updatedFiles);
-  };
+  }, [files, maxImages, onChange, validateFile]);
+
+  // Handle paste from clipboard (Ctrl+V)
+  useEffect(() => {
+    const handlePaste = (e: ClipboardEvent) => {
+      if (disabled) return;
+
+      const clipboardItems = e.clipboardData?.items;
+      if (!clipboardItems) return;
+
+      const imageFiles: File[] = [];
+
+      for (const item of clipboardItems) {
+        if (item.type.startsWith('image/')) {
+          const file = item.getAsFile();
+          if (file) {
+            // Create a new file with a descriptive name since clipboard images have generic names
+            const extension = file.type.split('/')[1] || 'png';
+            const newFile = new File(
+              [file],
+              `pasted-image-${Date.now()}.${extension}`,
+              { type: file.type }
+            );
+            imageFiles.push(newFile);
+          }
+        }
+      }
+
+      if (imageFiles.length > 0) {
+        e.preventDefault();
+        handleFileSelect(imageFiles);
+      }
+    };
+
+    document.addEventListener('paste', handlePaste);
+    return () => document.removeEventListener('paste', handlePaste);
+  }, [disabled, handleFileSelect]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newFiles = Array.from(e.target.files || []);
