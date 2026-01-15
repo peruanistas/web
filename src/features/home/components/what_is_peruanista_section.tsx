@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useLayoutEffect, useState } from 'react';
 import { Button } from '@common/components/button';
 import { Link } from 'wouter';
 import { DonationSection } from '@common/components/donation_section';
@@ -9,7 +9,7 @@ export function WhatIsPeruanistaSection() {
   const [hidden, setHidden] = useState(false);
   const [showUndo, setShowUndo] = useState(false);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
     setHidden(stored === 'true');
   }, []);
