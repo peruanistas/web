@@ -29,6 +29,8 @@ const PROJECTS_ORDER_OPTIONS = [
 
 const PROJECTS_RESULTS_PER_PAGE = 6;
 
+type ioarr_type = 'investment' | 'optimization' | 'extension' | 'repair' | 'replacement';
+
 export function ProjectsPage() {
   useScrollReset();
   const [department, setDepartment] = useState('');
@@ -237,7 +239,7 @@ async function fetchProjectsPaginated({
     p_province: province || undefined,
     p_search: search || undefined,
     p_district: district || undefined,
-    p_ioarr_type: ioarrType || undefined,
+    p_ioarr_type: ioarrType as ioarr_type || undefined,
     p_order_by: orderBy || undefined,
     p_page: page,
     p_page_size: PROJECTS_RESULTS_PER_PAGE,
