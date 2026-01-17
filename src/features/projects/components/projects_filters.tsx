@@ -40,10 +40,10 @@ export function ProjectFilters({
   );
 
   return (
-    <div className='flex flex-wrap gap-4 z-10 bg-white pb-2'>
+    <div className='flex flex-wrap gap-1 md:gap-4 z-10 bg-white pb-1 md:pb-2'>
       {/* IOARR Type Filter - Featured */}
       {onIoarrTypeChange && (
-        <div className='mb-3'>
+        <div className='mb-2 md:mb-3 w-full md:w-auto'>
           <Select
             styles={{
               menu: base => ({ ...base, zIndex: 9999 }),
@@ -69,7 +69,7 @@ export function ProjectFilters({
         </div>
       )}
       {/* Location Filters */}
-      <div className='mb-3'>
+      <div className='mb-2 md:mb-3 w-full md:w-auto'>
         <Select
           styles={{
             menu: base => ({ ...base, zIndex: 9999 }),
@@ -81,7 +81,7 @@ export function ProjectFilters({
           placeholder='Todos los departamentos'
         />
       </div>
-      <div className='mb-3'>
+      <div className='mb-2 md:mb-3 w-full md:w-auto'>
         <Select
           styles={{
             menu: base => ({ ...base, zIndex: 9999 }),
@@ -94,7 +94,7 @@ export function ProjectFilters({
           placeholder='Todas las provincias'
         />
       </div>
-      <div className='mb-3'>
+      <div className='mb-2 md:mb-3 w-full md:w-auto'>
         <Select
           styles={{
             menu: base => ({ ...base, zIndex: 9999 }),
