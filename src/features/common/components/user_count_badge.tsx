@@ -65,10 +65,8 @@ export function UserCountBadge() {
     }
   }, []);
 
-  // Only fetch when visible
+  // Fetch user count and poll
   useEffect(() => {
-    if (!isVisible) return;
-
     isMountedRef.current = true;
 
     const fetchAndUpdate = async () => {
@@ -92,24 +90,43 @@ export function UserCountBadge() {
       isMountedRef.current = false;
       clearInterval(intervalId);
     };
-  }, [fetchUserCount, isVisible]);
+  }, [fetchUserCount]);
 
-  // Don't render if not visible, loading, or fetch failed
-  if (!isVisible || isLoading || userCount === null) {
+  // Don't render if loading or fetch failed
+  if (isLoading || userCount === null) {
     return null;
   }
 
-  return (
-    <div className="flex items-center gap-2 px-3 py-1.5 bg-red-50 border border-red-200 rounded-md">
-      {/* Live indicator dot */}
-      <span className="relative flex h-2 w-2">
-        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-        <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-      </span>
+  if (isVisible) {
+    // Desktop version
+    return (
+      <div className="flex items-center gap-2 px-3 py-1.5 bg-red-50 border border-red-200 rounded-md">
+        {/* Live indicator dot */}
+        <span className="relative flex h-2 w-2">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+        </span>
 
-      {/* Counter */}
-      <span className="text-sm text-red-700 whitespace-nowrap">
-        Somos{' '}
+        {/* Counter */}
+        <span className="text-sm text-red-700 whitespace-nowrap">
+          Somos{' '}
+          <SlotCounter
+            value={userCount}
+            autoAnimationStart={true}
+            duration={0.6}
+            charClassName="font-bold"
+            separatorClassName="font-bold"
+            useMonospaceWidth={false}
+          />
+          {' '}peruanistas
+        </span>
+      </div>
+    );
+  } else {
+    // Mobile version
+    return (
+      <div className="flex items-center gap-1 px-2 py-1 bg-red-50 border border-red-200 rounded-md">
+        <span>👥</span>
         <SlotCounter
           value={userCount}
           autoAnimationStart={true}
@@ -118,8 +135,8 @@ export function UserCountBadge() {
           separatorClassName="font-bold"
           useMonospaceWidth={false}
         />
-        {' '}peruanistas
-      </span>
-    </div>
-  );
+        <span className="hidden sm:inline text-sm text-red-700">peruanistas</span>
+      </div>
+    );
+  }
 }
