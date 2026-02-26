@@ -22,6 +22,7 @@ import { NewCreatePage } from '@publications/pages/publication_create';
 import { AboutPage } from '@about/pages/about';
 import { PublicationDetail } from '@publications/pages/publication_detail';
 import { onOpenUrl } from '@tauri-apps/plugin-deep-link';
+import { BookPage } from './features/book/book.tsx';
 
 import 'react-day-picker/style.css';
 import 'leaflet/dist/leaflet.css';
@@ -124,6 +125,8 @@ export function PeruanistasRouter() {
       <Route path='/proyectos/:id'>
         {({ id }) => <ProjectsDetailsPage id={id} />}
       </Route>
+
+      <Route path='/libro' component={BookPage} />
 
       <Route path='/megaproyectos' component={MegaprojectsPage} />
       <Route path='/megaproyectos/:id'>

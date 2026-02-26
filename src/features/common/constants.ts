@@ -5,6 +5,7 @@ export const TABS = [
   { name: 'Proyectos', regex: /^\/proyectos/, href: '/proyectos' },
   { name: 'Eventos', regex: /^\/eventos/, href: '/eventos' },
   { name: 'Noticias', regex: /\/$/, href: '/' },
+  { name: 'Libro', regex: /^\/libro/, href: '/libro'}
   // { name: 'Megaproyectos', regex: /^\/megaproyectos/, href: '/megaproyectos' },
   // { name: 'Ayllu', regex: /^\/ayllu/, href: '/ayllu' },
 ];
