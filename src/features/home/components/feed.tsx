@@ -24,6 +24,7 @@ import type { Tables } from '@db/schema';
 import { WhatIsPeruanistaSection } from './what_is_peruanista_section';
 import { WeatherFeedCard } from './weather_card';
 import { PodcastsSection } from './podcasts_section';
+import { Button } from '@common/components/button';
 
 const NEWS_RESULTS_PER_PAGE = 32;
 const PROJECTS_RESULTS_PER_PAGE = 3;
@@ -37,6 +38,7 @@ export function HomeFeed() {
   const [province, setProvince] = useState('');
   const [district, setDistrict] = useState('');
   const { user } = useAuthStore();
+  const [isInfiniteScrollEnabled, setIsInfiniteScrollEnabled] = useState(false);
 
   const {
     data: contentPages,
@@ -68,11 +70,11 @@ export function HomeFeed() {
   const handleObserver = useCallback(
     (entries: IntersectionObserverEntry[]) => {
       const [entry] = entries;
-      if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+      if (entry.isIntersecting && hasNextPage && !isFetchingNextPage && isInfiniteScrollEnabled) {
         fetchNextPage();
       }
     },
-    [fetchNextPage, hasNextPage, isFetchingNextPage]
+    [fetchNextPage, hasNextPage, isFetchingNextPage, isInfiniteScrollEnabled]
   );
 
   useEffect(() => {
@@ -107,12 +109,17 @@ export function HomeFeed() {
               onDepartmentChange={code => {
                 setDepartment(code);
                 setDistrict('');
+                setIsInfiniteScrollEnabled(false);
               }}
               onProvinceChange={(val) => {
                 setProvince(val);
                 setDistrict('');
+                setIsInfiniteScrollEnabled(false);
               }}
-              onDistrictChange={setDistrict} />
+              onDistrictChange={(val) => {
+                setDistrict(val);
+                setIsInfiniteScrollEnabled(false);
+              }} />
           </div>
           <div className='shrink-0'>
             <CreateButton onClick={() => setLocation('/feed/crear')}>
@@ -254,6 +261,19 @@ export function HomeFeed() {
           </>
         )
       }
+
+      {!isLoading && !isFetchingNextPage && !isInfiniteScrollEnabled && (contentPages?.pages.length ?? 0) > 0 && (
+        <div className="flex justify-center w-full py-8">
+          <Button 
+            onClick={() => {
+              setIsInfiniteScrollEnabled(true);
+              fetchNextPage();
+            }}
+          >
+            Ver más
+          </Button>
+        </div>
+      )}
 
       {/* Intersection observer target */}
       <div ref={observerTarget} style={{ height: 1 }} />
