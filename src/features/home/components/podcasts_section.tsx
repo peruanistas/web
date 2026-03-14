@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { Headphones, ExternalLink } from 'lucide-react';
 import ContentLoader from 'react-content-loader';
+import { ContentLayout } from '@common/components/content_layout';
 
 // Types matching the edge function response
 interface VideoData {
@@ -187,7 +188,7 @@ export function PodcastsSection() {
 
   return (
     <section className="w-full py-6 mb-6 bg-gradient-to-r from-purple-50 via-white to-purple-50 border-y border-purple-100">
-      <div className="max-w-[1400px] mx-auto px-4">
+      <ContentLayout variant="wide" className="m-auto">
         {/* Header */}
         <div className="flex items-center gap-3 mb-4">
           <div className="p-2 bg-purple-100 rounded-lg">
@@ -225,7 +226,7 @@ export function PodcastsSection() {
         <p className="text-xs text-gray-400 text-center mt-2 md:hidden">
           Desliza para ver más →
         </p>
-      </div>
+      </ContentLayout>
 
       <style>{`
         .scrollbar-hide {

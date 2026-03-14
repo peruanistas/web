@@ -11,7 +11,10 @@ import { useLocation } from 'wouter';
 import { CreateButton } from '@common/components/create_button';
 import type { GroupPreview } from '@groups/types';
 import { GroupCard } from '@groups/components/group_card';
+import type { EventPreview } from '@events/types';
+import { EventCard, EventCardSkeleton } from '@events/components/event_card';
 import { BsFillPeopleFill } from 'react-icons/bs';
+import { BsCalendarEvent } from 'react-icons/bs';
 import { MdHomeWork } from 'react-icons/md';
 import { useScrollReset } from '@common/hooks/useScrollReset';
 import { ProjectFilters } from '@projects/components/projects_filters';
@@ -24,7 +27,8 @@ import { PodcastsSection } from './podcasts_section';
 
 const NEWS_RESULTS_PER_PAGE = 32;
 const PROJECTS_RESULTS_PER_PAGE = 3;
-const GROUPS_RESULTS_PER_PAGE = 6;
+const GROUPS_RESULTS_PER_PAGE = 3;
+const EVENTS_RESULTS_PER_PAGE = 3;
 
 export function HomeFeed() {
   useScrollReset();
@@ -48,6 +52,7 @@ export function HomeFeed() {
         // [],
         fetchMoreProjects({ page: pageParam, department, district }),
         fetchMoreGroups({ page: pageParam, department, district }),
+        fetchMoreEvents({ page: pageParam, department, district }),
       ] as const);
       return pages;
     },
@@ -118,16 +123,16 @@ export function HomeFeed() {
 
       </ContentLayout>
       {
-        contentPages?.pages.map(([publications, projects, groups], i) => (
+        contentPages?.pages.map(([publications, projects, groups, events], i) => (
           <React.Fragment key={i}>
             <ContentLayout variant='wide'>
               <section className='w-full publications-grid'>
                 {
                   publications.map((publication, ip) => {
                     if (i === 0 && ip === 3) {
-                      return <WeatherFeedCard />;
+                      return <WeatherFeedCard key={`weather-${i}-${ip}`} />;
                     }
-                    return <PublicationCard key={ip} {...publication} />;
+                    return <PublicationCard key={publication.id || ip} {...publication} />;
                   })
                 }
               </section>
@@ -135,7 +140,7 @@ export function HomeFeed() {
             {
               projects.length > 0 && (
                 <section className='w-full bg-gray-200 py-6 mt-4' style={{
-                  paddingBottom: groups.length > 0 ? 0 : undefined,
+                  paddingBottom: (groups.length > 0 || events.length > 0) ? 0 : undefined,
                 }}>
                   <ContentLayout variant='wide' className='m-auto'>
                     <div className='mb-3'>
@@ -146,8 +151,8 @@ export function HomeFeed() {
                     </div>
                     <div className='flex projects-grid'>
                       {
-                        projects.map((project, i) => (
-                          <ProjectCard key={i} {...project} />
+                        projects.map((project, pIdx) => (
+                          <ProjectCard key={project.id || pIdx} {...project} />
                         ))
                       }
                     </div>
@@ -157,7 +162,9 @@ export function HomeFeed() {
             }
             {
               groups.length > 0 && (
-                <section className='w-full bg-gray-200 py-6 mb-4 mt-0'>
+                <section className={`w-full bg-gray-200 py-6 ${projects.length > 0 ? 'mt-0' : 'mt-4'} ${events.length > 0 ? 'mb-0' : 'mb-4'}`} style={{
+                  paddingBottom: events.length > 0 ? 0 : undefined,
+                }}>
                   <ContentLayout variant='wide' className='m-auto'>
                     <div className='mb-3'>
                       <SectionSubtitle
@@ -167,8 +174,31 @@ export function HomeFeed() {
                     </div>
                     <div className='flex projects-grid'>
                       {
-                        groups.map((group, i) => (
-                          <GroupCard key={i} {...group} />
+                        groups.map((group, gIdx) => (
+                          <GroupCard key={group.id || gIdx} {...group} />
+                        ))
+                      }
+                    </div>
+                  </ContentLayout>
+                </section>
+              )
+            }
+            {
+              events.length > 0 && (
+                <section className={`w-full bg-gray-200 py-6 mb-4 ${
+                  (projects.length > 0 || groups.length > 0) ? 'mt-0' : 'mt-4'
+                }`}>                
+                  <ContentLayout variant='wide' className='m-auto'>
+                    <div className='mb-3'>
+                      <SectionSubtitle
+                        title='Eventos'
+                        icon={<BsCalendarEvent size={24} />}
+                      />
+                    </div>
+                    <div className='flex projects-grid'>
+                      {
+                        events.map((event, eIdx) => (
+                          <EventCard key={event.id || eIdx} {...event} />
                         ))
                       }
                     </div>
@@ -190,17 +220,38 @@ export function HomeFeed() {
 
       {
         (isFetchingNextPage || isLoading || ((contentPages?.pages.length ?? 0) === 0)) && (
-          <ContentLayout variant='wide'>
-            <section className='w-full publications-grid'>
-              {
-                isFetchingNextPage || isLoading
-                  ? Array.from({ length: 9 }).map((_, i) => (
-                    <PublicationCardSkeleton key={`skeleton-${i}`} />
-                  ))
-                  : null
-              }
-            </section>
-          </ContentLayout>
+          <>
+            <ContentLayout variant='wide'>
+              <section className='w-full publications-grid'>
+                {
+                  isFetchingNextPage || isLoading
+                    ? Array.from({ length: 9 }).map((_, i) => (
+                      <PublicationCardSkeleton key={`skeleton-${i}`} />
+                    ))
+                    : null
+                }
+              </section>
+            </ContentLayout>
+            {
+              (isFetchingNextPage || isLoading) && (
+                <section className='w-full bg-gray-200 py-6 mt-4'>
+                  <ContentLayout variant='wide' className='m-auto'>
+                    <div className='mb-3'>
+                      <SectionSubtitle
+                        title='Eventos de la comunidad'
+                        icon={<BsCalendarEvent size={24} />}
+                      />
+                    </div>
+                    <div className='flex projects-grid'>
+                      {Array.from({ length: EVENTS_RESULTS_PER_PAGE }).map((_, i) => (
+                        <EventCardSkeleton key={`event-skeleton-${i}`} />
+                      ))}
+                    </div>
+                  </ContentLayout>
+                </section>
+              )
+            }
+          </>
         )
       }
 
@@ -269,6 +320,32 @@ async function fetchMorePublications({ page }: FetchPaginationParams): Promise<R
   }
 
   return data;
+}
+
+async function fetchMoreEvents({ page, department, district }: FetchPaginationParams): Promise<EventPreview[]> {
+  const offset = page * EVENTS_RESULTS_PER_PAGE;
+
+  let query = db
+    .from('events')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .range(offset, offset + EVENTS_RESULTS_PER_PAGE - 1);
+
+  if (department) {
+    query = query.eq('geo_department', department);
+  }
+  if (district) {
+    query = query.eq('geo_district', district);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error('Error fetching events:', error);
+    return [];
+  }
+
+  return data || [];
 }
 
 async function fetchMoreProjects({ page, department, district }: FetchPaginationParams): Promise<ProjectPreview[]> {
