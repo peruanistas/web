@@ -197,7 +197,7 @@ async function fetchEventsPaginated({
 
   let query = db
     .from('events')
-    .select('id, title, image_url, created_at, geo_department, geo_district, attendees, event_date');
+    .select('id, active, content, author_id, impression_count, title, image_url, created_at, geo_department, geo_district, attendees, event_date, updated_at, published_at, visibility');
 
   if (department) {
     query = query.eq('geo_department', department);
@@ -252,5 +252,6 @@ async function fetchEventsPaginated({
   if (response.error) {
     throw new Error(response.error.message);
   }
+
   return response.data;
 }
