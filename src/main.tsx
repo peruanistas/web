@@ -22,8 +22,7 @@ import { NewCreatePage } from '@publications/pages/publication_create';
 import { AboutPage } from '@about/pages/about';
 import { PublicationDetail } from '@publications/pages/publication_detail';
 import { onOpenUrl } from '@tauri-apps/plugin-deep-link';
-import { BookPage } from './features/book/book.tsx';
-
+// import { BookPage } from './features/book/book.tsx';
 import 'react-day-picker/style.css';
 import 'leaflet/dist/leaflet.css';
 import './index.css';
@@ -35,7 +34,7 @@ import { GroupsCreatePage } from '@groups/pages/groups_create';
 import { GroupDetail } from '@groups/pages/group_detail';
 import { ProfilePage } from '@profile/pages/profile';
 import { UserProfileDetail } from '@profile/pages/user_profile';
-import { AylluPage } from './features/ayllu/pages/ayllu';
+// import { AylluPage } from './features/ayllu/pages/ayllu';
 import { DeleteAccountPage } from '@auth/pages/delete_account';
 // import { DonationWindow } from '@common/components/donation_window';
 import { useAuthStore } from '@auth/store/auth_store';
@@ -125,15 +124,19 @@ export function PeruanistasRouter() {
       <Route path='/proyectos/:id'>
         {({ id }) => <ProjectsDetailsPage id={id} />}
       </Route>
-
+      
+      {/*
       <Route path='/libro' component={BookPage} />
+      */}
 
       <Route path='/megaproyectos' component={MegaprojectsPage} />
       <Route path='/megaproyectos/:id'>
         {({ id }) => <MegaprojectsDetailsPage id={id} />}
       </Route>
 
+      {/*
       <Route path='/ayllu' component={AylluPage} />
+      */}
 
       <Route path='/borrar-cuenta' component={DeleteAccountPage} />
 
